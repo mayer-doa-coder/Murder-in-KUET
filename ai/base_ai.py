@@ -14,15 +14,30 @@ class BaseAI:
     every call and returns structured decisions that the player executes.
     """
 
-    def choose_move(self, game_state):
+    def choose_move(self, game_state, valid_moves):
         """
-        Choose a KUET location to move to.
+        Choose which KUET location to move to this turn.
+
+        The engine has already rolled the dice and computed the reachable
+        locations via BFS, so the agent just picks from the provided list.
+        All three pieces of information an agent needs are available:
+
+          * Current location  : game_state.get_current_player().position
+          * Dice roll (2d6)   : game_state.last_dice_roll  (DiceRoll namedtuple)
+          * Reachable rooms   : valid_moves  (pre-filtered list of str)
+
+        In Cluedo you can only SUGGEST the room you are in, so choosing
+        a room that is still a possible murder location is usually best.
+        An agent may return None to stay in the current room (e.g. to
+        suggest there a second time) — valid in Cluedo if already inside.
 
         Args:
-            game_state (GameState): Current game state.
+            game_state (GameState): Full current game state.
+            valid_moves (list[str]): Locations reachable this turn
+                                     given the dice roll.
 
         Returns:
-            str: Name of the destination location, or None to stay put.
+            str | None: Chosen destination, or None to stay put.
         """
         raise NotImplementedError
 

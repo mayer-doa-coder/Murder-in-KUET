@@ -22,14 +22,24 @@ class RandomAI(BaseAI):
     def __init__(self):
         self.turn_count = 0
 
-    def choose_move(self, game_state):
+    def choose_move(self, game_state, valid_moves):
         """
-        Move to a random KUET location (always moves every turn).
+        Move to a random room from the pre-computed reachable set.
+
+        The engine has already applied the dice roll and corridor weights to
+        produce valid_moves (which may also include a secret passage option).
+        RandomAI picks uniformly at random.
+
+        In Cluedo it is legal to roll a number too low to reach any adjacent
+        room — in that case the player stays put and may still suggest in their
+        current room.  Returning None signals "stay in current room".
 
         Returns:
-            str: A randomly chosen location name.
+            str | None: A randomly chosen reachable room, or None to stay put.
         """
-        return random.choice(locations)
+        if not valid_moves:
+            return None  # dice too low to exit — stay and suggest here
+        return random.choice(valid_moves)
 
     def make_suggestion(self, game_state):
         """
