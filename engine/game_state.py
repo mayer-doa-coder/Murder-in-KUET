@@ -7,6 +7,7 @@ This module maintains game status, player states, solution, and game progress.
 
 import random
 from engine.cards import suspects, weapons, locations, create_deck
+from engine.board import Board
 
 
 class GameState:
@@ -18,6 +19,9 @@ class GameState:
         self.deck = []
         self.game_over = False
         self.winner = None
+        self.board = Board()
+        # Set at the start of every turn so any agent can inspect it.
+        self.last_dice_roll = None
 
     def setup_game(self):
         """
