@@ -1,18 +1,87 @@
-"""Main entry point for AI comparison simulations."""
+"""Main entry point for AI performance comparison simulations."""
 
-from ai.minimax_ai import GameState as MinimaxSearchState
+import random
+from time import perf_counter
+
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.minimax_ai import MinimaxAI
+from ai.negamax_ai import NegamaxAI
 from engine.game_state import GameState
 from engine.player import AIPlayer
 
 
-def _create_comparison_players(depth: int = 2) -> list[AIPlayer]:
-    """Create a fair mixed-agent lineup for comparison runs."""
+class InstrumentedAI:
+    """Thin wrapper that tracks AI decision timing and counts per agent."""
+
+    def __init__(self, agent, metrics: dict[str, dict[str, float]]) -> None:
+        self._agent = agent
+        self._metrics = metrics
+        self._name = type(agent).__name__
+
+    def _measure(self, method_name: str, *args, **kwargs):
+        start_time = perf_counter()
+        method = getattr(self._agent, method_name)
+        result = method(*args, **kwargs)
+        elapsed = perf_counter() - start_time
+
+        self._metrics[self._name]["decision_time"] += elapsed
+        self._metrics[self._name]["decisions"] += 1
+        if method_name == "choose_move":
+            self._metrics[self._name]["total_moves"] += 1
+
+        return result
+
+    def choose_move(self, state, valid_moves):
+        return self._measure("choose_move", state, valid_moves)
+
+    def make_suggestion(self, state):
+        return self._measure("make_suggestion", state)
+
+    def decide_accusation(self, state):
+        return self._measure("decide_accusation", state)
+
+    def update_from_clue(self, card) -> None:
+        if hasattr(self._agent, "update_from_clue"):
+            self._agent.update_from_clue(card)
+
+    def handle_no_reveal(self, suggestion) -> None:
+        if hasattr(self._agent, "handle_no_reveal"):
+            self._agent.handle_no_reveal(suggestion)
+
+
+def _create_metrics() -> dict[str, dict[str, float]]:
+    """Create metrics structure for all AI variants."""
+    return {
+        "MinimaxAI": {
+            "wins": 0,
+            "total_moves": 0,
+            "decision_time": 0.0,
+            "decisions": 0,
+        },
+        "ExpectiminimaxAI": {
+            "wins": 0,
+            "total_moves": 0,
+            "decision_time": 0.0,
+            "decisions": 0,
+        },
+        "NegamaxAI": {
+            "wins": 0,
+            "total_moves": 0,
+            "decision_time": 0.0,
+            "decisions": 0,
+        },
+    }
+
+
+def _create_comparison_players(
+    metrics: dict[str, dict[str, float]],
+    depth: int = 2,
+) -> list[AIPlayer]:
+    """Create fair mixed-agent lineup for comparison runs."""
     players = [
-        AIPlayer("AI Player 1", MinimaxAI(depth=depth)),
-        AIPlayer("AI Player 2", ExpectiminimaxAI(depth=depth)),
-        AIPlayer("AI Player 3", MinimaxAI(depth=depth)),
+        AIPlayer("AI Player 1", InstrumentedAI(MinimaxAI(depth=depth), metrics)),
+        AIPlayer("AI Player 2", InstrumentedAI(ExpectiminimaxAI(depth=depth), metrics)),
+        AIPlayer("AI Player 3", InstrumentedAI(NegamaxAI(depth=depth), metrics)),
     ]
 
     for player in players:
@@ -23,86 +92,65 @@ def _create_comparison_players(depth: int = 2) -> list[AIPlayer]:
     return players
 
 
-def _run_ai_comparison_simulation() -> None:
-    """Run mixed Minimax vs Expectiminimax integration and comparison tests."""
-    print("=" * 60)
-    print("   Murder in KUET - Minimax vs Expectiminimax Comparison")
-    print("=" * 60)
+def _run_ai_performance_comparison() -> None:
+    """Run multi-game AI performance comparison with metrics reporting."""
+    num_games = 10
+    max_turns = 250
+    depth = 2
+    metrics = _create_metrics()
+    no_winner_games = 0
+    game_runtime_seconds = 0.0
 
-    # Primary visible run with detailed logs.
-    game = GameState()
-    players = _create_comparison_players(depth=2)
-    for player in players:
-        game.add_player(player)
+    print("=" * 68)
+    print(" Murder in KUET - Minimax vs Expectiminimax vs Negamax Metrics")
+    print("=" * 68)
 
-    game.setup_game()
+    for i in range(num_games):
+        print(f"\n=== Game {i + 1} ===")
 
-    print("Players:", [f"{p.name}:{type(p.ai_agent).__name__}" for p in game.players])
-    print("All players AI:", all(p.is_ai and p.ai_agent is not None for p in game.players))
+        # Deterministic per-game seed keeps runs reproducible while varied.
+        random.seed(2026 + i)
 
-    # Edge case 1: no valid moves fallback should be safe for all agents.
-    empty_move = players[0].ai_agent.choose_move(game, [])
-    assert empty_move is None, "AI should return None when no valid moves exist"
-    empty_move_expecti = players[1].ai_agent.choose_move(game, [])
-    assert empty_move_expecti is None, "Expectiminimax should return None when no valid moves exist"
+        game = GameState()
+        players = _create_comparison_players(metrics, depth=depth)
+        for player in players:
+            game.add_player(player)
+        game.setup_game()
 
-    # Edge case 2: single remaining possibility in all categories should accuse.
-    solved_state = MinimaxSearchState(
-        players=[],
-        current_player_index=0,
-        notebook=None,
-        possible_suspects={"Only Suspect"},
-        possible_weapons={"Only Weapon"},
-        possible_locations={"Only Location"},
-        current_location="Only Location",
-    )
-    assert players[0].ai_agent.decide_accusation(solved_state) is True
-    assert players[1].ai_agent.decide_accusation(solved_state) is True
+        run_start = perf_counter()
+        winner = game.run_game(max_turns=max_turns, verbose=(i == 0))
+        game_runtime_seconds += perf_counter() - run_start
 
-    # Edge case 3: all eliminated safety should not crash.
-    safety_game = GameState()
-    safety_players = [
-        AIPlayer("Safety A", MinimaxAI(depth=1)),
-        AIPlayer("Safety B", MinimaxAI(depth=1)),
-    ]
-    for p in safety_players:
-        safety_game.add_player(p)
-        p.active = False
-    assert safety_game.check_end_conditions() is True
-    assert safety_game.game_over is True
-
-    winner = game.run_game(max_turns=250, verbose=True)
-
-    # Batch comparison observation across multiple simulations.
-    comparison_runs = 8
-    wins_by_agent: dict[str, int] = {}
-    for _ in range(comparison_runs):
-        sim_game = GameState()
-        sim_players = _create_comparison_players(depth=2)
-        for p in sim_players:
-            sim_game.add_player(p)
-        sim_game.setup_game()
-
-        sim_winner = sim_game.run_game(max_turns=250, verbose=False)
-        if sim_winner is None:
-            wins_by_agent["NoWinner"] = wins_by_agent.get("NoWinner", 0) + 1
+        if winner is None:
+            no_winner_games += 1
+            print("Winner: None (turn cap reached)")
         else:
-            agent_name = type(sim_winner.ai_agent).__name__
-            wins_by_agent[agent_name] = wins_by_agent.get(agent_name, 0) + 1
+            winner_name = type(winner.ai_agent._agent).__name__
+            metrics[winner_name]["wins"] += 1
+            print(f"Winner: {winner.name} ({winner_name})")
 
-    print("\n" + "=" * 60)
-    if winner is not None:
-        print(f"Winner: {winner.name} ({type(winner.ai_agent).__name__})")
-    else:
-        print("Winner: None (turn cap reached)")
-    print("Game Over:", game.game_over)
-    print("Current Turn Index:", game.current_turn)
-    print("Comparison Wins:", wins_by_agent)
-    print("=" * 60)
+    print("\n" + "=" * 68)
+    print("Final Performance Summary")
+    print("=" * 68)
+
+    for ai_name, data in metrics.items():
+        avg_moves = data["total_moves"] / num_games
+        avg_time = data["decision_time"] / max(data["decisions"], 1)
+        win_rate = (data["wins"] / num_games) * 100.0
+
+        print(f"\n{ai_name}:")
+        print(f"Wins: {int(data['wins'])}")
+        print(f"Win Rate: {win_rate:.1f}%")
+        print(f"Average Moves: {avg_moves:.2f}")
+        print(f"Average Decision Time: {avg_time:.5f} sec")
+
+    print(f"\nNo-Winner Games: {no_winner_games}")
+    print(f"Average Game Runtime: {game_runtime_seconds / num_games:.4f} sec")
+    print("=" * 68)
 
 
 def main() -> None:
-    _run_ai_comparison_simulation()
+    _run_ai_performance_comparison()
 
 
 if __name__ == "__main__":
