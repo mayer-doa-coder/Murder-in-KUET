@@ -97,12 +97,17 @@ class Player:
         Find and return one card in hand that matches the suggestion,
         to disprove it. Returns None if no matching card is held.
         """
+        if hasattr(suggestion, "suspect"):
+            suspect = suggestion.suspect
+            weapon = suggestion.weapon
+            location = suggestion.location
+        else:
+            suspect = suggestion["suspect"]
+            weapon = suggestion["weapon"]
+            location = suggestion["location"]
+
         for card in self.cards:
-            if card.name in (
-                suggestion["suspect"],
-                suggestion["weapon"],
-                suggestion["location"],
-            ):
+            if card.name in (suspect, weapon, location):
                 return card
         return None
 
@@ -146,19 +151,17 @@ class Player:
                     move = None
 
             game_state.current_location = self.position
-            suggestion = self.ai_agent.make_suggestion(game_state)
-            if isinstance(suggestion, tuple) and len(suggestion) == 3:
-                suggestion = {
-                    "suspect": suggestion[0],
-                    "weapon": suggestion[1],
-                    "location": suggestion[2],
-                }
+            suspect, weapon, location = self.ai_agent.make_suggestion(game_state)
+            suggestion = self.make_suggestion(suspect, weapon, location)
+            revealer, revealed_card = game_state.process_suggestion(self, suggestion)
             accusation = self.ai_agent.make_accusation(game_state)
 
             return {
                 "dice": dice,
                 "move": self.position,
                 "suggestion": suggestion,
+                "revealer": revealer.name if revealer else None,
+                "revealed_card": revealed_card.name if revealed_card else None,
                 "accusation": accusation,
             }
 

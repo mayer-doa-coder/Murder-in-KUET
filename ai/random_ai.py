@@ -94,6 +94,20 @@ class RandomAI(BaseAI):
         """
         pass
 
+    def update_from_clue(self, card) -> None:
+        """Consume a revealed clue card.
+
+        RandomAI intentionally ignores evidence to stay a pure baseline.
+        """
+        pass
+
+    def handle_no_reveal(self, suggestion) -> None:
+        """Consume a no-reveal signal from the suggestion phase.
+
+        RandomAI intentionally ignores this deduction signal.
+        """
+        pass
+
 
 if __name__ == "__main__":
     state = SimpleNamespace(

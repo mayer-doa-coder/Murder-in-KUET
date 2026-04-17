@@ -109,29 +109,79 @@ Each active player turn follows:
 - API scaffold: `api/server.py`
 - CLI currently mixes human + AI; this project target is AI-only simulation.
 
-## 6. Target AI Architecture
+## 6. Search-Based AI Architecture (Primary)
 
-Implement AI policies as interchangeable agents using a common interface.
+The AI system now follows a strict search-based architecture for competitive AI-vs-AI play.
 
-### 6.1 Agent Contract
+Core characteristics:
 
-Agents should expose:
+- Adversarial search algorithms drive move selection.
+- Forward-looking decision-making is required (multi-ply reasoning).
+- Multi-agent competitive reasoning is the default model.
 
-- `choose_move(game_state, valid_moves)`
-- `make_suggestion(game_state)`
-- `make_accusation(game_state)`
-- `update_knowledge(suggestion, player_who_showed, card_shown=None)`
+Legacy and baseline policies (Random, Rule-Based, Bayesian) remain in the codebase for benchmarking and ablation studies, but the primary AI track is now the three search agents below.
 
-`ai/base_ai.py` is the contract anchor.
+### 6.1 AI Role Definitions
 
-### 6.2 Policy Families to Support
+AI-1: Minimax
 
-1. Random AI (baseline)
-2. Rule-based heuristic AI
-3. Minimax-style planning AI (where computationally feasible)
-4. Bayesian / probabilistic deduction AI
+- Deterministic adversarial search.
+- Assumes opponents play optimally.
+- Used as the primary reference implementation for exact game-tree reasoning.
 
-All advanced policies should degrade gracefully when information is sparse.
+AI-2: Expectiminimax
+
+- Extends adversarial search with chance nodes.
+- Handles uncertainty through probability-weighted outcomes.
+- Used when stochastic game events (for example dice outcomes or uncertain reveals) must be modeled explicitly.
+
+AI-3: Negamax with Alpha-Beta Pruning
+
+- Algebraic reformulation of minimax with pruning optimization.
+- Reduces effective branching cost while preserving optimal play under the same evaluation function.
+- Default choice for deeper search and scalable simulation runs.
+
+### 6.2 Unified Decision Interface (Mandatory)
+
+All search agents must route final decision selection through a unified API:
+
+- `choose_action(state)`
+
+Rules:
+
+- No agent may bypass this interface for turn-critical choices.
+- Adapter layers may map engine events (move/suggest/accuse) into action objects, but search selection must happen through `choose_action(state)`.
+- No hardcoded, one-off decision branches inside agent classes.
+
+### 6.3 Game State Requirements for Search
+
+Search-compatible state objects must include, at minimum:
+
+- player positions
+- known cards and unknown cards
+- notebook data (possible/ruled-out cards)
+- current turn metadata
+- active player set
+
+State rules:
+
+- State must be immutable during evaluation.
+- State must be cloneable for branching simulations.
+- Transition functions must produce new state snapshots, never in-place mutations inside tree expansion.
+
+### 6.4 Shared Evaluation Function (Mandatory)
+
+All three search agents must use a shared evaluation function contract.
+
+Scoring must include:
+
+- information gain
+- probability of true solution convergence
+- opponent advantage / threat level
+
+Implementation rule:
+
+- Agent-specific search logic may differ, but terminal and heuristic value computation must flow through a shared evaluator module to keep comparisons fair.
 
 ## 7. Knowledge and Inference Design
 
@@ -243,12 +293,13 @@ FastAPI endpoints should prioritize programmatic control of simulations:
 
 ## 12. Near-Term Implementation Roadmap
 
-1. Complete `RuleBasedAI` using `KnowledgeBase` and `board_utils` scoring.
-2. Implement full suggestion resolution in engine flow (including turn order reveal logic).
-3. Add AI-only game loop manager for end-to-end matches.
-4. Build simulation runner with reproducible seeds and aggregated metrics.
-5. Add Bayesian agent prototype and compare against baseline agents.
-6. Add test suite for engine invariants and AI policy behavior.
+1. Complete and stabilize current baseline loop modules (suggestion, reveal, notebook, accusation readiness).
+2. Preserve baseline agents (`RandomAI`, rule-based, Bayesian track) as benchmark controls.
+3. Day-5: implement AI-1 Minimax with `choose_action(state)` integration.
+4. Day-6: implement AI-2 Expectiminimax with explicit chance-node modeling.
+5. Day-7: implement AI-3 Negamax with Alpha-Beta pruning and depth-scaling tests.
+6. Unify all three search agents under one shared evaluator and immutable cloneable state transitions.
+7. Run cross-agent tournament benchmarks and publish comparative metrics.
 
 ## 13. Non-Goals for Now
 

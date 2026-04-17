@@ -10,6 +10,7 @@ turn; AI players resolve their turn automatically and print a summary.
 from engine.game_state import GameState
 from engine.player import Player, AIPlayer
 from engine.dice import roll_dice
+from engine.cards import suspects, weapons
 from ai.random_ai import RandomAI
 from ai.board_utils import get_possible_moves
 
@@ -37,6 +38,14 @@ class GameCLI:
         print("\n" + "=" * 52)
         print("        MURDER IN KUET  —  Board Test")
         print("=" * 52)
+
+        # Session metadata for manual gameplay test reports.
+        test_gameplay_time = input("Test gameplay time: ").strip() or "N/A"
+        tester_name = input("Tester name: ").strip() or "N/A"
+        print(self.SEPARATOR)
+        print(f"  Tester             : {tester_name}")
+        print(f"  Test gameplay time : {test_gameplay_time}")
+        print(self.SEPARATOR)
 
         # Register players
         human = Player("Detective Hasib", is_ai=False)
@@ -118,6 +127,26 @@ class GameCLI:
             player.try_move(chosen, valid_moves)
             print(f"    {player.name} moves to {player.position}.")
 
+        # Suggestion test flow for CLI gameplay verification.
+        if player.position is None:
+            print("    Suggestion phase skipped: player has no location.")
+            return
+
+        print("\n    --- Suggestion Phase ---")
+        suggestion = self._collect_human_suggestion(player)
+        print(f"{player.name} suggests: {suggestion}")
+        revealer, card = self.game_state.process_suggestion(
+            player, suggestion, verbose=False
+        )
+
+        if card:
+            print(f"{revealer.name} revealed a card!")
+        else:
+            print("No one could disprove!")
+
+        print("Known:", player.notebook.known_cards)
+        print("Remaining suspects:", player.notebook.possible_suspects)
+
     def _run_ai_turn(self, ai_player):
         """Run an AI turn and print a human-readable summary."""
         print(f">>> {ai_player.name}'s turn  (AI)")
@@ -131,10 +160,27 @@ class GameCLI:
 
         s = result["suggestion"]
         if s:
+            if hasattr(s, "suspect"):
+                print(
+                    f"    Suggests         : {s.suspect} in {s.location}"
+                    f" with {s.weapon}"
+                )
+            else:
+                print(
+                    f"    Suggests         : {s['suspect']} in {s['location']}"
+                    f" with {s['weapon']}"
+                )
+
+        if result.get("revealed_card"):
             print(
-                f"    Suggests         : {s['suspect']} in {s['location']}"
-                f" with {s['weapon']}"
+                f"    Reveal           : {result.get('revealer')} revealed "
+                f"{result.get('revealed_card')}"
             )
+        else:
+            print("    Reveal           : No card revealed")
+
+        print("Known:", ai_player.notebook.known_cards)
+        print("Remaining suspects:", ai_player.notebook.possible_suspects)
 
     # ------------------------------------------------------------------
     # Input handling
@@ -173,6 +219,30 @@ class GameCLI:
                 f"    '{raw}' is not reachable this turn. "
                 f"Choose from: {', '.join(valid_moves)}"
             )
+
+    def _prompt_valid_choice(self, prompt: str, allowed_values: list[str]) -> str:
+        """Prompt until the user enters a valid value from allowed_values."""
+        canonical = {value.lower(): value for value in allowed_values}
+
+        while True:
+            raw = input(prompt).strip()
+            if not raw:
+                print("Input cannot be empty.")
+                continue
+
+            value = canonical.get(raw.lower())
+            if value:
+                return value
+
+            print(f"Invalid choice. Expected one of: {', '.join(allowed_values)}")
+
+    def _collect_human_suggestion(self, player):
+        """Collect and validate a human player's suggestion from CLI input."""
+        print("Make suggestion:")
+        suspect = self._prompt_valid_choice("Suspect: ", suspects)
+        weapon = self._prompt_valid_choice("Weapon: ", weapons)
+        location = player.position
+        return player.make_suggestion(suspect, weapon, location)
 
     def display_menu(self):
         """Display the available actions for the current player."""

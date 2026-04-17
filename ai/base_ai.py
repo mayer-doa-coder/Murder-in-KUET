@@ -78,3 +78,19 @@ class BaseAI:
             card_shown (str | None): Card shown to this AI, or None.
         """
         # Agents without a knowledge base can ignore this.
+
+    def update_from_clue(self, card) -> None:
+        """Update AI state from a revealed card.
+
+        Args:
+            card: Revealed card object, or None.
+        """
+        # Default no-op for simple agents.
+
+    def handle_no_reveal(self, suggestion) -> None:
+        """Handle the case where no opponent can reveal any card.
+
+        Args:
+            suggestion: Suggestion object or equivalent representation.
+        """
+        # Default no-op for simple agents.

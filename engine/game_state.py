@@ -8,6 +8,7 @@ This module maintains game status, player states, solution, and game progress.
 import random
 from engine.cards import suspects, weapons, locations, create_deck
 from engine.board import Board
+from engine.clue_reveal import reveal_clue
 
 
 class GameState:
@@ -93,3 +94,42 @@ class GameState:
     def is_game_over(self):
         """Return True if the game has ended."""
         return self.game_over
+
+    def process_suggestion(self, player, suggestion, current_index=None, verbose=True):
+        """Resolve a suggestion inside the game loop.
+
+        Flow:
+          1. Log the active player's suggestion.
+          2. Ask opponents in circular turn order to reveal a matching card.
+          3. Update current player's notebook when a card is revealed.
+          4. Update AI clue knowledge or no-reveal handling hooks.
+
+        Args:
+            player: The player who made the suggestion.
+            suggestion: Suggestion object with suspect/weapon/location attrs.
+            current_index (int | None): Optional player index override.
+
+        Returns:
+            tuple: (revealer, card) where either may be None.
+        """
+        if current_index is None:
+            current_index = self.players.index(player)
+
+        if verbose:
+            print(f"{player.name} suggests: {suggestion}")
+        revealer, card = reveal_clue(suggestion, self.players, current_index)
+
+        if card is not None:
+            if verbose and revealer is not None:
+                print(f"{revealer.name} revealed a card!")
+            player.notebook.eliminate(card.name)
+
+            if player.is_ai and hasattr(player.ai_agent, "update_from_clue"):
+                player.ai_agent.update_from_clue(card)
+        else:
+            if verbose:
+                print("No one could reveal a clue!")
+            if player.is_ai and hasattr(player.ai_agent, "handle_no_reveal"):
+                player.ai_agent.handle_no_reveal(suggestion)
+
+        return (revealer, card)
