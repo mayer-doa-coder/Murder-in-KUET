@@ -6,6 +6,9 @@ This module handles player attributes, hand management, and player actions.
 """
 
 from engine.dice import roll_dice
+from engine.suggestion import Suggestion
+from engine.cards import suspects, weapons, locations
+from ai.notebook import Notebook
 
 
 class Player:
@@ -16,6 +19,7 @@ class Player:
         self.cards = []       # cards dealt to this player
         self.position = None  # current location on the KUET board
         self.active = True    # set to False on a wrong accusation
+        self.notebook = Notebook(suspects, weapons, locations)
 
     def add_card(self, card):
         """Add a card to the player's hand."""
@@ -57,17 +61,22 @@ class Player:
             return True
         return False
 
-    def make_suggestion(self, suspect, weapon, location):
+    def make_suggestion(self, suspect: str, weapon: str, location: str) -> Suggestion:
+        """Create a pure suggestion object for this turn.
+
+        This method does not mutate game state. It only validates inputs
+        and returns a new Suggestion instance that can be consumed by
+        reveal, AI-reasoning, and game-loop systems.
+
+        Args:
+            suspect (str): Suggested suspect name.
+            weapon (str): Suggested weapon name.
+            location (str): Suggested location name.
+
+        Returns:
+            Suggestion: A validated suggestion object.
         """
-        Suggest a suspect, weapon, and location.
-        Returns a dict representing the suggestion.
-        """
-        return {
-            "suspect": suspect,
-            "weapon": weapon,
-            "location": location,
-            "by": self.name,
-        }
+        return Suggestion(suspect=suspect, weapon=weapon, location=location)
 
     def make_accusation(self, suspect, weapon, location):
         """
@@ -88,12 +97,17 @@ class Player:
         Find and return one card in hand that matches the suggestion,
         to disprove it. Returns None if no matching card is held.
         """
+        if hasattr(suggestion, "suspect"):
+            suspect = suggestion.suspect
+            weapon = suggestion.weapon
+            location = suggestion.location
+        else:
+            suspect = suggestion["suspect"]
+            weapon = suggestion["weapon"]
+            location = suggestion["location"]
+
         for card in self.cards:
-            if card.name in (
-                suggestion["suspect"],
-                suggestion["weapon"],
-                suggestion["location"],
-            ):
+            if card.name in (suspect, weapon, location):
                 return card
         return None
 
@@ -136,13 +150,18 @@ class Player:
                     # against bugs in custom agents without crashing the game.
                     move = None
 
-            suggestion = self.ai_agent.make_suggestion(game_state)
+            game_state.current_location = self.position
+            suspect, weapon, location = self.ai_agent.make_suggestion(game_state)
+            suggestion = self.make_suggestion(suspect, weapon, location)
+            revealer, revealed_card = game_state.process_suggestion(self, suggestion)
             accusation = self.ai_agent.make_accusation(game_state)
 
             return {
                 "dice": dice,
                 "move": self.position,
                 "suggestion": suggestion,
+                "revealer": revealer.name if revealer else None,
+                "revealed_card": revealed_card.name if revealed_card else None,
                 "accusation": accusation,
             }
 

@@ -12,7 +12,7 @@ class KnowledgeBase:
 
     def __init__(self):
         # Cards the AI has confirmed (own hand or shown by another player)
-        self.known_cards = []
+        self.known_cards = set()
 
         # Cards ruled out as the solution
         self.eliminated_cards = []
@@ -28,33 +28,28 @@ class KnowledgeBase:
         Own cards are immediately eliminated from solution candidates.
         """
         if card_name not in self.known_cards:
-            self.known_cards.append(card_name)
+            self.known_cards.add(card_name)
             self.remove_possibility(card_name)
 
-    def update_from_clue(self, suggestion, player_who_showed, card_shown=None):
-        """
-        Update the knowledge base after a suggestion is made.
+    def update_from_clue(self, card):
+        """Register a revealed clue card into AI knowledge.
 
         Args:
-            suggestion (dict): {'suspect': ..., 'weapon': ..., 'location': ...}
-            player_who_showed (str | None): Name of player who showed a card,
-                                            or None if nobody could disprove.
-            card_shown (str | None): The actual card shown to THIS AI,
-                                     or None if the AI didn't see it.
+            card: Revealed card object expected to expose `name`.
+
+        Notes:
+            - If `card` is None, this method safely returns without changes.
+            - Known cards are stored in a set to avoid duplicates.
         """
-        if card_shown:
-            # AI directly saw the card — safe to eliminate from solution
-            if card_shown not in self.known_cards:
-                self.known_cards.append(card_shown)
-            self.remove_possibility(card_shown)
+        if card is None:
+            return
 
-        elif player_who_showed is None:
-            # Nobody disproved the suggestion — all three cards are strong
-            # candidates; do not eliminate them (they may be the solution)
-            pass
+        card_name = getattr(card, "name", None)
+        if not isinstance(card_name, str) or not card_name.strip():
+            return
 
-        # When another player showed an unknown card we record nothing yet;
-        # future clues may narrow it down further.
+        self.known_cards.add(card_name)
+        self.remove_possibility(card_name)
 
     def remove_possibility(self, card_name):
         """

@@ -6,6 +6,7 @@ This module provides a simple AI for testing and as a baseline for smarter agent
 """
 
 import random
+from types import SimpleNamespace
 from ai.base_ai import BaseAI
 from engine.cards import suspects, weapons, locations
 
@@ -41,22 +42,33 @@ class RandomAI(BaseAI):
             return None  # dice too low to exit — stay and suggest here
         return random.choice(valid_moves)
 
-    def make_suggestion(self, game_state):
-        """
-        Suggest a random suspect, weapon, and the current player's location.
+    def make_suggestion(self, state) -> tuple[str, str, str]:
+        """Return a random suggestion tuple from the current game state.
+
+        The suspect and weapon are sampled uniformly from state-provided pools.
+        The location is fixed to state.current_location because Cluedo-style
+        suggestions must name the room the current player is in.
+
+        Args:
+            state: State object exposing `suspects`, `weapons`, and
+                `current_location`.
 
         Returns:
-            dict: {'suspect': str, 'weapon': str, 'location': str}
-        """
-        current_player = game_state.get_current_player()
-        # Suggest from the location the AI just moved to
-        location = current_player.position or random.choice(locations)
+            tuple[str, str, str]: (suspect, weapon, location)
 
-        return {
-            "suspect": random.choice(suspects),
-            "weapon": random.choice(weapons),
-            "location": location,
-        }
+        Raises:
+            ValueError: If suspects/weapons are empty or location is invalid.
+        """
+        suspect_pool = getattr(state, "suspects", None)
+        weapon_pool = getattr(state, "weapons", None)
+        location = getattr(state, "current_location", None)
+
+        if not suspect_pool or not weapon_pool or not isinstance(location, str) or not location.strip():
+            raise ValueError("Invalid game state for suggestion")
+
+        suspect = random.choice(suspect_pool)
+        weapon = random.choice(weapon_pool)
+        return (suspect, weapon, location)
 
     def make_accusation(self, game_state):
         """
@@ -81,3 +93,28 @@ class RandomAI(BaseAI):
         RandomAI ignores all evidence — decisions are always random.
         """
         pass
+
+    def update_from_clue(self, card) -> None:
+        """Consume a revealed clue card.
+
+        RandomAI intentionally ignores evidence to stay a pure baseline.
+        """
+        pass
+
+    def handle_no_reveal(self, suggestion) -> None:
+        """Consume a no-reveal signal from the suggestion phase.
+
+        RandomAI intentionally ignores this deduction signal.
+        """
+        pass
+
+
+if __name__ == "__main__":
+    state = SimpleNamespace(
+        suspects=["Professor Karim", "Student Rahim"],
+        weapons=["Knife", "Poison"],
+        current_location="Library",
+    )
+    ai = RandomAI()
+    suggestion = ai.make_suggestion(state)
+    print(suggestion)
