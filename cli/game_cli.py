@@ -8,7 +8,7 @@ turn; AI players resolve their turn automatically and print a summary.
 """
 
 from engine.game_state import GameState
-from engine.player import Player, AIPlayer
+from models.player import Player, AIPlayer
 from engine.dice import roll_dice
 from engine.cards import suspects, weapons
 from ai.random_ai import RandomAI

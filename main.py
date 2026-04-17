@@ -7,7 +7,7 @@ from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.minimax_ai import MinimaxAI
 from ai.negamax_ai import NegamaxAI
 from engine.game_state import GameState
-from engine.player import AIPlayer
+from models.player import AIPlayer
 
 
 class InstrumentedAI:

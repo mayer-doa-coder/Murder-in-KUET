@@ -591,7 +591,7 @@ def _safe_str_set(value: Any, name: str) -> set[str]:
 
 if __name__ == "__main__":
     from engine.game_state import GameState as EngineGameState
-    from engine.player import AIPlayer
+    from models.player import AIPlayer
 
     # Example usage with engine state.
     engine_state = EngineGameState()

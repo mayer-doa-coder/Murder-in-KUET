@@ -6,8 +6,8 @@ This module handles player attributes, hand management, and player actions.
 """
 
 from engine.dice import roll_dice
-from engine.suggestion import Suggestion
-from engine.accusation import Accusation
+from models.suggestion import Suggestion
+from models.accusation import Accusation
 from engine.cards import suspects, weapons, locations
 from ai.notebook import Notebook
 

@@ -10,7 +10,7 @@ from copy import deepcopy
 from engine.cards import suspects, weapons, locations, create_deck
 from engine.board import Board
 from engine.clue_reveal import reveal_clue
-from engine.accusation import check_accusation
+from models.accusation import check_accusation
 from engine.dice import roll_dice
 
 
