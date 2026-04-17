@@ -297,7 +297,10 @@ class GameState:
                 continue
 
             if verbose:
-                print(f"\n--- {player.name}'s Turn ---")
+                if player.is_ai:
+                    print(f"\n--- {player.name} (AI) Turn ---")
+                else:
+                    print(f"\n--- {player.name}'s Turn ---")
 
             # 1) Roll dice.
             dice_roll = roll_dice()
@@ -317,7 +320,13 @@ class GameState:
 
             move = None
             if player.is_ai:
+                if getattr(player, "ai_agent", None) is None:
+                    raise ValueError(f"AI player {player.name} has no ai_agent assigned")
                 move = player.ai_agent.choose_move(self, valid_moves)
+                # Safety fallback: if AI returns an invalid move, recover with
+                # a random legal move to keep the game progressing.
+                if valid_moves and move not in valid_moves:
+                    move = random.choice(valid_moves)
             elif human_move_selector is not None:
                 move = human_move_selector(player, valid_moves, self)
             elif valid_moves:
@@ -328,11 +337,15 @@ class GameState:
 
             self.current_location = player.position
             if verbose:
-                print(f"Moved to: {player.position}")
+                print(f"Move: {player.position}")
 
             # 3) Suggestion phase.
             if player.is_ai:
                 suspect, weapon, _ = player.ai_agent.make_suggestion(self)
+                if suspect not in self.suspects:
+                    suspect = random.choice(self.suspects)
+                if weapon not in self.weapons:
+                    weapon = random.choice(self.weapons)
             elif human_suggestion_selector is not None:
                 suspect, weapon = human_suggestion_selector(player, self)
             else:
@@ -368,7 +381,7 @@ class GameState:
                 if hasattr(player, "decide_accusation"):
                     decision = player.decide_accusation(self)
                 else:
-                    decision = player.ai_agent.make_accusation(self)
+                    decision = player.ai_agent.decide_accusation(self)
 
                 if isinstance(decision, bool):
                     should_accuse = decision
@@ -404,6 +417,9 @@ class GameState:
                     if verbose:
                         print(f"{player.name} eliminated!")
                     player.active = False
+
+            if verbose and player.is_ai:
+                print(f"Accuse: {should_accuse}")
 
             # 8) Turn rotation.
             current_index = (current_index + 1) % len(self.players)

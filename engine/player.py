@@ -17,6 +17,7 @@ class Player:
     def __init__(self, name, is_ai=False):
         self.name = name
         self.is_ai = is_ai
+        self.ai_agent = None
         self.cards = []       # cards dealt to this player
         self.position = None  # current location on the KUET board
         self.active = True    # set to False on a wrong accusation
@@ -114,7 +115,7 @@ class Player:
                 return card
         return None
 
-    def take_turn(self, game_state):
+    def take_turn(self, state, valid_moves=None):
         """
         Execute this player's turn.
 
@@ -131,7 +132,11 @@ class Player:
                            'accusation'  – accusation dict or None
                          For human players, returns None (caller handles input).
         """
+        game_state = state
         if self.is_ai:
+            if self.ai_agent is None:
+                raise ValueError("AI player has no ai_agent assigned")
+
             # 1. Roll both dice — total is the step budget for this turn.
             dice = roll_dice()
             # Publish on game_state so any agent can read it via game_state.last_dice_roll.
@@ -140,7 +145,8 @@ class Player:
             # 2. Engine computes the valid destinations (BFS up to dice.total hops).
             #    An empty position means the game just started; every location is reachable.
             from ai.board_utils import get_possible_moves
-            valid_moves = get_possible_moves(game_state.board, self, steps=dice.total)
+            if valid_moves is None:
+                valid_moves = get_possible_moves(game_state.board, self, steps=dice.total)
 
             # 3. Hand the ready-made list to the agent — it only needs to choose.
             #    Returning None means "stay in current room" (legal in Cluedo).
@@ -157,7 +163,11 @@ class Player:
             suspect, weapon, location = self.ai_agent.make_suggestion(game_state)
             suggestion = self.make_suggestion(suspect, weapon, location)
             revealer, revealed_card = game_state.process_suggestion(self, suggestion)
-            accusation = self.ai_agent.make_accusation(game_state)
+            should_accuse = self.ai_agent.decide_accusation(game_state)
+            accusation = (
+                self.make_accusation(suspect, weapon, location)
+                if should_accuse else None
+            )
 
             return {
                 "dice": dice,
@@ -194,7 +204,7 @@ class AIPlayer(Player):
 
     def decide_accusation(self, game_state):
         """Ask the agent whether to make a final accusation this turn."""
-        return self.ai_agent.make_accusation(game_state)
+        return self.ai_agent.decide_accusation(game_state)
 
     def __repr__(self):
         return f"AIPlayer({self.name}, agent={type(self.ai_agent).__name__}, position={self.position})"

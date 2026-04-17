@@ -15,10 +15,10 @@ class RuleBasedAI(BaseAI):
         # TODO: suggest cards that haven't been eliminated yet
         pass
 
-    def make_accusation(self, game_state):
+    def decide_accusation(self, game_state):
         # TODO: accuse only when solution is certain
         pass
 
-    def choose_move(self, game_state):
+    def choose_move(self, game_state, valid_moves):
         # TODO: move toward most informative location
         pass

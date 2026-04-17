@@ -70,23 +70,14 @@ class RandomAI(BaseAI):
         weapon = random.choice(weapon_pool)
         return (suspect, weapon, location)
 
-    def make_accusation(self, game_state):
-        """
-        Make a random final accusation after ACCUSATION_PATIENCE turns.
-        Before that, return None (don't accuse yet).
+    def decide_accusation(self, state) -> bool:
+        """Return True once accusation patience is reached.
 
-        Returns:
-            dict | None
+        RandomAI does not reason about confidence. It waits for a fixed number
+        of turns, then always opts into accusation.
         """
         self.turn_count += 1
-        if self.turn_count < self.ACCUSATION_PATIENCE:
-            return None
-
-        return {
-            "suspect": random.choice(suspects),
-            "weapon": random.choice(weapons),
-            "location": random.choice(locations),
-        }
+        return self.turn_count >= self.ACCUSATION_PATIENCE
 
     def update_knowledge(self, suggestion, player_who_showed, card_shown=None):
         """
