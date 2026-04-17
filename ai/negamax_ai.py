@@ -7,6 +7,7 @@ that will later support alpha-beta pruning and high-performance search.
 import random
 
 from ai.base_ai import BaseAI
+from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from math import inf
 from typing import Any, Sequence
 
@@ -14,8 +15,16 @@ from typing import Any, Sequence
 class NegamaxAI(BaseAI):
     """Negamax AI skeleton compatible with the existing AI interface."""
 
-    def __init__(self, depth: int = 2):
+    def __init__(self, depth: int | None = None):
         """Store search depth for future recursive Negamax logic."""
+        if depth is None:
+            depth = get_positive_int(
+                AI_CONFIG,
+                "NEGAMAX_DEPTH",
+                get_positive_int(GAME_CONFIG, "AI_DEPTH", 1),
+            )
+        if depth < 1:
+            raise ValueError("depth must be >= 1")
         self.depth = depth
 
     def negamax(self, state: Any, depth: int, alpha: float, beta: float) -> float:

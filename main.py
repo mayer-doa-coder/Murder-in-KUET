@@ -6,6 +6,7 @@ from time import perf_counter
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.minimax_ai import MinimaxAI
 from ai.negamax_ai import NegamaxAI
+from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from engine.game_state import GameState
 from models.player import AIPlayer
 
@@ -75,13 +76,22 @@ def _create_metrics() -> dict[str, dict[str, float]]:
 
 def _create_comparison_players(
     metrics: dict[str, dict[str, float]],
-    depth: int = 2,
+    max_players: int,
 ) -> list[AIPlayer]:
     """Create fair mixed-agent lineup for comparison runs."""
+    agents = [
+        ("AI Player 1", MinimaxAI(depth=AI_CONFIG.get("MINIMAX_DEPTH"))),
+        (
+            "AI Player 2",
+            ExpectiminimaxAI(depth=AI_CONFIG.get("EXPECTIMINIMAX_DEPTH")),
+        ),
+        ("AI Player 3", NegamaxAI(depth=AI_CONFIG.get("NEGAMAX_DEPTH"))),
+    ]
+
+    slots = min(max(1, max_players), len(agents))
     players = [
-        AIPlayer("AI Player 1", InstrumentedAI(MinimaxAI(depth=depth), metrics)),
-        AIPlayer("AI Player 2", InstrumentedAI(ExpectiminimaxAI(depth=depth), metrics)),
-        AIPlayer("AI Player 3", InstrumentedAI(NegamaxAI(depth=depth), metrics)),
+        AIPlayer(name, InstrumentedAI(agent, metrics))
+        for name, agent in agents[:slots]
     ]
 
     for player in players:
@@ -94,9 +104,10 @@ def _create_comparison_players(
 
 def _run_ai_performance_comparison() -> None:
     """Run multi-game AI performance comparison with metrics reporting."""
-    num_games = 10
-    max_turns = 250
-    depth = 2
+    num_games = get_positive_int(GAME_CONFIG, "SIMULATION_RUNS", 10)
+    max_turns = get_positive_int(GAME_CONFIG, "MAX_TURNS", 250)
+    max_players = get_positive_int(GAME_CONFIG, "MAX_PLAYERS", 3)
+    base_seed = get_positive_int(GAME_CONFIG, "BASE_RANDOM_SEED", 2026)
     metrics = _create_metrics()
     no_winner_games = 0
     game_runtime_seconds = 0.0
@@ -109,10 +120,10 @@ def _run_ai_performance_comparison() -> None:
         print(f"\n=== Game {i + 1} ===")
 
         # Deterministic per-game seed keeps runs reproducible while varied.
-        random.seed(2026 + i)
+        random.seed(base_seed + i)
 
         game = GameState()
-        players = _create_comparison_players(metrics, depth=depth)
+        players = _create_comparison_players(metrics, max_players=max_players)
         for player in players:
             game.add_player(player)
         game.setup_game()

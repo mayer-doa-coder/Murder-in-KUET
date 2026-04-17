@@ -14,6 +14,7 @@ from math import inf
 from typing import Any, Sequence
 
 from ai.base_ai import BaseAI
+from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 
 
 @dataclass
@@ -203,8 +204,14 @@ class GameState:
 class MinimaxAI(BaseAI):
     """Search-based AI using fixed-depth minimax over a simulation state."""
 
-    def __init__(self, depth: int = 2) -> None:
+    def __init__(self, depth: int | None = None) -> None:
         """Create a minimax AI with bounded depth for performance safety."""
+        if depth is None:
+            depth = get_positive_int(
+                AI_CONFIG,
+                "MINIMAX_DEPTH",
+                get_positive_int(GAME_CONFIG, "AI_DEPTH", 1),
+            )
         if depth < 1:
             raise ValueError("depth must be >= 1")
         self.depth = min(depth, 3)
@@ -591,13 +598,14 @@ def _safe_str_set(value: Any, name: str) -> set[str]:
 
 if __name__ == "__main__":
     from engine.game_state import GameState as EngineGameState
+    from config.settings import AI_CONFIG
     from models.player import AIPlayer
 
     # Example usage with engine state.
     engine_state = EngineGameState()
-    ai = MinimaxAI(depth=2)
+    ai = MinimaxAI(depth=AI_CONFIG.get("MINIMAX_DEPTH"))
     player = AIPlayer("AI Player", ai)
-    opponent = AIPlayer("AI Opponent", MinimaxAI(depth=1))
+    opponent = AIPlayer("AI Opponent", MinimaxAI(depth=AI_CONFIG.get("MINIMAX_DEPTH")))
 
     engine_state.add_player(player)
     engine_state.add_player(opponent)

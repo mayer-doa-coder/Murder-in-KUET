@@ -7,6 +7,7 @@ This module maintains game status, player states, solution, and game progress.
 
 import random
 from copy import deepcopy
+from typing import Any
 from engine.cards import suspects, weapons, locations, create_deck
 from engine.board import Board
 from engine.clue_reveal import reveal_clue
@@ -66,6 +67,143 @@ class GameState:
     def add_player(self, player):
         """Add a player to the game."""
         self.players.append(player)
+
+    @property
+    def current_player(self):
+        """Return the current player or None when no players are present."""
+        if not self.players:
+            return None
+        return self.get_current_player()
+
+    def clone(self) -> "GameState":
+        """Create a deep copy of the current game state for safe simulation."""
+        if self is None:
+            raise ValueError("Invalid state")
+        return deepcopy(self)
+
+    def get_possible_moves(self) -> list[str]:
+        """Return legal moves for the current player in this state snapshot.
+
+        This method is recursion-safe and does not mutate state.
+        """
+        if not self.players:
+            return []
+
+        player = self.get_current_player()
+        if player is None:
+            return []
+
+        if player.position is None:
+            return list(self.board.get_all_locations())
+
+        steps = 12
+        if self.last_dice_roll is not None and hasattr(self.last_dice_roll, "total"):
+            try:
+                parsed_steps = int(self.last_dice_roll.total)
+                if parsed_steps > 0:
+                    steps = parsed_steps
+            except (TypeError, ValueError):
+                pass
+
+        valid_moves = list(self.board.get_valid_moves(player.position, steps))
+        passage_dest = self.board.get_passage_destination(player.position)
+        if passage_dest and passage_dest not in valid_moves:
+            valid_moves.append(passage_dest)
+        return valid_moves
+
+    def simulate_move(self, move: str) -> "GameState":
+        """Return a new state with a simulated move applied.
+
+        The original state is never mutated.
+        """
+        if self is None:
+            raise ValueError("Invalid state")
+
+        new_state = self.clone()
+
+        if not isinstance(move, str) or not move.strip():
+            return new_state
+
+        allowed_moves = self.get_possible_moves()
+        if move not in allowed_moves:
+            return new_state
+
+        player = new_state.current_player
+        if player is None:
+            return new_state
+
+        player.move(move)
+        new_state.current_location = player.position
+        return new_state
+
+    def simulate_suggestion(self, suggestion: Any) -> "GameState":
+        """Return a new state with a simulated suggestion inference update.
+
+        The update is intentionally lightweight for search expansion and keeps
+        the original state untouched.
+        """
+        if self is None:
+            raise ValueError("Invalid state")
+
+        new_state = self.clone()
+        suspect, weapon, location = self._unpack_suggestion(suggestion)
+
+        notebook = self._get_current_notebook(new_state)
+        if notebook is not None:
+            suspects_set = getattr(notebook, "possible_suspects", None)
+            weapons_set = getattr(notebook, "possible_weapons", None)
+            locations_set = getattr(notebook, "possible_locations", None)
+
+            if isinstance(suspects_set, set) and suspect in suspects_set and len(suspects_set) > 1:
+                suspects_set.discard(suspect)
+            if isinstance(weapons_set, set) and weapon in weapons_set and len(weapons_set) > 1:
+                weapons_set.discard(weapon)
+            if isinstance(locations_set, set) and location in locations_set and len(locations_set) > 1:
+                locations_set.discard(location)
+        else:
+            suspects_set = getattr(new_state, "possible_suspects", None)
+            weapons_set = getattr(new_state, "possible_weapons", None)
+            locations_set = getattr(new_state, "possible_locations", None)
+
+            if isinstance(suspects_set, set) and suspect in suspects_set and len(suspects_set) > 1:
+                suspects_set.discard(suspect)
+            if isinstance(weapons_set, set) and weapon in weapons_set and len(weapons_set) > 1:
+                weapons_set.discard(weapon)
+            if isinstance(locations_set, set) and location in locations_set and len(locations_set) > 1:
+                locations_set.discard(location)
+
+        return new_state
+
+    def simulate(self, action: Any) -> "GameState":
+        """Return a new state after applying a generic simulation action.
+
+        Supported action forms:
+            - str: movement destination
+            - tuple/list length 3 or suggestion-like object: suggestion
+            - dict: {"type": "move", "value": ...} or {"type": "suggestion", "value": ...}
+        """
+        if self is None:
+            raise ValueError("Invalid state")
+
+        if isinstance(action, dict):
+            action_type = action.get("type")
+            value = action.get("value")
+            if action_type == "move":
+                return self.simulate_move(value)
+            if action_type == "suggestion":
+                return self.simulate_suggestion(value)
+            return self.clone()
+
+        if isinstance(action, str):
+            return self.simulate_move(action)
+
+        if (
+            (isinstance(action, (tuple, list)) and len(action) == 3)
+            or (hasattr(action, "suspect") and hasattr(action, "weapon") and hasattr(action, "location"))
+        ):
+            return self.simulate_suggestion(action)
+
+        return self.clone()
 
     def get_current_player(self):
         """Return the player whose turn it is."""
@@ -149,7 +287,7 @@ class GameState:
 
         return (revealer, card)
 
-    def get_chance_outcomes(self, suggestion) -> list:
+    def get_chance_outcomes(self, suggestion: Any | None = None) -> list[tuple[float, "GameState"]]:
         """Return probabilistic outcomes after a suggestion.
 
         This method models two simplified chance outcomes for expectiminimax:
@@ -166,7 +304,8 @@ class GameState:
 
         Args:
             suggestion: Suggestion object or tuple/list
-                (suspect, weapon, location).
+                (suspect, weapon, location). If None, a safe fallback
+                suggestion is inferred from current candidates.
 
         Returns:
             list: List of (probability, GameState copy) tuples.
@@ -175,7 +314,25 @@ class GameState:
             ValueError: If suggestion is None or malformed.
         """
         if suggestion is None:
-            raise ValueError("Invalid suggestion")
+            possible_suspects, possible_weapons, possible_locations = self._get_possible_sets(self)
+
+            if not possible_suspects:
+                possible_suspects = set(self.suspects)
+            if not possible_weapons:
+                possible_weapons = set(self.weapons)
+            if not possible_locations:
+                possible_locations = set(self.locations)
+
+            current_player = self.current_player
+            fallback_location = getattr(current_player, "position", None) if current_player is not None else None
+            if not isinstance(fallback_location, str) or not fallback_location.strip():
+                fallback_location = sorted(possible_locations)[0]
+
+            suggestion = (
+                sorted(possible_suspects)[0],
+                sorted(possible_weapons)[0],
+                fallback_location,
+            )
 
         suspect, weapon, location = self._unpack_suggestion(suggestion)
 
@@ -183,7 +340,7 @@ class GameState:
         num_possible = len(possible_suspects) + len(possible_weapons)
 
         if num_possible == 0:
-            return [(1.0, deepcopy(self))]
+            return [(1.0, self.clone())]
 
         prob_reveal = 1.0 / num_possible
         prob_no_reveal = 1.0 - prob_reveal
@@ -191,7 +348,7 @@ class GameState:
         outcomes = []
 
         # Case 1: card revealed -> gain direct knowledge.
-        state_reveal = deepcopy(self)
+        state_reveal = self.clone()
         reveal_notebook = self._get_current_notebook(state_reveal)
         if reveal_notebook is not None and hasattr(reveal_notebook, "eliminate"):
             if suspect in getattr(reveal_notebook, "possible_suspects", set()):
@@ -208,7 +365,7 @@ class GameState:
         outcomes.append((prob_reveal, state_reveal))
 
         # Case 2: no card revealed -> strong deduction toward the suggestion.
-        state_no_reveal = deepcopy(self)
+        state_no_reveal = self.clone()
         no_reveal_notebook = self._get_current_notebook(state_no_reveal)
         if no_reveal_notebook is not None:
             suspects_set = getattr(no_reveal_notebook, "possible_suspects", None)

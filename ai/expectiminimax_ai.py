@@ -12,6 +12,7 @@ from math import inf, isclose
 from typing import Any, List, Sequence, Tuple
 
 from ai.base_ai import BaseAI
+from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 
 
 class ExpectiminimaxAI(BaseAI):
@@ -23,8 +24,14 @@ class ExpectiminimaxAI(BaseAI):
     - "chance": probabilistic game outcome branch.
     """
 
-    def __init__(self, depth: int = 2) -> None:
+    def __init__(self, depth: int | None = None) -> None:
         """Initialize recursion depth budget for future expectiminimax logic."""
+        if depth is None:
+            depth = get_positive_int(
+                AI_CONFIG,
+                "EXPECTIMINIMAX_DEPTH",
+                get_positive_int(GAME_CONFIG, "AI_DEPTH", 1),
+            )
         if depth < 1:
             raise ValueError("depth must be >= 1")
         self.depth = depth
