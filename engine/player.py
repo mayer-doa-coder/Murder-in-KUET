@@ -7,6 +7,8 @@ This module handles player attributes, hand management, and player actions.
 
 from engine.dice import roll_dice
 from engine.suggestion import Suggestion
+from engine.cards import suspects, weapons, locations
+from ai.notebook import Notebook
 
 
 class Player:
@@ -17,6 +19,7 @@ class Player:
         self.cards = []       # cards dealt to this player
         self.position = None  # current location on the KUET board
         self.active = True    # set to False on a wrong accusation
+        self.notebook = Notebook(suspects, weapons, locations)
 
     def add_card(self, card):
         """Add a card to the player's hand."""
