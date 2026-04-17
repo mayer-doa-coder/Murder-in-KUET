@@ -70,11 +70,18 @@ class GameState:
         return self.players[self.current_turn % len(self.players)]
 
     def next_turn(self):
-        """Advance to the next active player's turn."""
+        """Advance to the next active player's turn safely."""
+        if not self.players:
+            return
+
         self.current_turn += 1
-        # Skip eliminated players
-        while not self.get_current_player().active:
+        for _ in range(len(self.players)):
+            if self.get_current_player().active:
+                return
             self.current_turn += 1
+
+        # Safety: no active players left.
+        self.check_end_conditions()
 
     def check_accusation(self, accusation):
         """
@@ -139,3 +146,91 @@ class GameState:
                 player.ai_agent.handle_no_reveal(suggestion)
 
         return (revealer, card)
+
+    def get_active_players(self):
+        """Return a list of players who are still active in the game."""
+        return [player for player in self.players if player.active]
+
+    def check_end_conditions(self):
+        """Apply default winner checks for active-player edge cases.
+
+        Returns:
+            bool: True if the game is over after applying edge-case checks.
+        """
+        active_players = self.get_active_players()
+
+        if len(active_players) == 1:
+            self.winner = active_players[0]
+            self.game_over = True
+            print(f"{active_players[0].name} wins by default!")
+            return True
+
+        if len(active_players) == 0:
+            self.winner = None
+            self.game_over = True
+            print("No players remaining. Game ends.")
+            return True
+
+        return False
+
+    def resolve_accusation(self, player, accusation):
+        """Resolve a player's final accusation and apply win/elimination effects.
+
+        Args:
+            player: The player making the accusation.
+            accusation: Accusation object or dict-like accusation.
+
+        Returns:
+            bool: True if the accusation is correct, else False.
+        """
+        if accusation is None:
+            return False
+
+        if check_accusation(accusation, self.solution):
+            print(f"{player.name} wins!")
+            self.winner = player
+            self.game_over = True
+            return True
+
+        print(f"{player.name} eliminated!")
+        player.active = False
+        self.check_end_conditions()
+        return False
+
+    def run_turn(self):
+        """Run one full turn while respecting active/inactive player status.
+
+        Returns:
+            dict | None: Turn result for active player turns, otherwise None.
+        """
+        if self.game_over:
+            return None
+
+        if self.check_end_conditions():
+            return None
+
+        # Skip inactive players with bounded iteration to avoid infinite loops.
+        checked = 0
+        total = len(self.players)
+        while checked < total and not self.get_current_player().active:
+            self.current_turn += 1
+            checked += 1
+
+        if checked >= total:
+            self.check_end_conditions()
+            return None
+
+        player = self.get_current_player()
+        result = player.take_turn(self)
+
+        accusation = None
+        if isinstance(result, dict):
+            accusation = result.get("accusation")
+
+        if accusation is not None:
+            self.resolve_accusation(player, accusation)
+
+        if not self.game_over:
+            self.next_turn()
+
+        return result
