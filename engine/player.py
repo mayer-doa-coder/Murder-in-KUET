@@ -7,6 +7,7 @@ This module handles player attributes, hand management, and player actions.
 
 from engine.dice import roll_dice
 from engine.suggestion import Suggestion
+from engine.accusation import Accusation
 from engine.cards import suspects, weapons, locations
 from ai.notebook import Notebook
 
@@ -78,19 +79,21 @@ class Player:
         """
         return Suggestion(suspect=suspect, weapon=weapon, location=location)
 
-    def make_accusation(self, suspect, weapon, location):
+    def make_accusation(self, suspect: str, weapon: str, location: str) -> Accusation:
+        """Create and return a final accusation object.
+
+        This method is intentionally pure and does not check correctness
+        against the hidden solution.
+
+        Args:
+            suspect (str): Accused suspect name.
+            weapon (str): Accused weapon name.
+            location (str): Accused location name.
+
+        Returns:
+            Accusation: A validated accusation object.
         """
-        Make a final accusation to solve the murder.
-        Returns a dict representing the accusation.
-        A wrong accusation eliminates the player.
-        """
-        return {
-            "suspect": suspect,
-            "weapon": weapon,
-            "location": location,
-            "by": self.name,
-            "final": True,
-        }
+        return Accusation(suspect=suspect, weapon=weapon, location=location)
 
     def show_card(self, suggestion):
         """

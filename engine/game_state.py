@@ -9,6 +9,7 @@ import random
 from engine.cards import suspects, weapons, locations, create_deck
 from engine.board import Board
 from engine.clue_reveal import reveal_clue
+from engine.accusation import check_accusation
 
 
 class GameState:
@@ -80,16 +81,21 @@ class GameState:
         Check a player's final accusation against the solution.
 
         Args:
-            accusation (dict): Dict with 'suspect', 'weapon', 'location'.
+            accusation: Accusation object or dict-like accusation.
 
         Returns:
             bool: True if accusation matches the solution exactly.
         """
-        return (
-            accusation["suspect"] == self.solution["suspect"]
-            and accusation["weapon"] == self.solution["weapon"]
-            and accusation["location"] == self.solution["location"]
-        )
+        if isinstance(accusation, dict):
+            from types import SimpleNamespace
+
+            accusation = SimpleNamespace(
+                suspect=accusation.get("suspect"),
+                weapon=accusation.get("weapon"),
+                location=accusation.get("location"),
+            )
+
+        return check_accusation(accusation, self.solution)
 
     def is_game_over(self):
         """Return True if the game has ended."""
