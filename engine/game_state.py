@@ -335,6 +335,9 @@ class GameState:
             if move in valid_moves:
                 player.move(move)
 
+            if move is not None:
+                assert move in valid_moves, "Invalid move selected"
+
             self.current_location = player.position
             if verbose:
                 print(f"Move: {player.position}")
@@ -353,6 +356,7 @@ class GameState:
                 weapon = self.weapons[0]
 
             suggestion = player.make_suggestion(suspect, weapon, player.position)
+            assert suggestion is not None, "Suggestion failed"
             if verbose:
                 print(f"Suggestion: {suggestion}")
 
@@ -402,7 +406,14 @@ class GameState:
 
             if should_accuse:
                 if accusation is None:
-                    accusation = player.make_accusation(suspect, weapon, player.position)
+                    solved = None
+                    if hasattr(player, "notebook") and hasattr(player.notebook, "get_solution"):
+                        solved = player.notebook.get_solution()
+
+                    if solved is not None:
+                        accusation = player.make_accusation(solved[0], solved[1], solved[2])
+                    else:
+                        accusation = player.make_accusation(suspect, weapon, player.position)
                 elif isinstance(accusation, tuple) and len(accusation) == 3:
                     accusation = player.make_accusation(
                         accusation[0], accusation[1], accusation[2]
@@ -419,7 +430,7 @@ class GameState:
                     player.active = False
 
             if verbose and player.is_ai:
-                print(f"Accuse: {should_accuse}")
+                print(f"Accusation Decision: {should_accuse}")
 
             # 8) Turn rotation.
             current_index = (current_index + 1) % len(self.players)

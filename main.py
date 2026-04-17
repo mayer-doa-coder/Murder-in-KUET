@@ -1,65 +1,79 @@
-"""
-main.py - Main Entry Point
+"""Main entry point for Minimax AI integration and simulation checks."""
 
-Purpose: Main entry point for the Murder in KUET game.
-This module initializes the game and starts either CLI or API mode.
-"""
-
-from engine.cards import create_deck
-from engine.player import Player, AIPlayer
+from ai.minimax_ai import GameState as MinimaxSearchState
+from ai.minimax_ai import MinimaxAI
 from engine.game_state import GameState
-from ai.random_ai import RandomAI
+from engine.player import AIPlayer
 
 
-def main():
-    print("=" * 45)
-    print("       Murder in KUET — Day 1 Checks")
-    print("=" * 45)
+def _run_minimax_ai_vs_ai_simulation() -> None:
+    """Run a full Minimax-only simulation and validate integration behavior."""
+    print("=" * 60)
+    print("      Murder in KUET - Minimax AI Integration Test")
+    print("=" * 60)
 
-    # 1. Deck creation
-    deck = create_deck()
-    cats = {}
-    for card in deck:
-        cats[card.category] = cats.get(card.category, 0) + 1
-    print(f"\n[1] Deck creation       OK")
-    print(f"    Total cards : {len(deck)}")
-    print(f"    Suspects    : {cats['suspect']}")
-    print(f"    Weapons     : {cats['weapon']}")
-    print(f"    Locations   : {cats['location']}")
-
-    # 2. Player creation
-    human = Player("Alice")
-    print(f"\n[2] Player creation     OK")
-    print(f"    {human}")
-
-    # 3. AI initialization
-    agent = RandomAI()
-    bot = AIPlayer("BOT-Random", agent)
-    print(f"\n[3] AI initialization   OK")
-    print(f"    {bot}")
-
-    # 4. Game initialization
     game = GameState()
-    game.add_player(human)
-    game.add_player(bot)
+
+    # Assign Minimax AI to all test players (no human mixing).
+    players = [
+        AIPlayer("AI Player 1", MinimaxAI(depth=2)),
+        AIPlayer("AI Player 2", MinimaxAI(depth=2)),
+        AIPlayer("AI Player 3", MinimaxAI(depth=2)),
+    ]
+
+    for player in players:
+        player.is_ai = True
+        if player.ai_agent is None:
+            raise ValueError(f"{player.name} missing ai_agent")
+        game.add_player(player)
+
     game.setup_game()
-    print(f"\n[4] Game initialization OK")
-    print(f"    Players     : {[p.name for p in game.players]}")
-    print(f"    Solution    : <hidden>")          # never print solution in real play
-    print(f"    Alice hand  : {len(human.cards)} cards")
-    print(f"    BOT hand    : {len(bot.cards)} cards")
-    print(f"    Cards dealt : {len(human.cards) + len(bot.cards)} / 18 remaining")
 
-    # 5. AI takes a turn
-    result = bot.take_turn(game)
-    print(f"\n[5] AI turn             OK")
-    print(f"    Moved to    : {result['move']}")
-    print(f"    Suggestion  : {result['suggestion']}")
-    print(f"    Accusation  : {result['accusation']}")
+    print("Players:", [p.name for p in game.players])
+    print("All players AI:", all(p.is_ai and p.ai_agent is not None for p in game.players))
 
-    print("\n" + "=" * 45)
-    print("  All Day-1 components verified successfully")
-    print("=" * 45)
+    # Edge case 1: no valid moves fallback should be safe.
+    empty_move = players[0].ai_agent.choose_move(game, [])
+    assert empty_move is None, "AI should return None when no valid moves exist"
+
+    # Edge case 2: single remaining possibility in all categories should accuse.
+    solved_state = MinimaxSearchState(
+        players=[],
+        current_player_index=0,
+        notebook=None,
+        possible_suspects={"Only Suspect"},
+        possible_weapons={"Only Weapon"},
+        possible_locations={"Only Location"},
+        current_location="Only Location",
+    )
+    assert players[0].ai_agent.decide_accusation(solved_state) is True
+
+    # Edge case 3: all eliminated safety should not crash.
+    safety_game = GameState()
+    safety_players = [
+        AIPlayer("Safety A", MinimaxAI(depth=1)),
+        AIPlayer("Safety B", MinimaxAI(depth=1)),
+    ]
+    for p in safety_players:
+        safety_game.add_player(p)
+        p.active = False
+    assert safety_game.check_end_conditions() is True
+    assert safety_game.game_over is True
+
+    winner = game.run_game(max_turns=300, verbose=True)
+
+    print("\n" + "=" * 60)
+    if winner is not None:
+        print(f"Winner: {winner.name}")
+    else:
+        print("Winner: None (turn cap reached)")
+    print("Game Over:", game.game_over)
+    print("Turns Played:", game.current_turn + 1)
+    print("=" * 60)
+
+
+def main() -> None:
+    _run_minimax_ai_vs_ai_simulation()
 
 
 if __name__ == "__main__":

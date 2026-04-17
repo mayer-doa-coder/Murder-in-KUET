@@ -26,6 +26,8 @@ class Player:
     def add_card(self, card):
         """Add a card to the player's hand."""
         self.cards.append(card)
+        if hasattr(card, "name"):
+            self.notebook.eliminate(card.name)
 
     def move(self, new_location):
         """Move the player to a new KUET location (raw setter).
@@ -164,10 +166,13 @@ class Player:
             suggestion = self.make_suggestion(suspect, weapon, location)
             revealer, revealed_card = game_state.process_suggestion(self, suggestion)
             should_accuse = self.ai_agent.decide_accusation(game_state)
-            accusation = (
-                self.make_accusation(suspect, weapon, location)
-                if should_accuse else None
-            )
+            accusation = None
+            if should_accuse:
+                solved = self.notebook.get_solution()
+                if solved is not None:
+                    accusation = self.make_accusation(solved[0], solved[1], solved[2])
+                else:
+                    accusation = self.make_accusation(suspect, weapon, location)
 
             return {
                 "dice": dice,
