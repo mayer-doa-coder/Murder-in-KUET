@@ -7,6 +7,8 @@ that extends minimax with chance nodes.
 from __future__ import annotations
 
 import random
+from copy import deepcopy
+from math import inf, isclose
 from typing import Any, List, Sequence, Tuple
 
 from ai.base_ai import BaseAI
@@ -28,27 +30,151 @@ class ExpectiminimaxAI(BaseAI):
         self.depth = depth
 
     def expectiminimax(self, state: Any, depth: int, node_type: str) -> float:
-        """Recursive expectiminimax algorithm placeholder.
+        """Evaluate a game state via recursive expectiminimax.
+
+        Node semantics:
+            - "max": this AI selects the action with maximum utility.
+            - "min": opponent selects the action with minimum utility.
+            - "chance": expected utility over probabilistic outcomes.
 
         Args:
             state (Any): Search state snapshot.
-            depth (int): Remaining recursion depth.
+            depth (int): Remaining recursion depth (must be >= 0).
             node_type (str): One of "max", "min", or "chance".
 
         Returns:
-            float: Utility value for the explored subtree.
+            float: Utility estimate for the given state at this node.
 
         Raises:
-            ValueError: If node_type is unsupported or depth is invalid.
-            NotImplementedError: Until the recursive logic is implemented.
+            ValueError: If state is None, depth is negative, node_type is
+                invalid, or probability values are invalid.
         """
+        if state is None:
+            raise ValueError("State cannot be None")
+
         if depth < 0:
             raise ValueError("depth cannot be negative")
 
         if node_type not in {"max", "min", "chance"}:
-            raise ValueError("node_type must be one of: max, min, chance")
+            raise ValueError("Invalid node_type")
 
-        raise NotImplementedError("expectiminimax core is not implemented yet")
+        if depth == 0 or self._is_terminal_state(state):
+            return self.evaluate(state)
+
+        if node_type == "max":
+            max_eval = -inf
+            moves = self._get_possible_moves(state)
+
+            if not moves:
+                return self.evaluate(state)
+
+            progressed = False
+            for move in moves:
+                new_state = self._simulate_state(state, move)
+                if new_state is None:
+                    continue
+                progressed = True
+                eval_score = self.expectiminimax(new_state, depth - 1, "chance")
+                max_eval = max(max_eval, eval_score)
+
+            if not progressed:
+                return self.evaluate(state)
+            return float(max_eval)
+
+        if node_type == "chance":
+            expected_value = 0.0
+            outcomes = self._get_chance_outcomes(state)
+
+            if not outcomes:
+                return self.evaluate(state)
+
+            probs = []
+            for prob, _ in outcomes:
+                if prob < 0 or prob > 1:
+                    raise ValueError("Invalid probability value")
+                probs.append(prob)
+
+            total_prob = float(sum(probs))
+            if total_prob <= 0:
+                return self.evaluate(state)
+
+            normalize = not isclose(total_prob, 1.0, rel_tol=1e-9, abs_tol=1e-9)
+
+            for prob, next_state in outcomes:
+                effective_prob = (prob / total_prob) if normalize else prob
+                expected_value += effective_prob * self.expectiminimax(
+                    next_state, depth - 1, "min"
+                )
+
+            return float(expected_value)
+
+        # node_type == "min"
+        min_eval = inf
+        moves = self._get_possible_moves(state)
+
+        if not moves:
+            return self.evaluate(state)
+
+        progressed = False
+        for move in moves:
+            new_state = self._simulate_state(state, move)
+            if new_state is None:
+                continue
+            progressed = True
+            eval_score = self.expectiminimax(new_state, depth - 1, "chance")
+            min_eval = min(min_eval, eval_score)
+
+        if not progressed:
+            return self.evaluate(state)
+        return float(min_eval)
+
+    def evaluate(self, state: Any) -> float:
+        """Return a stable heuristic utility value for expectiminimax.
+
+        This fallback evaluator is intentionally lightweight and compatible with
+        both engine-level states and search-state snapshots.
+        """
+        if state is None:
+            raise ValueError("State cannot be None")
+
+        suspects = self._as_set(getattr(state, "possible_suspects", None))
+        weapons = self._as_set(getattr(state, "possible_weapons", None))
+        locations = self._as_set(getattr(state, "possible_locations", None))
+
+        if suspects is None or weapons is None or locations is None:
+            notebook = self._get_current_notebook(state)
+            if notebook is not None:
+                suspects = self._as_set(getattr(notebook, "possible_suspects", set()))
+                weapons = self._as_set(getattr(notebook, "possible_weapons", set()))
+                locations = self._as_set(getattr(notebook, "possible_locations", set()))
+
+        if suspects is None:
+            suspects = set(getattr(state, "suspects", []))
+        if weapons is None:
+            weapons = set(getattr(state, "weapons", []))
+        if locations is None:
+            locations = set(getattr(state, "locations", []))
+
+        if not suspects or not weapons or not locations:
+            return -100.0
+
+        solved = len(suspects) == 1 and len(weapons) == 1 and len(locations) == 1
+        if solved:
+            return 100.0
+
+        score = 0.0
+        score += (10 - len(suspects)) * 3
+        score += (10 - len(weapons)) * 3
+        score += (10 - len(locations)) * 3
+
+        known_cards = self._known_cards_count(state)
+        score += known_cards * 2
+
+        score -= abs(len(suspects) - len(weapons))
+        score -= abs(len(suspects) - len(locations))
+        score -= abs(len(weapons) - len(locations))
+
+        return float(score)
 
     def get_chance_outcomes(self, state: Any) -> List[Tuple[float, Any]]:
         """Return probabilistic branches for a chance node.
@@ -68,79 +194,295 @@ class ExpectiminimaxAI(BaseAI):
         Raises:
             NotImplementedError: Until probability modeling is implemented.
         """
-        raise NotImplementedError("chance outcome modeling is not implemented yet")
+        return [(1.0, state)]
 
-    def choose_move(self, state: Any, valid_moves: Sequence[str]) -> str | None:
-        """Choose a movement destination placeholder.
+    def _is_terminal_state(self, state: Any) -> bool:
+        """Return whether a state should stop recursion."""
+        if hasattr(state, "is_terminal") and callable(state.is_terminal):
+            return bool(state.is_terminal())
 
-        Current behavior is a safe fallback for integration compatibility.
-        Full expectiminimax move selection will be added later.
-        """
-        if valid_moves is None:
-            raise ValueError("valid_moves cannot be None")
+        if bool(getattr(state, "game_over", False)):
+            return True
 
-        options = list(valid_moves)
-        if not options:
+        notebook = self._get_current_notebook(state)
+        if notebook is not None and hasattr(notebook, "is_solved"):
+            solved = notebook.is_solved
+            if callable(solved):
+                return bool(solved())
+
+        suspects = self._as_set(getattr(state, "possible_suspects", None))
+        weapons = self._as_set(getattr(state, "possible_weapons", None))
+        locations = self._as_set(getattr(state, "possible_locations", None))
+        if suspects is not None and weapons is not None and locations is not None:
+            return len(suspects) == 1 and len(weapons) == 1 and len(locations) == 1
+
+        return False
+
+    def _get_possible_moves(self, state: Any) -> list[str]:
+        """Return possible moves from any supported state object."""
+        if hasattr(state, "get_possible_moves") and callable(state.get_possible_moves):
+            return list(state.get_possible_moves())
+
+        position = getattr(state, "current_location", None)
+        players = getattr(state, "players", None)
+        current_turn = getattr(state, "current_turn", None)
+        if (not isinstance(position, str) or not position.strip()) and isinstance(players, list) and players and isinstance(current_turn, int):
+            current_player = players[current_turn % len(players)]
+            position = getattr(current_player, "position", None)
+
+        board = getattr(state, "board", None)
+        if board is None:
+            return []
+
+        if isinstance(position, str) and position.strip() and hasattr(board, "get_valid_moves"):
+            return list(board.get_valid_moves(position, steps=12))
+
+        if hasattr(board, "get_all_locations"):
+            return list(board.get_all_locations())
+
+        return []
+
+    def _simulate_state(self, state: Any, move: str) -> Any | None:
+        """Simulate one move with support for different state APIs."""
+        simulator = None
+        if hasattr(state, "simulate") and callable(state.simulate):
+            simulator = state.simulate
+        elif hasattr(state, "simulate_move") and callable(state.simulate_move):
+            simulator = state.simulate_move
+
+        if simulator is None:
             return None
 
-        return random.choice(options)
+        try:
+            return simulator(move)
+        except Exception:
+            return None
 
-    def make_suggestion(self, state: Any) -> tuple[str, str, str]:
-        """Choose a suggestion placeholder compatible with current engine state.
+    def _get_chance_outcomes(self, state: Any) -> List[Tuple[float, Any]]:
+        """Resolve chance outcomes from state API, then AI fallback."""
+        method = getattr(state, "get_chance_outcomes", None)
+        if callable(method):
+            try:
+                outcomes = method()
+                if outcomes is not None:
+                    return list(outcomes)
+            except TypeError:
+                suggestion = getattr(state, "_pending_suggestion", None)
+                if suggestion is None:
+                    suggestion = self.make_suggestion(state)
+                outcomes = method(suggestion)
+                if outcomes is not None:
+                    return list(outcomes)
 
-        Returns:
-            tuple[str, str, str]: (suspect, weapon, location)
+        return list(self.get_chance_outcomes(state))
 
-        Raises:
-            ValueError: If the state does not expose required suggestion fields.
-        """
-        suspect_pool = getattr(state, "suspects", None)
-        weapon_pool = getattr(state, "weapons", None)
+    def _get_current_notebook(self, state: Any) -> Any | None:
+        """Return current player's notebook if present."""
+        players = getattr(state, "players", None)
+        current_turn = getattr(state, "current_turn", None)
+        if isinstance(players, list) and players and isinstance(current_turn, int):
+            player = players[current_turn % len(players)]
+            return getattr(player, "notebook", None)
+        return None
+
+    def _known_cards_count(self, state: Any) -> int:
+        """Return known-card count from notebook or state fallback."""
+        notebook = getattr(state, "notebook", None)
+        if notebook is None:
+            notebook = self._get_current_notebook(state)
+
+        if notebook is not None:
+            known = getattr(notebook, "known_cards", None)
+            if isinstance(known, (set, list, tuple)):
+                return len(known)
+
+        known = getattr(state, "known_cards", None)
+        if isinstance(known, (set, list, tuple)):
+            return len(known)
+
+        return 0
+
+    def _as_set(self, value: Any) -> set[str] | None:
+        """Convert list/tuple/set collections to set[str], else None."""
+        if isinstance(value, set):
+            return {str(v) for v in value}
+        if isinstance(value, (list, tuple)):
+            return {str(v) for v in value}
+        return None
+
+    def _resolve_suggestion_space(self, state: Any) -> tuple[set[str], set[str], set[str]]:
+        """Resolve suspect/weapon/location possibility sets from state or notebook."""
+        suspects = self._as_set(getattr(state, "possible_suspects", None))
+        weapons = self._as_set(getattr(state, "possible_weapons", None))
+        locations = self._as_set(getattr(state, "possible_locations", None))
+
+        if suspects is None or weapons is None or locations is None:
+            notebook = self._get_current_notebook(state)
+            if notebook is not None:
+                suspects = self._as_set(getattr(notebook, "possible_suspects", set()))
+                weapons = self._as_set(getattr(notebook, "possible_weapons", set()))
+                locations = self._as_set(getattr(notebook, "possible_locations", set()))
+
+        if suspects is None:
+            suspects = set(getattr(state, "suspects", []))
+        if weapons is None:
+            weapons = set(getattr(state, "weapons", []))
+        if locations is None:
+            locations = set(getattr(state, "locations", []))
+
+        return suspects, weapons, locations
+
+    def _resolve_current_location(self, state: Any) -> str | None:
+        """Resolve current location from state-level or current player fields."""
         location = getattr(state, "current_location", None)
-
-        if not suspect_pool or not weapon_pool:
-            raise ValueError("Invalid state: missing suspects or weapons")
-
-        if not isinstance(location, str) or not location.strip():
-            players = getattr(state, "players", None)
-            current_turn = getattr(state, "current_turn", None)
-            if isinstance(players, list) and players and isinstance(current_turn, int):
-                player = players[current_turn % len(players)]
-                location = getattr(player, "position", None)
-
-        if not isinstance(location, str) or not location.strip():
-            raise ValueError("Invalid state: missing current location")
-
-        return (random.choice(list(suspect_pool)), random.choice(list(weapon_pool)), location)
-
-    def decide_accusation(self, state: Any) -> bool:
-        """Decide whether to accuse using conservative solved-state gating.
-
-        This remains intentionally simple until probability/risk scoring is
-        integrated into expectiminimax terminal decisions.
-        """
-        if state is None:
-            raise ValueError("Invalid state provided")
+        if isinstance(location, str) and location.strip():
+            return location
 
         players = getattr(state, "players", None)
         current_turn = getattr(state, "current_turn", None)
         if isinstance(players, list) and players and isinstance(current_turn, int):
             player = players[current_turn % len(players)]
-            notebook = getattr(player, "notebook", None)
-            if notebook is not None:
-                suspects = getattr(notebook, "possible_suspects", set())
-                weapons = getattr(notebook, "possible_weapons", set())
-                locations = getattr(notebook, "possible_locations", set())
-                return (
-                    len(suspects) == 1
-                    and len(weapons) == 1
-                    and len(locations) == 1
-                )
+            position = getattr(player, "position", None)
+            if isinstance(position, str) and position.strip():
+                return position
 
-        suspects = getattr(state, "possible_suspects", None)
-        weapons = getattr(state, "possible_weapons", None)
-        locations = getattr(state, "possible_locations", None)
-        if suspects is None or weapons is None or locations is None:
+        return None
+
+    def _simulate_suggestion_state(
+        self,
+        state: Any,
+        suggestion: tuple[str, str, str],
+    ) -> Any | None:
+        """Return a suggestion-successor state without mutating input state."""
+        simulator = getattr(state, "simulate_suggestion", None)
+        if callable(simulator):
+            try:
+                return simulator(suggestion)
+            except Exception:
+                return None
+
+        try:
+            copied_state = deepcopy(state)
+        except Exception:
+            return None
+
+        setattr(copied_state, "_pending_suggestion", suggestion)
+        return copied_state
+
+    def choose_move(self, state: Any, valid_moves: Sequence[str]) -> str | None:
+        """Choose the best move using expectiminimax expected-value scoring.
+
+        Args:
+            state (Any): Current game/search state snapshot.
+            valid_moves (Sequence[str]): Legal candidate moves from the engine.
+
+        Returns:
+            str | None: Highest-scoring move, or None when no legal moves exist.
+
+        Raises:
+            ValueError: If the input state is invalid.
+        """
+        if state is None:
+            raise ValueError("Invalid state provided")
+
+        if valid_moves is None:
+            return None
+
+        valid_moves = list(valid_moves)
+        if not valid_moves:
+            return None
+
+        best_move: str | None = None
+        best_score = -inf
+
+        for move in valid_moves:
+            new_state = self._simulate_state(state, move)
+            if new_state is None:
+                continue
+
+            score = self.expectiminimax(new_state, self.depth, "chance")
+            if getattr(self, "debug", False):
+                print(f"Evaluating Move: {move}, Score: {score}")
+
+            if score > best_score:
+                best_score = score
+                best_move = move
+
+        if best_move is None:
+            best_move = random.choice(valid_moves)
+
+        return best_move
+
+    def make_suggestion(self, state: Any) -> tuple[str, str, str]:
+        """Choose the best suggestion using expectiminimax expected-value search.
+
+        The AI scores each (suspect, weapon) candidate at the current location
+        by simulating the suggestion and evaluating the resulting state via a
+        chance node in expectiminimax.
+
+        Returns:
+            tuple[str, str, str]: Best (suspect, weapon, location) suggestion.
+
+        Raises:
+            ValueError: If the state is invalid or no candidate suggestions exist.
+        """
+        if state is None:
+            raise ValueError("State cannot be None")
+
+        suspects, weapons, locations = self._resolve_suggestion_space(state)
+        if not suspects or not weapons:
+            raise ValueError("Invalid state: no possible suggestions")
+
+        location = self._resolve_current_location(state)
+        if (not isinstance(location, str) or not location.strip()) and locations:
+            location = sorted(locations)[0]
+
+        if not isinstance(location, str) or not location.strip():
+            raise ValueError("Invalid state: missing current location")
+
+        best: tuple[str, str, str] | None = None
+        best_score = -inf
+
+        for suspect in sorted(suspects):
+            for weapon in sorted(weapons):
+                suggestion = (suspect, weapon, location)
+                new_state = self._simulate_suggestion_state(state, suggestion)
+                if new_state is None:
+                    continue
+
+                score = self.expectiminimax(new_state, self.depth, "chance")
+                if getattr(self, "debug", False):
+                    print(f"Suggestion: {suggestion}, Score: {score}")
+
+                if score > best_score:
+                    best_score = score
+                    best = suggestion
+
+        if best is None:
+            return (
+                random.choice(list(suspects)),
+                random.choice(list(weapons)),
+                location,
+            )
+
+        return best
+
+    def decide_accusation(self, state: Any) -> bool:
+        """Decide whether to make a final accusation based on certainty.
+
+        Returns:
+            bool: True only when exactly one suspect, weapon, and location
+            remain as candidates; otherwise False.
+        """
+        if state is None:
+            raise ValueError("Invalid state")
+
+        suspects, weapons, locations = self._resolve_suggestion_space(state)
+
+        if getattr(self, "debug", False):
+            print("Accusation Decision Check:", suspects)
+
+        if not suspects or not weapons or not locations:
             return False
 
         return (

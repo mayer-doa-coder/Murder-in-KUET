@@ -432,7 +432,8 @@ class GameState:
 
             if verbose:
                 if player.is_ai:
-                    print(f"\n--- {player.name} (AI) Turn ---")
+                    ai_name = type(player.ai_agent).__name__ if getattr(player, "ai_agent", None) is not None else "UnknownAI"
+                    print(f"\n--- {player.name} ({ai_name}) Turn ---")
                 else:
                     print(f"\n--- {player.name}'s Turn ---")
 
