@@ -342,7 +342,15 @@ class MinimaxAI(BaseAI):
         return float(min_eval)
 
     def choose_move(self, state: Any, valid_moves: Sequence[str]) -> str | None:
-        """Choose the highest-scoring move using minimax lookahead."""
+        """Select the best move by scoring each candidate with minimax.
+
+        Args:
+            state (Any): Current state snapshot.
+            valid_moves (Sequence[str]): Legal moves available this turn.
+
+        Returns:
+            str | None: Highest-scoring move, or None when no legal moves exist.
+        """
         if valid_moves is None:
             raise ValueError("valid_moves cannot be None")
 
@@ -352,49 +360,73 @@ class MinimaxAI(BaseAI):
 
         search_state = self._coerce_state(state, valid_moves)
 
-        best_move = valid_moves[0]
+        best_move: str | None = None
         best_score = -inf
 
         for move in valid_moves:
-            simulated = search_state.simulate_move(move)
-            score = self.minimax(simulated, self.depth - 1, False)
+            new_state = _simulate_state(search_state, move)
+            if new_state is None:
+                continue
+
+            score = self.minimax(new_state, self.depth, False)
             if score > best_score:
                 best_score = score
                 best_move = move
 
-        if best_move not in valid_moves:
-            return random.choice(valid_moves)
+        if best_move is None:
+            best_move = random.choice(valid_moves)
 
         return best_move
 
     def make_suggestion(self, state: Any) -> tuple[str, str, str]:
-        """Choose the best suggestion by maximizing simulated state score."""
+        """Select the best suspect-weapon suggestion using minimax scoring.
+
+        Args:
+            state (Any): Current state snapshot.
+
+        Returns:
+            tuple[str, str, str]: Best (suspect, weapon, location) suggestion.
+
+        Raises:
+            ValueError: If suggestion possibility space is empty.
+        """
         search_state = self._coerce_state(state)
 
         suspects = sorted(search_state.possible_suspects)
         weapons = sorted(search_state.possible_weapons)
-        locations = sorted(search_state.possible_locations)
 
-        if not suspects:
-            suspects = ["Unknown Suspect"]
-        if not weapons:
-            weapons = ["Unknown Weapon"]
-        if not locations:
-            locations = [search_state.current_location or "Unknown Location"]
+        if not suspects or not weapons:
+            raise ValueError("Invalid state: empty suggestion space")
 
-        location = search_state.current_location or locations[0]
+        location = search_state.current_location
+        if not isinstance(location, str) or not location.strip():
+            if search_state.possible_locations:
+                location = sorted(search_state.possible_locations)[0]
+            else:
+                raise ValueError("Invalid state: missing current location")
 
-        best = (suspects[0], weapons[0], location)
+        best: tuple[str, str, str] | None = None
         best_score = -inf
 
         for suspect in suspects:
             for weapon in weapons:
                 suggestion = (suspect, weapon, location)
-                simulated = search_state.simulate_suggestion(suggestion)
-                score = self.minimax(simulated, self.depth - 1, False)
+                try:
+                    new_state = search_state.simulate_suggestion(suggestion)
+                except Exception:
+                    continue
+
+                score = self.minimax(new_state, self.depth, False)
                 if score > best_score:
                     best_score = score
                     best = suggestion
+
+        if best is None:
+            return (
+                random.choice(suspects),
+                random.choice(weapons),
+                location,
+            )
 
         return best
 
