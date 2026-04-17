@@ -10,6 +10,7 @@ from engine.cards import suspects, weapons, locations, create_deck
 from engine.board import Board
 from engine.clue_reveal import reveal_clue
 from engine.accusation import check_accusation
+from engine.dice import roll_dice
 
 
 class GameState:
@@ -234,3 +235,178 @@ class GameState:
             self.next_turn()
 
         return result
+
+    def run_game(
+        self,
+        human_move_selector=None,
+        human_suggestion_selector=None,
+        human_accusation_selector=None,
+        max_turns=None,
+        verbose=True,
+    ):
+        """Run the full turn-based gameplay loop until game over.
+
+        Args:
+            human_move_selector: Optional callback `(player, valid_moves, state)`
+                returning a chosen move or None.
+            human_suggestion_selector: Optional callback
+                `(player, state)` returning `(suspect, weapon)`.
+            human_accusation_selector: Optional callback
+                `(player, state)` returning one of:
+                  - None              -> do not accuse
+                  - bool              -> accuse/not accuse (True/False)
+                  - tuple[str, str, str] -> explicit accusation cards
+                  - accusation object -> prebuilt accusation object
+            max_turns (int | None): Optional turn cap for simulations.
+            verbose (bool): Whether to print per-turn logs.
+
+        Returns:
+            object | None: Winning player object, or None if no winner.
+        """
+        if not self.players:
+            raise ValueError("Cannot run game without players")
+
+        turns_played = 0
+        current_index = self.current_turn % len(self.players)
+
+        while not self.game_over:
+            active_players = [p for p in self.players if p.active]
+            if len(active_players) == 1:
+                self.winner = active_players[0]
+                self.game_over = True
+                if verbose:
+                    print(f"{active_players[0].name} wins by default!")
+                break
+
+            if len(active_players) == 0:
+                self.winner = None
+                self.game_over = True
+                if verbose:
+                    print("Game ended. No players remaining.")
+                break
+
+            if max_turns is not None and turns_played >= max_turns:
+                break
+
+            player = self.players[current_index]
+            self.current_turn = current_index
+
+            # Skip eliminated players immediately.
+            if not player.active:
+                current_index = (current_index + 1) % len(self.players)
+                continue
+
+            if verbose:
+                print(f"\n--- {player.name}'s Turn ---")
+
+            # 1) Roll dice.
+            dice_roll = roll_dice()
+            self.last_dice_roll = dice_roll
+            dice_value = dice_roll.total
+            if verbose:
+                print(f"Dice: {dice_value}")
+
+            # 2) Movement phase.
+            if player.position is None:
+                valid_moves = self.board.get_all_locations()
+            else:
+                valid_moves = self.board.get_valid_moves(player.position, dice_value)
+                passage_dest = self.board.get_passage_destination(player.position)
+                if passage_dest and passage_dest not in valid_moves:
+                    valid_moves = valid_moves + [passage_dest]
+
+            move = None
+            if player.is_ai:
+                move = player.ai_agent.choose_move(self, valid_moves)
+            elif human_move_selector is not None:
+                move = human_move_selector(player, valid_moves, self)
+            elif valid_moves:
+                move = valid_moves[0]
+
+            if move in valid_moves:
+                player.move(move)
+
+            self.current_location = player.position
+            if verbose:
+                print(f"Moved to: {player.position}")
+
+            # 3) Suggestion phase.
+            if player.is_ai:
+                suspect, weapon, _ = player.ai_agent.make_suggestion(self)
+            elif human_suggestion_selector is not None:
+                suspect, weapon = human_suggestion_selector(player, self)
+            else:
+                suspect = self.suspects[0]
+                weapon = self.weapons[0]
+
+            suggestion = player.make_suggestion(suspect, weapon, player.position)
+            if verbose:
+                print(f"Suggestion: {suggestion}")
+
+            # 4) Clue revelation.
+            revealer, card = reveal_clue(suggestion, self.players, current_index)
+
+            # 5) Notebook update.
+            if card:
+                player.notebook.eliminate(card.name)
+                if verbose and revealer is not None:
+                    print(f"{revealer.name} revealed a card!")
+            elif verbose:
+                print("No one could disprove!")
+
+            # 6) AI knowledge update.
+            if player.is_ai and card and hasattr(player.ai_agent, "update_from_clue"):
+                player.ai_agent.update_from_clue(card)
+            if player.is_ai and not card and hasattr(player.ai_agent, "handle_no_reveal"):
+                player.ai_agent.handle_no_reveal(suggestion)
+
+            # 7) Optional accusation phase.
+            should_accuse = False
+            accusation = None
+
+            if player.is_ai:
+                if hasattr(player, "decide_accusation"):
+                    decision = player.decide_accusation(self)
+                else:
+                    decision = player.ai_agent.make_accusation(self)
+
+                if isinstance(decision, bool):
+                    should_accuse = decision
+                elif decision is not None:
+                    should_accuse = True
+                    accusation = decision
+            else:
+                decision = (
+                    human_accusation_selector(player, self)
+                    if human_accusation_selector is not None
+                    else None
+                )
+                if isinstance(decision, bool):
+                    should_accuse = decision
+                elif decision is not None:
+                    should_accuse = True
+                    accusation = decision
+
+            if should_accuse:
+                if accusation is None:
+                    accusation = player.make_accusation(suspect, weapon, player.position)
+                elif isinstance(accusation, tuple) and len(accusation) == 3:
+                    accusation = player.make_accusation(
+                        accusation[0], accusation[1], accusation[2]
+                    )
+
+                if check_accusation(accusation, self.solution):
+                    if verbose:
+                        print(f"{player.name} wins!")
+                    self.winner = player
+                    self.game_over = True
+                else:
+                    if verbose:
+                        print(f"{player.name} eliminated!")
+                    player.active = False
+
+            # 8) Turn rotation.
+            current_index = (current_index + 1) % len(self.players)
+            turns_played += 1
+
+        return self.winner
