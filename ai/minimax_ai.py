@@ -208,6 +208,7 @@ class MinimaxAI(BaseAI):
         if depth < 1:
             raise ValueError("depth must be >= 1")
         self.depth = min(depth, 3)
+        self._last_notebook: Any | None = None
 
     def evaluate(self, state: GameState) -> float:
         """Return a numeric score indicating how favorable a state is.
@@ -431,13 +432,51 @@ class MinimaxAI(BaseAI):
         return best
 
     def decide_accusation(self, state: Any) -> bool:
-        """Return True only when each possibility set is fully resolved."""
+        """Decide whether to make a final accusation on this turn.
+
+        Decision policy (pure, non-mutating):
+        1. Reject invalid/empty possibility states.
+        2. Accuse only when each category is exactly solved (1 candidate).
+        3. If still uncertain (up to 2 candidates per category), keep playing.
+
+        Returns:
+            bool: True to accuse now, False to continue gathering information.
+        """
+        if state is None:
+            raise ValueError("Invalid state provided")
+
         search_state = self._coerce_state(state)
-        return (
-            len(search_state.possible_suspects) == 1
-            and len(search_state.possible_weapons) == 1
-            and len(search_state.possible_locations) == 1
+
+        suspects = search_state.possible_suspects
+        weapons = search_state.possible_weapons
+        locations = search_state.possible_locations
+
+        if getattr(self, "debug", False):
+            print("Accusation Decision Check:")
+            print(suspects, weapons, locations)
+
+        if not suspects or not weapons or not locations:
+            return False
+
+        solved = (
+            len(suspects) == 1
+            and len(weapons) == 1
+            and len(locations) == 1
         )
+        if solved:
+            return True
+
+        # Conservative guardrail: avoid premature all-in plays while
+        # probability/risk-aware policies are not yet enabled.
+        uncertainty_threshold = 2
+        if (
+            len(suspects) <= uncertainty_threshold
+            and len(weapons) <= uncertainty_threshold
+            and len(locations) <= uncertainty_threshold
+        ):
+            return False
+
+        return False
 
     def _coerce_state(
         self,
@@ -447,11 +486,50 @@ class MinimaxAI(BaseAI):
         """Coerce external state into minimax GameState with validation."""
         if isinstance(state, GameState):
             coerced = deepcopy(state)
+            self._last_notebook = coerced.notebook
             if valid_moves is not None:
                 coerced.valid_moves_override = list(valid_moves)
             return coerced
 
-        return GameState.from_engine_state(state, valid_moves=valid_moves)
+        coerced = GameState.from_engine_state(state, valid_moves=valid_moves)
+        self._last_notebook = coerced.notebook
+        return coerced
+
+    def update_from_clue(self, card) -> None:
+        """Consume revealed-card evidence by eliminating it from notebook."""
+        if card is None or self._last_notebook is None:
+            return
+
+        name = getattr(card, "name", None)
+        if isinstance(name, str) and name.strip() and hasattr(self._last_notebook, "eliminate"):
+            self._last_notebook.eliminate(name)
+
+    def handle_no_reveal(self, suggestion) -> None:
+        """Apply conservative no-reveal inference to notebook candidate sets.
+
+        If no opponent can disprove a suggestion, the suggested suspect/weapon/
+        location become stronger candidates. We narrow each category set to the
+        suggested card only when that card is still a current candidate.
+        """
+        if self._last_notebook is None or suggestion is None:
+            return
+
+        suspect = getattr(suggestion, "suspect", None)
+        weapon = getattr(suggestion, "weapon", None)
+        location = getattr(suggestion, "location", None)
+
+        suspect_set = getattr(self._last_notebook, "possible_suspects", None)
+        weapon_set = getattr(self._last_notebook, "possible_weapons", None)
+        location_set = getattr(self._last_notebook, "possible_locations", None)
+
+        if isinstance(suspect_set, set) and isinstance(suspect, str) and suspect in suspect_set:
+            suspect_set.intersection_update({suspect})
+
+        if isinstance(weapon_set, set) and isinstance(weapon, str) and weapon in weapon_set:
+            weapon_set.intersection_update({weapon})
+
+        if isinstance(location_set, set) and isinstance(location, str) and location in location_set:
+            location_set.intersection_update({location})
 
 
 def _narrow_toward(possible_set: set[str], preferred_item: str) -> None:
