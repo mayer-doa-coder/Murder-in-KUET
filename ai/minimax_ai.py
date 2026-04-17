@@ -9,9 +9,9 @@ from __future__ import annotations
 
 import random
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from math import inf
-from typing import Any, Iterable, Sequence
+from typing import Any, Sequence
 
 from ai.base_ai import BaseAI
 
@@ -191,6 +191,14 @@ class GameState:
             )
         )
 
+    def is_solution_known(self) -> bool:
+        """Return True when each solution category has exactly one candidate."""
+        return (
+            len(self.possible_suspects) == 1
+            and len(self.possible_weapons) == 1
+            and len(self.possible_locations) == 1
+        )
+
 
 class MinimaxAI(BaseAI):
     """Search-based AI using fixed-depth minimax over a simulation state."""
@@ -202,38 +210,103 @@ class MinimaxAI(BaseAI):
         self.depth = min(depth, 3)
 
     def evaluate(self, state: GameState) -> float:
-        """Evaluate state quality using knowledge and uncertainty heuristics."""
+        """Return a numeric score indicating how favorable a state is.
+
+        Scoring factors:
+        1. Possibility-space reduction across suspect/weapon/location.
+        2. Reward for known-card accumulation.
+        3. Strong solved-state reward.
+        4. Penalties for high uncertainty and unbalanced category progress.
+
+        Raises:
+            ValueError: If state is None or missing required attributes.
+        """
         if state is None:
-            raise ValueError("Invalid state for evaluation")
+            raise ValueError("Invalid state")
 
-        if state.is_terminal():
-            return 1000.0
-
-        if not state.possible_suspects or not state.possible_weapons or not state.possible_locations:
-            return -1000.0
-
-        known_cards_count = _known_cards_count(state.notebook)
-
-        uncertainty = (
-            len(state.possible_suspects)
-            + len(state.possible_weapons)
-            + len(state.possible_locations)
+        # Validate required state attributes for safe repeated evaluation calls.
+        required_attrs = (
+            "possible_suspects",
+            "possible_weapons",
+            "possible_locations",
+            "current_location",
         )
+        missing = [name for name in required_attrs if not hasattr(state, name)]
+        if missing:
+            raise ValueError(f"Invalid state: missing attributes {missing}")
 
-        reduction_bonus = (
-            21
-            - uncertainty
-        )
+        possible_suspects = _safe_str_set(getattr(state, "possible_suspects"), "possible_suspects")
+        possible_weapons = _safe_str_set(getattr(state, "possible_weapons"), "possible_weapons")
+        possible_locations = _safe_str_set(getattr(state, "possible_locations"), "possible_locations")
+
+        # Mandatory edge-case handling: impossible/invalid inference sets.
+        if not possible_suspects or not possible_weapons or not possible_locations:
+            return -100.0
+
+        is_solution_known = False
+        if hasattr(state, "is_solution_known") and callable(state.is_solution_known):
+            is_solution_known = bool(state.is_solution_known())
+        else:
+            is_solution_known = (
+                len(possible_suspects) == 1
+                and len(possible_weapons) == 1
+                and len(possible_locations) == 1
+            )
+
+        if is_solution_known:
+            return 100.0
 
         score = 0.0
-        score += known_cards_count * 15.0
-        score += reduction_bonus * 4.0
-        score -= uncertainty * 3.0
 
-        return score
+        # 1) Reduce possibility space (critical).
+        score += (10 - len(possible_suspects)) * 3
+        score += (10 - len(possible_weapons)) * 3
+        score += (10 - len(possible_locations)) * 3
+
+        # 2) Reward knowledge gain.
+        known_cards = _known_cards_count(getattr(state, "notebook", None), state)
+        score += known_cards * 2
+
+        # 3) Penalize large uncertainty.
+        if len(possible_suspects) > 5:
+            score -= 5
+        if len(possible_weapons) > 5:
+            score -= 5
+        if len(possible_locations) > 5:
+            score -= 5
+
+        # 4) Balance categories so all dimensions are solved progressively.
+        score -= abs(len(possible_suspects) - len(possible_weapons))
+        score -= abs(len(possible_suspects) - len(possible_locations))
+        score -= abs(len(possible_weapons) - len(possible_locations))
+
+        # 5) Encourage current-room relevance for location inference.
+        current_location = getattr(state, "current_location", None)
+        if isinstance(current_location, str) and current_location in possible_locations:
+            score += 2
+
+        return float(score)
 
     def minimax(self, state: GameState, depth: int, maximizing: bool) -> float:
-        """Run recursive minimax search with strict depth decrement."""
+        """Evaluate a state via recursive minimax search.
+
+        Args:
+            state (GameState): Search state to evaluate.
+            depth (int): Remaining depth budget. Must be >= 0.
+            maximizing (bool): True for maximizing node, False for minimizing.
+
+        Returns:
+            float: Utility estimate for the input state.
+
+        Raises:
+            ValueError: If state is None or depth is negative.
+        """
+        if state is None:
+            raise ValueError("State cannot be None")
+
+        if depth < 0:
+            raise ValueError("depth cannot be negative")
+
         if depth == 0 or state.is_terminal():
             return self.evaluate(state)
 
@@ -243,17 +316,29 @@ class MinimaxAI(BaseAI):
 
         if maximizing:
             max_eval = -inf
+            progressed = False
             for move in moves:
-                new_state = state.simulate_move(move)
+                new_state = _simulate_state(state, move)
+                if new_state is None:
+                    continue
+                progressed = True
                 eval_score = self.minimax(new_state, depth - 1, False)
                 max_eval = max(max_eval, eval_score)
+            if not progressed:
+                return self.evaluate(state)
             return float(max_eval)
 
         min_eval = inf
+        progressed = False
         for move in moves:
-            new_state = state.simulate_move(move)
+            new_state = _simulate_state(state, move)
+            if new_state is None:
+                continue
+            progressed = True
             eval_score = self.minimax(new_state, depth - 1, True)
             min_eval = min(min_eval, eval_score)
+        if not progressed:
+            return self.evaluate(state)
         return float(min_eval)
 
     def choose_move(self, state: Any, valid_moves: Sequence[str]) -> str | None:
@@ -348,19 +433,50 @@ def _narrow_toward(possible_set: set[str], preferred_item: str) -> None:
             possible_set.remove(removable[0])
 
 
-def _known_cards_count(notebook: Any) -> int:
-    """Return known card count from notebook-like object safely."""
-    if notebook is None:
-        return 0
+def _simulate_state(state: Any, move: str) -> Any | None:
+    """Return simulated successor state for a move, or None if invalid.
 
-    known = getattr(notebook, "known_cards", None)
-    if known is None:
-        return 0
+    Supports both `simulate(move)` and `simulate_move(move)` state APIs.
+    """
+    simulator = None
+    if hasattr(state, "simulate") and callable(state.simulate):
+        simulator = state.simulate
+    elif hasattr(state, "simulate_move") and callable(state.simulate_move):
+        simulator = state.simulate_move
 
-    if isinstance(known, (set, list, tuple)):
-        return len(known)
+    if simulator is None:
+        raise ValueError("State cannot be simulated: missing simulate method")
+
+    try:
+        return simulator(move)
+    except Exception:
+        return None
+
+
+def _known_cards_count(notebook: Any, state: Any | None = None) -> int:
+    """Return known-card count from notebook-like object or state fallback."""
+    if notebook is not None:
+        known = getattr(notebook, "known_cards", None)
+        if isinstance(known, (set, list, tuple)):
+            return len(known)
+
+    if state is not None:
+        known = getattr(state, "known_cards", None)
+        if isinstance(known, (set, list, tuple)):
+            return len(known)
 
     return 0
+
+
+def _safe_str_set(value: Any, name: str) -> set[str]:
+    """Validate set-like possibility collections and coerce to set[str]."""
+    if isinstance(value, set):
+        return {str(item) for item in value}
+
+    if isinstance(value, (list, tuple)):
+        return {str(item) for item in value}
+
+    raise ValueError(f"Invalid state: {name} must be a set/list/tuple")
 
 
 if __name__ == "__main__":
