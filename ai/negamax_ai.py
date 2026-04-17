@@ -4,9 +4,11 @@ Purpose: Defines a clean, extensible structure for a Negamax-based AI agent
 that will later support alpha-beta pruning and high-performance search.
 """
 
+import random
+
 from ai.base_ai import BaseAI
 from math import inf
-from typing import Any
+from typing import Any, Sequence
 
 
 class NegamaxAI(BaseAI):
@@ -16,24 +18,29 @@ class NegamaxAI(BaseAI):
         """Store search depth for future recursive Negamax logic."""
         self.depth = depth
 
-    def negamax(self, state: Any, depth: int) -> float:
-        """Evaluate a game state via recursive Negamax search.
+    def negamax(self, state: Any, depth: int, alpha: float, beta: float) -> float:
+        """Evaluate a state via Negamax with alpha-beta pruning.
 
         Args:
             state: Current game state.
             depth: Remaining search depth (must be >= 0).
+            alpha: Lower bound on achievable score.
+            beta: Upper bound on achievable score.
 
         Returns:
             float: Utility estimate for this state.
 
         Raises:
-            ValueError: If state is None or depth is negative.
+            ValueError: If state is None, depth is negative, or alpha > beta.
         """
         if state is None:
             raise ValueError("State cannot be None")
 
         if depth < 0:
             raise ValueError("depth cannot be negative")
+
+        if alpha > beta:
+            raise ValueError("alpha must be <= beta")
 
         if depth == 0 or self._is_terminal_state(state):
             return self.evaluate(state)
@@ -51,8 +58,12 @@ class NegamaxAI(BaseAI):
                 continue
 
             progressed = True
-            score = -self.negamax(new_state, depth - 1)
+            score = -self.negamax(new_state, depth - 1, -beta, -alpha)
             best = max(best, score)
+            alpha = max(alpha, score)
+
+            if alpha >= beta:
+                break
 
         if not progressed:
             return self.evaluate(state)
@@ -182,19 +193,158 @@ class NegamaxAI(BaseAI):
             return {str(v) for v in value}
         return None
 
-    def choose_move(self, state: Any, valid_moves: Any):
-        """Choose the best move for the current turn.
+    def choose_move(self, state: Any, valid_moves: Sequence[str] | None) -> str | None:
+        """Select the highest-scoring movement using Negamax + alpha-beta.
 
-        This placeholder will later evaluate candidate moves using Negamax.
+        Args:
+            state: Current game/search state.
+            valid_moves: Legal move options for this turn.
+
+        Returns:
+            str | None: Best legal move, or None when no legal move exists.
+
+        Raises:
+            ValueError: If state is None.
         """
-        pass
+        if state is None:
+            raise ValueError("State cannot be None")
 
-    def make_suggestion(self, state: Any):
-        """Choose the best suspect-weapon-location suggestion.
+        if not valid_moves:
+            return None
 
-        This placeholder will later score suggestions with Negamax search.
+        valid_moves = list(valid_moves)
+
+        working_state = state
+        if not (
+            hasattr(working_state, "simulate") and callable(getattr(working_state, "simulate"))
+        ) and not (
+            hasattr(working_state, "simulate_move")
+            and callable(getattr(working_state, "simulate_move"))
+        ):
+            try:
+                from ai.minimax_ai import GameState as MinimaxSearchState
+
+                working_state = MinimaxSearchState.from_engine_state(
+                    state,
+                    valid_moves=valid_moves,
+                )
+            except Exception:
+                working_state = state
+
+        best_move: str | None = None
+        best_score = -inf
+
+        for move in valid_moves:
+            new_state = self._simulate_state(working_state, move)
+            if new_state is None:
+                continue
+
+            score = -self.negamax(new_state, self.depth, float("-inf"), float("inf"))
+            if getattr(self, "debug", False):
+                print(f"Move: {move}, Score: {score}")
+
+            if score > best_score:
+                best_score = score
+                best_move = move
+
+        if best_move is None:
+            best_move = random.choice(valid_moves)
+
+        return best_move
+
+    def make_suggestion(self, state: Any) -> tuple[str, str, str]:
+        """Select the best suggestion using Negamax + alpha-beta scoring.
+
+        Args:
+            state: Current game/search state.
+
+        Returns:
+            tuple[str, str, str]: (suspect, weapon, location) suggestion.
+
+        Raises:
+            ValueError: If state is None or has no suggestion options.
         """
-        pass
+        if state is None:
+            raise ValueError("State cannot be None")
+
+        working_state = state
+        if not hasattr(working_state, "simulate_suggestion") or not callable(
+            getattr(working_state, "simulate_suggestion")
+        ):
+            try:
+                from ai.minimax_ai import GameState as MinimaxSearchState
+
+                working_state = MinimaxSearchState.from_engine_state(state)
+            except Exception:
+                working_state = state
+
+        suspects = self._as_set(getattr(working_state, "possible_suspects", None))
+        weapons = self._as_set(getattr(working_state, "possible_weapons", None))
+
+        if suspects is None:
+            suspects = set(getattr(working_state, "suspects", []))
+        if weapons is None:
+            weapons = set(getattr(working_state, "weapons", []))
+
+        if not suspects or not weapons:
+            raise ValueError("Invalid state: no suggestion options")
+
+        location = getattr(working_state, "current_location", None)
+        if not isinstance(location, str) or not location.strip():
+            notebook = self._get_current_notebook(working_state)
+            if notebook is not None:
+                locations = self._as_set(getattr(notebook, "possible_locations", set()))
+                if locations:
+                    location = sorted(locations)[0]
+
+        if not isinstance(location, str) or not location.strip():
+            players = getattr(working_state, "players", None)
+            current_turn = getattr(working_state, "current_turn", None)
+            if isinstance(players, list) and players and isinstance(current_turn, int):
+                position = getattr(players[current_turn % len(players)], "position", None)
+                if isinstance(position, str) and position.strip():
+                    location = position
+
+        if not isinstance(location, str) or not location.strip():
+            possible_locations = self._as_set(getattr(working_state, "possible_locations", None))
+            if possible_locations:
+                location = sorted(possible_locations)[0]
+
+        if not isinstance(location, str) or not location.strip():
+            raise ValueError("Invalid state: missing current location")
+
+        best: tuple[str, str, str] | None = None
+        best_score = -inf
+
+        simulator = getattr(working_state, "simulate_suggestion", None)
+        for suspect in sorted(suspects):
+            for weapon in sorted(weapons):
+                suggestion = (suspect, weapon, location)
+
+                if not callable(simulator):
+                    continue
+
+                try:
+                    new_state = simulator(suggestion)
+                except Exception:
+                    continue
+
+                score = -self.negamax(new_state, self.depth, float("-inf"), float("inf"))
+                if getattr(self, "debug", False):
+                    print(f"Suggestion: {suggestion}, Score: {score}")
+
+                if score > best_score:
+                    best_score = score
+                    best = suggestion
+
+        if best is None:
+            best = (
+                random.choice(list(suspects)),
+                random.choice(list(weapons)),
+                location,
+            )
+
+        return best
 
     def decide_accusation(self, state: Any) -> bool:
         """Decide whether to make a final accusation.
