@@ -6,6 +6,7 @@ This module maintains game status, player states, solution, and game progress.
 """
 
 import random
+from copy import deepcopy
 from engine.cards import suspects, weapons, locations, create_deck
 from engine.board import Board
 from engine.clue_reveal import reveal_clue
@@ -147,6 +148,139 @@ class GameState:
                 player.ai_agent.handle_no_reveal(suggestion)
 
         return (revealer, card)
+
+    def get_chance_outcomes(self, suggestion) -> list:
+        """Return probabilistic outcomes after a suggestion.
+
+        This method models two simplified chance outcomes for expectiminimax:
+          1. A matching card is revealed to the current player.
+          2. No player reveals a matching card.
+
+        Return format:
+            list[(probability, state_copy)]
+
+        Probability model:
+            num_possible = len(possible_suspects) + len(possible_weapons)
+            prob_reveal = 1 / num_possible
+            prob_no_reveal = 1 - prob_reveal
+
+        Args:
+            suggestion: Suggestion object or tuple/list
+                (suspect, weapon, location).
+
+        Returns:
+            list: List of (probability, GameState copy) tuples.
+
+        Raises:
+            ValueError: If suggestion is None or malformed.
+        """
+        if suggestion is None:
+            raise ValueError("Invalid suggestion")
+
+        suspect, weapon, location = self._unpack_suggestion(suggestion)
+
+        possible_suspects, possible_weapons, _possible_locations = self._get_possible_sets(self)
+        num_possible = len(possible_suspects) + len(possible_weapons)
+
+        if num_possible == 0:
+            return [(1.0, deepcopy(self))]
+
+        prob_reveal = 1.0 / num_possible
+        prob_no_reveal = 1.0 - prob_reveal
+
+        outcomes = []
+
+        # Case 1: card revealed -> gain direct knowledge.
+        state_reveal = deepcopy(self)
+        reveal_notebook = self._get_current_notebook(state_reveal)
+        if reveal_notebook is not None and hasattr(reveal_notebook, "eliminate"):
+            if suspect in getattr(reveal_notebook, "possible_suspects", set()):
+                reveal_notebook.eliminate(suspect)
+            elif weapon in getattr(reveal_notebook, "possible_weapons", set()):
+                reveal_notebook.eliminate(weapon)
+            elif location in getattr(reveal_notebook, "possible_locations", set()):
+                reveal_notebook.eliminate(location)
+        else:
+            known_cards = getattr(state_reveal, "known_cards", None)
+            if isinstance(known_cards, set):
+                known_cards.add(suspect)
+
+        outcomes.append((prob_reveal, state_reveal))
+
+        # Case 2: no card revealed -> strong deduction toward the suggestion.
+        state_no_reveal = deepcopy(self)
+        no_reveal_notebook = self._get_current_notebook(state_no_reveal)
+        if no_reveal_notebook is not None:
+            suspects_set = getattr(no_reveal_notebook, "possible_suspects", None)
+            weapons_set = getattr(no_reveal_notebook, "possible_weapons", None)
+            locations_set = getattr(no_reveal_notebook, "possible_locations", None)
+
+            if isinstance(suspects_set, set) and suspect in suspects_set:
+                suspects_set.intersection_update({suspect})
+            if isinstance(weapons_set, set) and weapon in weapons_set:
+                weapons_set.intersection_update({weapon})
+            if isinstance(locations_set, set) and location in locations_set:
+                locations_set.intersection_update({location})
+        else:
+            suspects_set = getattr(state_no_reveal, "possible_suspects", None)
+            weapons_set = getattr(state_no_reveal, "possible_weapons", None)
+            if isinstance(suspects_set, set):
+                suspects_set.discard(suspect)
+            if isinstance(weapons_set, set):
+                weapons_set.discard(weapon)
+
+        outcomes.append((prob_no_reveal, state_no_reveal))
+
+        return outcomes
+
+    def _unpack_suggestion(self, suggestion):
+        """Normalize Suggestion object or tuple/list into three strings."""
+        if hasattr(suggestion, "suspect") and hasattr(suggestion, "weapon") and hasattr(suggestion, "location"):
+            suspect = suggestion.suspect
+            weapon = suggestion.weapon
+            location = suggestion.location
+        elif isinstance(suggestion, (tuple, list)) and len(suggestion) == 3:
+            suspect, weapon, location = suggestion
+        else:
+            raise ValueError("Invalid suggestion")
+
+        if not all(isinstance(v, str) and v.strip() for v in (suspect, weapon, location)):
+            raise ValueError("Invalid suggestion")
+
+        return suspect.strip(), weapon.strip(), location.strip()
+
+    def _get_current_notebook(self, state_obj):
+        """Return current player's notebook from a state copy, if present."""
+        players = getattr(state_obj, "players", None)
+        current_turn = getattr(state_obj, "current_turn", None)
+        if not isinstance(players, list) or not players or not isinstance(current_turn, int):
+            return None
+
+        player = players[current_turn % len(players)]
+        return getattr(player, "notebook", None)
+
+    def _get_possible_sets(self, state_obj):
+        """Resolve possible sets from notebook-first, state-attribute fallback."""
+        notebook = self._get_current_notebook(state_obj)
+        if notebook is not None:
+            return (
+                set(getattr(notebook, "possible_suspects", set())),
+                set(getattr(notebook, "possible_weapons", set())),
+                set(getattr(notebook, "possible_locations", set())),
+            )
+
+        suspects_set = getattr(state_obj, "possible_suspects", None)
+        weapons_set = getattr(state_obj, "possible_weapons", None)
+        locations_set = getattr(state_obj, "possible_locations", None)
+
+        if suspects_set is None:
+            suspects_set = getattr(state_obj, "suspects", [])
+        if weapons_set is None:
+            weapons_set = getattr(state_obj, "weapons", [])
+        if locations_set is None:
+            locations_set = getattr(state_obj, "locations", [])
+
+        return set(suspects_set), set(weapons_set), set(locations_set)
 
     def get_active_players(self):
         """Return a list of players who are still active in the game."""
@@ -298,7 +432,8 @@ class GameState:
 
             if verbose:
                 if player.is_ai:
-                    print(f"\n--- {player.name} (AI) Turn ---")
+                    ai_name = type(player.ai_agent).__name__ if getattr(player, "ai_agent", None) is not None else "UnknownAI"
+                    print(f"\n--- {player.name} ({ai_name}) Turn ---")
                 else:
                     print(f"\n--- {player.name}'s Turn ---")
 
