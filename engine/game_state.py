@@ -20,6 +20,10 @@ class GameState:
         self.game_over = False
         self.winner = None
         self.board = Board()
+        self.suspects = list(suspects)
+        self.weapons = list(weapons)
+        self.locations = list(locations)
+        self.current_location = None
         # Set at the start of every turn so any agent can inspect it.
         self.last_dice_roll = None
 

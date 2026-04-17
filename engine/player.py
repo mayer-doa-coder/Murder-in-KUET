@@ -6,6 +6,7 @@ This module handles player attributes, hand management, and player actions.
 """
 
 from engine.dice import roll_dice
+from engine.suggestion import Suggestion
 
 
 class Player:
@@ -57,17 +58,22 @@ class Player:
             return True
         return False
 
-    def make_suggestion(self, suspect, weapon, location):
+    def make_suggestion(self, suspect: str, weapon: str, location: str) -> Suggestion:
+        """Create a pure suggestion object for this turn.
+
+        This method does not mutate game state. It only validates inputs
+        and returns a new Suggestion instance that can be consumed by
+        reveal, AI-reasoning, and game-loop systems.
+
+        Args:
+            suspect (str): Suggested suspect name.
+            weapon (str): Suggested weapon name.
+            location (str): Suggested location name.
+
+        Returns:
+            Suggestion: A validated suggestion object.
         """
-        Suggest a suspect, weapon, and location.
-        Returns a dict representing the suggestion.
-        """
-        return {
-            "suspect": suspect,
-            "weapon": weapon,
-            "location": location,
-            "by": self.name,
-        }
+        return Suggestion(suspect=suspect, weapon=weapon, location=location)
 
     def make_accusation(self, suspect, weapon, location):
         """
@@ -136,7 +142,14 @@ class Player:
                     # against bugs in custom agents without crashing the game.
                     move = None
 
+            game_state.current_location = self.position
             suggestion = self.ai_agent.make_suggestion(game_state)
+            if isinstance(suggestion, tuple) and len(suggestion) == 3:
+                suggestion = {
+                    "suspect": suggestion[0],
+                    "weapon": suggestion[1],
+                    "location": suggestion[2],
+                }
             accusation = self.ai_agent.make_accusation(game_state)
 
             return {

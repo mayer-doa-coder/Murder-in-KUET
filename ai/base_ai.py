@@ -41,16 +41,17 @@ class BaseAI:
         """
         raise NotImplementedError
 
-    def make_suggestion(self, game_state):
-        """
-        Suggest a (suspect, weapon, location) combination.
-        Must be called after choose_move so position is up to date.
+    def make_suggestion(self, state) -> tuple[str, str, str]:
+        """Generate a suggestion as (suspect, weapon, location).
 
         Args:
-            game_state (GameState): Current game state.
+            state: Game state view containing at least:
+                   - suspects: list[str]
+                   - weapons: list[str]
+                   - current_location: str
 
         Returns:
-            dict: {'suspect': str, 'weapon': str, 'location': str}
+            tuple[str, str, str]: The suggested suspect, weapon, and location.
         """
         raise NotImplementedError
 
