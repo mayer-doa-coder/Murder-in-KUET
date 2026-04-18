@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+import matplotlib.pyplot as plt
+
 
 class Visualizer:
     """Prepare simulation metrics for visualization and expose plotting hooks."""
@@ -55,8 +57,52 @@ class Visualizer:
         return prepared
 
     def plot_win_rate(self) -> None:
-        """Placeholder for win-rate visualization.
+        """Plot a bar chart comparing win rates of all AI agents."""
+        if not self.metrics:
+            raise ValueError("Metrics data is empty")
 
-        Plotting implementation is intentionally deferred to future iterations.
-        """
-        pass
+        names: list[str] = []
+        win_rates: list[float] = []
+
+        total_games = sum(float(data.get("wins", 0) or 0) for data in self.metrics.values())
+        if total_games == 0:
+            raise ValueError("No games recorded. Cannot compute win rate.")
+
+        for ai_name, data in self.metrics.items():
+            wins = float(data.get("wins", 0) or 0)
+            names.append(ai_name)
+            win_rates.append(wins / total_games)
+
+        plt.figure(figsize=(9, 5))
+        plt.bar(names, win_rates, color="#3a7ca5")
+        plt.title("Win Rate Comparison")
+        plt.xlabel("AI Agents")
+        plt.ylabel("Win Rate")
+        plt.xticks(rotation=15)
+        plt.tight_layout()
+        plt.show()
+
+    def plot_decision_time(self) -> None:
+        """Plot a bar chart comparing average decision time of all AI agents."""
+        if not self.metrics:
+            raise ValueError("Metrics data is empty")
+
+        names: list[str] = []
+        times: list[float] = []
+
+        for ai_name, data in self.metrics.items():
+            total_time = float(data.get("decision_time", 0) or 0)
+            decisions = float(data.get("decisions", 0) or 0)
+            avg_time = total_time / max(decisions, 1.0)
+
+            names.append(ai_name)
+            times.append(avg_time)
+
+        plt.figure(figsize=(9, 5))
+        plt.bar(names, times, color="#2a9d8f")
+        plt.title("Decision Time Comparison")
+        plt.xlabel("AI Agents")
+        plt.ylabel("Average Decision Time (seconds)")
+        plt.xticks(rotation=15)
+        plt.tight_layout()
+        plt.show()
