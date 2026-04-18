@@ -133,6 +133,52 @@ class BayesianNotebook:
 
         self.known_cards.add(normalized)
 
+    def update_no_reveal(
+        self,
+        suspect: str,
+        weapon: str,
+        location: str,
+        increment: float = 0.2,
+    ) -> None:
+        """Increase suggestion-card likelihood when no player reveals a card."""
+        if not isinstance(suspect, str) or not suspect.strip():
+            raise TypeError("suspect must be a non-empty string")
+        if not isinstance(weapon, str) or not weapon.strip():
+            raise TypeError("weapon must be a non-empty string")
+        if not isinstance(location, str) or not location.strip():
+            raise TypeError("location must be a non-empty string")
+        if not isinstance(increment, (int, float)):
+            raise TypeError("increment must be numeric")
+        if increment <= 0.0:
+            raise ValueError("increment must be greater than 0")
+
+        suspect_name = suspect.strip()
+        weapon_name = weapon.strip()
+        location_name = location.strip()
+
+        if suspect_name not in self.suspects:
+            raise ValueError("Invalid suspect")
+        if weapon_name not in self.weapons:
+            raise ValueError("Invalid weapon")
+        if location_name not in self.locations:
+            raise ValueError("Invalid location")
+
+        # Do not resurrect cards already confirmed as not in the solution.
+        if suspect_name not in self.known_cards and self.suspects[suspect_name] > 0.0:
+            self.suspects[suspect_name] += float(increment)
+        if weapon_name not in self.known_cards and self.weapons[weapon_name] > 0.0:
+            self.weapons[weapon_name] += float(increment)
+        if location_name not in self.known_cards and self.locations[location_name] > 0.0:
+            self.locations[location_name] += float(increment)
+
+        self.normalize(self.suspects)
+        self.normalize(self.weapons)
+        self.normalize(self.locations)
+
+    def update_reveal(self, card: str) -> None:
+        """Update probabilities when a card is revealed."""
+        self.eliminate(card)
+
     def is_solved(self) -> bool:
         """Return True when one candidate remains in each category."""
         return (

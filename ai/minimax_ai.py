@@ -724,6 +724,16 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
         weapon = getattr(suggestion, "weapon", None)
         location = getattr(suggestion, "location", None)
 
+        update_no_reveal = getattr(self._last_notebook, "update_no_reveal", None)
+        if (
+            callable(update_no_reveal)
+            and isinstance(suspect, str)
+            and isinstance(weapon, str)
+            and isinstance(location, str)
+        ):
+            update_no_reveal(suspect, weapon, location)
+            return
+
         suspect_set = getattr(self._last_notebook, "possible_suspects", None)
         weapon_set = getattr(self._last_notebook, "possible_weapons", None)
         location_set = getattr(self._last_notebook, "possible_locations", None)

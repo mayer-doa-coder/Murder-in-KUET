@@ -360,12 +360,22 @@ class GameState:
         state_reveal = self.clone()
         reveal_notebook = self._get_current_notebook(state_reveal)
         if reveal_notebook is not None and hasattr(reveal_notebook, "eliminate"):
+            update_reveal = getattr(reveal_notebook, "update_reveal", None)
             if suspect in getattr(reveal_notebook, "possible_suspects", set()):
-                reveal_notebook.eliminate(suspect)
+                if callable(update_reveal):
+                    update_reveal(suspect)
+                else:
+                    reveal_notebook.eliminate(suspect)
             elif weapon in getattr(reveal_notebook, "possible_weapons", set()):
-                reveal_notebook.eliminate(weapon)
+                if callable(update_reveal):
+                    update_reveal(weapon)
+                else:
+                    reveal_notebook.eliminate(weapon)
             elif location in getattr(reveal_notebook, "possible_locations", set()):
-                reveal_notebook.eliminate(location)
+                if callable(update_reveal):
+                    update_reveal(location)
+                else:
+                    reveal_notebook.eliminate(location)
         else:
             known_cards = getattr(state_reveal, "known_cards", None)
             if isinstance(known_cards, set):
@@ -377,16 +387,20 @@ class GameState:
         state_no_reveal = self.clone()
         no_reveal_notebook = self._get_current_notebook(state_no_reveal)
         if no_reveal_notebook is not None:
-            suspects_set = getattr(no_reveal_notebook, "possible_suspects", None)
-            weapons_set = getattr(no_reveal_notebook, "possible_weapons", None)
-            locations_set = getattr(no_reveal_notebook, "possible_locations", None)
+            update_no_reveal = getattr(no_reveal_notebook, "update_no_reveal", None)
+            if callable(update_no_reveal):
+                update_no_reveal(suspect, weapon, location)
+            else:
+                suspects_set = getattr(no_reveal_notebook, "possible_suspects", None)
+                weapons_set = getattr(no_reveal_notebook, "possible_weapons", None)
+                locations_set = getattr(no_reveal_notebook, "possible_locations", None)
 
-            if isinstance(suspects_set, set) and suspect in suspects_set:
-                suspects_set.intersection_update({suspect})
-            if isinstance(weapons_set, set) and weapon in weapons_set:
-                weapons_set.intersection_update({weapon})
-            if isinstance(locations_set, set) and location in locations_set:
-                locations_set.intersection_update({location})
+                if isinstance(suspects_set, set) and suspect in suspects_set:
+                    suspects_set.intersection_update({suspect})
+                if isinstance(weapons_set, set) and weapon in weapons_set:
+                    weapons_set.intersection_update({weapon})
+                if isinstance(locations_set, set) and location in locations_set:
+                    locations_set.intersection_update({location})
         else:
             suspects_set = getattr(state_no_reveal, "possible_suspects", None)
             weapons_set = getattr(state_no_reveal, "possible_weapons", None)
