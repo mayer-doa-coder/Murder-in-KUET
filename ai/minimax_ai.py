@@ -205,7 +205,179 @@ class GameState:
         )
 
 
-class MinimaxAI(BaseAI):
+class StrategicEvaluationMixin:
+    """Reusable strategic evaluation logic shared across search AIs.
+
+    The evaluation is intentionally modular so each component can be replaced
+    independently by future Bayesian or learning-based implementations.
+    """
+
+    def evaluate(self, state: Any) -> float:
+        """Heuristic evaluation function.
+
+        Combines multiple scoring strategies to assess
+        the quality of the current game state.
+        """
+        if state is None:
+            raise ValueError("State cannot be None")
+
+        score = 0.0
+        score += self.score_information_gain(state)
+        score += self.score_certainty(state)
+        score += self.score_risk(state)
+        score += self.score_opponent(state)
+        return float(score)
+
+    def score_information_gain(self, state: Any) -> float:
+        """Rewards reduction in uncertainty."""
+        suspects, weapons, locations = self._resolve_possibility_space(state)
+        if not suspects or not weapons or not locations:
+            return -100.0
+
+        baseline = 10
+        score = 0.0
+        score += (baseline - len(suspects)) * 3.0
+        score += (baseline - len(weapons)) * 3.0
+        score += (baseline - len(locations)) * 3.0
+        return float(score)
+
+    def score_certainty(self, state: Any) -> float:
+        """Rewards nearing a final solution."""
+        suspects, weapons, locations = self._resolve_possibility_space(state)
+        if not suspects or not weapons or not locations:
+            return -100.0
+
+        if len(suspects) == 1 and len(weapons) == 1 and len(locations) == 1:
+            return 100.0
+
+        known_cards = self._known_cards_count_for_state(state)
+        progress_bonus = 0.0
+        progress_bonus += 8.0 if len(suspects) <= 2 else 0.0
+        progress_bonus += 8.0 if len(weapons) <= 2 else 0.0
+        progress_bonus += 8.0 if len(locations) <= 2 else 0.0
+        return float((known_cards * 2.0) + progress_bonus)
+
+    def score_risk(self, state: Any) -> float:
+        """Penalizes risky or premature decisions."""
+        suspects, weapons, locations = self._resolve_possibility_space(state)
+        if not suspects or not weapons or not locations:
+            return -20.0
+
+        penalty = 0.0
+        if len(suspects) > 5:
+            penalty += 5.0
+        if len(weapons) > 5:
+            penalty += 5.0
+        if len(locations) > 5:
+            penalty += 5.0
+
+        penalty += abs(len(suspects) - len(weapons)) * 1.0
+        penalty += abs(len(suspects) - len(locations)) * 1.0
+        penalty += abs(len(weapons) - len(locations)) * 1.0
+
+        return float(-penalty)
+
+    def score_opponent(self, state: Any) -> float:
+        """Considers opponent advantage or knowledge."""
+        players = getattr(state, "players", None)
+        current_turn = getattr(state, "current_turn", None)
+        if not isinstance(players, list) or not players or not isinstance(current_turn, int):
+            return 0.0
+
+        my_index = current_turn % len(players)
+        my_certainty = self._notebook_certainty(players[my_index])
+        if my_certainty is None:
+            return 0.0
+
+        penalties = 0.0
+        for idx, player in enumerate(players):
+            if idx == my_index:
+                continue
+            certainty = self._notebook_certainty(player)
+            if certainty is None:
+                continue
+            # Penalize states where opponents appear more certain than us.
+            penalties += max(0.0, certainty - my_certainty)
+
+        return float(-penalties * 5.0)
+
+    def _resolve_possibility_space(self, state: Any) -> tuple[set[str], set[str], set[str]]:
+        """Resolve suspect/weapon/location candidate sets from supported states."""
+        suspects = self._as_set(getattr(state, "possible_suspects", None))
+        weapons = self._as_set(getattr(state, "possible_weapons", None))
+        locations = self._as_set(getattr(state, "possible_locations", None))
+
+        if suspects is None or weapons is None or locations is None:
+            notebook = self._get_current_notebook(state)
+            if notebook is not None:
+                suspects = self._as_set(getattr(notebook, "possible_suspects", set()))
+                weapons = self._as_set(getattr(notebook, "possible_weapons", set()))
+                locations = self._as_set(getattr(notebook, "possible_locations", set()))
+
+        if suspects is None:
+            suspects = set(getattr(state, "suspects", []))
+        if weapons is None:
+            weapons = set(getattr(state, "weapons", []))
+        if locations is None:
+            locations = set(getattr(state, "locations", []))
+
+        return suspects, weapons, locations
+
+    def _get_current_notebook(self, state: Any) -> Any | None:
+        """Return current player's notebook if present, else None."""
+        notebook = getattr(state, "notebook", None)
+        if notebook is not None:
+            return notebook
+
+        players = getattr(state, "players", None)
+        current_turn = getattr(state, "current_turn", None)
+        if isinstance(players, list) and players and isinstance(current_turn, int):
+            player = players[current_turn % len(players)]
+            return getattr(player, "notebook", None)
+
+        if isinstance(state, GameState):
+            index = state.current_player_index
+            if state.players and 0 <= index < len(state.players):
+                player = state.players[index]
+                return getattr(player, "notebook", None)
+
+        return None
+
+    def _known_cards_count_for_state(self, state: Any) -> int:
+        """Return known-card count from notebook-like structures."""
+        notebook = self._get_current_notebook(state)
+        return _known_cards_count(notebook, state)
+
+    def _notebook_certainty(self, player: Any) -> float | None:
+        """Estimate certainty for a player's notebook in [0, 1]."""
+        notebook = getattr(player, "notebook", None)
+        if notebook is None:
+            return None
+
+        suspects = self._as_set(getattr(notebook, "possible_suspects", None))
+        weapons = self._as_set(getattr(notebook, "possible_weapons", None))
+        locations = self._as_set(getattr(notebook, "possible_locations", None))
+        if suspects is None or weapons is None or locations is None:
+            return None
+        if not suspects or not weapons or not locations:
+            return None
+
+        # 1 means solved certainty, 0 means high uncertainty.
+        denom = 30.0
+        uncertainty = float(len(suspects) + len(weapons) + len(locations))
+        certainty = max(0.0, min(1.0, 1.0 - ((uncertainty - 3.0) / denom)))
+        return float(certainty)
+
+    def _as_set(self, value: Any) -> set[str] | None:
+        """Convert set/list/tuple collections to set[str], else None."""
+        if isinstance(value, set):
+            return {str(v) for v in value}
+        if isinstance(value, (list, tuple)):
+            return {str(v) for v in value}
+        return None
+
+
+class MinimaxAI(StrategicEvaluationMixin, BaseAI):
     """Search-based AI using fixed-depth minimax over a simulation state."""
 
     def __init__(self, depth: int | None = None) -> None:
@@ -221,83 +393,9 @@ class MinimaxAI(BaseAI):
         self.depth = min(depth, 3)
         self._last_notebook: Any | None = None
 
-    def evaluate(self, state: GameState) -> float:
-        """Return a numeric score indicating how favorable a state is.
-
-        Scoring factors:
-        1. Possibility-space reduction across suspect/weapon/location.
-        2. Reward for known-card accumulation.
-        3. Strong solved-state reward.
-        4. Penalties for high uncertainty and unbalanced category progress.
-
-        Raises:
-            ValueError: If state is None or missing required attributes.
-        """
-        if state is None:
-            raise ValueError("Invalid state")
-
-        # Validate required state attributes for safe repeated evaluation calls.
-        required_attrs = (
-            "possible_suspects",
-            "possible_weapons",
-            "possible_locations",
-            "current_location",
-        )
-        missing = [name for name in required_attrs if not hasattr(state, name)]
-        if missing:
-            raise ValueError(f"Invalid state: missing attributes {missing}")
-
-        possible_suspects = _safe_str_set(getattr(state, "possible_suspects"), "possible_suspects")
-        possible_weapons = _safe_str_set(getattr(state, "possible_weapons"), "possible_weapons")
-        possible_locations = _safe_str_set(getattr(state, "possible_locations"), "possible_locations")
-
-        # Mandatory edge-case handling: impossible/invalid inference sets.
-        if not possible_suspects or not possible_weapons or not possible_locations:
-            return -100.0
-
-        is_solution_known = False
-        if hasattr(state, "is_solution_known") and callable(state.is_solution_known):
-            is_solution_known = bool(state.is_solution_known())
-        else:
-            is_solution_known = (
-                len(possible_suspects) == 1
-                and len(possible_weapons) == 1
-                and len(possible_locations) == 1
-            )
-
-        if is_solution_known:
-            return 100.0
-
-        score = 0.0
-
-        # 1) Reduce possibility space (critical).
-        score += (10 - len(possible_suspects)) * 3
-        score += (10 - len(possible_weapons)) * 3
-        score += (10 - len(possible_locations)) * 3
-
-        # 2) Reward knowledge gain.
-        known_cards = _known_cards_count(getattr(state, "notebook", None), state)
-        score += known_cards * 2
-
-        # 3) Penalize large uncertainty.
-        if len(possible_suspects) > 5:
-            score -= 5
-        if len(possible_weapons) > 5:
-            score -= 5
-        if len(possible_locations) > 5:
-            score -= 5
-
-        # 4) Balance categories so all dimensions are solved progressively.
-        score -= abs(len(possible_suspects) - len(possible_weapons))
-        score -= abs(len(possible_suspects) - len(possible_locations))
-        score -= abs(len(possible_weapons) - len(possible_locations))
-
-        # 5) Encourage current-room relevance for location inference.
-        current_location = getattr(state, "current_location", None)
-        if isinstance(current_location, str) and current_location in possible_locations:
-            score += 2
-
-        return float(score)
+    def evaluate(self, state: Any) -> float:
+        """Delegate to the centralized strategic evaluation pipeline."""
+        return super().evaluate(state)
 
     def minimax(self, state: GameState, depth: int, maximizing: bool) -> float:
         """Evaluate a state via recursive minimax search.

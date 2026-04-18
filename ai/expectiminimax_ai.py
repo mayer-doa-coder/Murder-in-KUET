@@ -12,6 +12,7 @@ from math import inf, isclose
 from typing import Any, List, Sequence, Tuple
 
 from ai.base_ai import BaseAI
+from ai.minimax_ai import StrategicEvaluationMixin
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from utils.helpers import safe_random_choice
 
@@ -19,7 +20,7 @@ from utils.helpers import safe_random_choice
 logger = logging.getLogger(__name__)
 
 
-class ExpectiminimaxAI(BaseAI):
+class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
     """Skeleton AI prepared for expectiminimax search with chance nodes.
 
     Node types planned in the recursive search:
@@ -140,52 +141,8 @@ class ExpectiminimaxAI(BaseAI):
         return float(min_eval)
 
     def evaluate(self, state: Any) -> float:
-        """Return a stable heuristic utility value for expectiminimax.
-
-        This fallback evaluator is intentionally lightweight and compatible with
-        both engine-level states and search-state snapshots.
-        """
-        if state is None:
-            raise ValueError("State cannot be None")
-
-        suspects = self._as_set(getattr(state, "possible_suspects", None))
-        weapons = self._as_set(getattr(state, "possible_weapons", None))
-        locations = self._as_set(getattr(state, "possible_locations", None))
-
-        if suspects is None or weapons is None or locations is None:
-            notebook = self._get_current_notebook(state)
-            if notebook is not None:
-                suspects = self._as_set(getattr(notebook, "possible_suspects", set()))
-                weapons = self._as_set(getattr(notebook, "possible_weapons", set()))
-                locations = self._as_set(getattr(notebook, "possible_locations", set()))
-
-        if suspects is None:
-            suspects = set(getattr(state, "suspects", []))
-        if weapons is None:
-            weapons = set(getattr(state, "weapons", []))
-        if locations is None:
-            locations = set(getattr(state, "locations", []))
-
-        if not suspects or not weapons or not locations:
-            return -100.0
-
-        solved = len(suspects) == 1 and len(weapons) == 1 and len(locations) == 1
-        if solved:
-            return 100.0
-
-        score = 0.0
-        score += (10 - len(suspects)) * 3
-        score += (10 - len(weapons)) * 3
-        score += (10 - len(locations)) * 3
-
-        known_cards = self._known_cards_count(state)
-        score += known_cards * 2
-
-        score -= abs(len(suspects) - len(weapons))
-        score -= abs(len(suspects) - len(locations))
-        score -= abs(len(weapons) - len(locations))
-
-        return float(score)
+        """Delegate to the centralized strategic evaluation pipeline."""
+        return super().evaluate(state)
 
     def get_chance_outcomes(self, state: Any) -> List[Tuple[float, Any]]:
         """Return probabilistic branches for a chance node.

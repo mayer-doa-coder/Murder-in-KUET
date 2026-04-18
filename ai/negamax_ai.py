@@ -7,6 +7,7 @@ that will later support alpha-beta pruning and high-performance search.
 import logging
 
 from ai.base_ai import BaseAI
+from ai.minimax_ai import StrategicEvaluationMixin
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from math import inf
 from typing import Any, Sequence
@@ -16,7 +17,7 @@ from utils.helpers import safe_random_choice
 logger = logging.getLogger(__name__)
 
 
-class NegamaxAI(BaseAI):
+class NegamaxAI(StrategicEvaluationMixin, BaseAI):
     """Negamax AI skeleton compatible with the existing AI interface."""
 
     def __init__(self, depth: int | None = None):
@@ -84,48 +85,8 @@ class NegamaxAI(BaseAI):
         return float(best)
 
     def evaluate(self, state: Any) -> float:
-        """Return a lightweight heuristic score for a given state.
-
-        This evaluator keeps the Negamax core runnable and consistent with the
-        existing AI architecture until richer scoring is added.
-        """
-        if state is None:
-            raise ValueError("State cannot be None")
-
-        suspects = self._as_set(getattr(state, "possible_suspects", None))
-        weapons = self._as_set(getattr(state, "possible_weapons", None))
-        locations = self._as_set(getattr(state, "possible_locations", None))
-
-        if suspects is None or weapons is None or locations is None:
-            notebook = self._get_current_notebook(state)
-            if notebook is not None:
-                suspects = self._as_set(getattr(notebook, "possible_suspects", set()))
-                weapons = self._as_set(getattr(notebook, "possible_weapons", set()))
-                locations = self._as_set(getattr(notebook, "possible_locations", set()))
-
-        if suspects is None:
-            suspects = set(getattr(state, "suspects", []))
-        if weapons is None:
-            weapons = set(getattr(state, "weapons", []))
-        if locations is None:
-            locations = set(getattr(state, "locations", []))
-
-        if not suspects or not weapons or not locations:
-            return -100.0
-
-        if len(suspects) == 1 and len(weapons) == 1 and len(locations) == 1:
-            return 100.0
-
-        score = 0.0
-        score += (10 - len(suspects)) * 3
-        score += (10 - len(weapons)) * 3
-        score += (10 - len(locations)) * 3
-
-        score -= abs(len(suspects) - len(weapons))
-        score -= abs(len(suspects) - len(locations))
-        score -= abs(len(weapons) - len(locations))
-
-        return float(score)
+        """Delegate to the centralized strategic evaluation pipeline."""
+        return super().evaluate(state)
 
     def _is_terminal_state(self, state: Any) -> bool:
         """Return whether search should stop at this state."""
