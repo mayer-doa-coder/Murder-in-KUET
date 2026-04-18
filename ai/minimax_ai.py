@@ -8,7 +8,6 @@ search-state representation that supports simulation and evaluation.
 from __future__ import annotations
 
 import logging
-import random
 from copy import deepcopy
 from dataclasses import dataclass
 from math import inf
@@ -16,6 +15,7 @@ from typing import Any, Sequence
 
 from ai.base_ai import BaseAI
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
+from utils.helpers import safe_random_choice
 
 
 logger = logging.getLogger(__name__)
@@ -386,7 +386,7 @@ class MinimaxAI(BaseAI):
                 best_move = move
 
         if best_move is None:
-            best_move = random.choice(valid_moves)
+            best_move = safe_random_choice(valid_moves)
 
         return best_move
 
@@ -434,11 +434,11 @@ class MinimaxAI(BaseAI):
                     best = suggestion
 
         if best is None:
-            return (
-                random.choice(suspects),
-                random.choice(weapons),
-                location,
-            )
+            fallback_suspect = safe_random_choice(suspects)
+            fallback_weapon = safe_random_choice(weapons)
+            if fallback_suspect is None or fallback_weapon is None:
+                raise ValueError("Invalid state: empty suggestion space")
+            return (fallback_suspect, fallback_weapon, location)
 
         return best
 

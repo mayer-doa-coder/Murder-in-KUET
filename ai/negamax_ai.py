@@ -5,12 +5,12 @@ that will later support alpha-beta pruning and high-performance search.
 """
 
 import logging
-import random
 
 from ai.base_ai import BaseAI
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from math import inf
 from typing import Any, Sequence
+from utils.helpers import safe_random_choice
 
 
 logger = logging.getLogger(__name__)
@@ -261,7 +261,7 @@ class NegamaxAI(BaseAI):
                 best_move = move
 
         if best_move is None:
-            best_move = random.choice(valid_moves)
+            best_move = safe_random_choice(valid_moves)
 
         return best_move
 
@@ -351,11 +351,11 @@ class NegamaxAI(BaseAI):
                     best = suggestion
 
         if best is None:
-            best = (
-                random.choice(list(suspects)),
-                random.choice(list(weapons)),
-                location,
-            )
+            fallback_suspect = safe_random_choice(suspects)
+            fallback_weapon = safe_random_choice(weapons)
+            if fallback_suspect is None or fallback_weapon is None:
+                raise ValueError("Invalid state: no suggestion options")
+            best = (fallback_suspect, fallback_weapon, location)
 
         return best
 

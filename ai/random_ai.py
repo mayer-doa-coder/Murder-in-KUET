@@ -6,10 +6,10 @@ This module provides a simple AI for testing and as a baseline for smarter agent
 """
 
 import logging
-import random
 from types import SimpleNamespace
 from ai.base_ai import BaseAI
 from engine.cards import suspects, weapons, locations
+from utils.helpers import safe_random_choice
 
 
 logger = logging.getLogger(__name__)
@@ -42,9 +42,7 @@ class RandomAI(BaseAI):
         Returns:
             str | None: A randomly chosen reachable room, or None to stay put.
         """
-        if not valid_moves:
-            return None  # dice too low to exit — stay and suggest here
-        return random.choice(valid_moves)
+        return safe_random_choice(valid_moves)
 
     def make_suggestion(self, state) -> tuple[str, str, str]:
         """Return a random suggestion tuple from the current game state.
@@ -70,8 +68,10 @@ class RandomAI(BaseAI):
         if not suspect_pool or not weapon_pool or not isinstance(location, str) or not location.strip():
             raise ValueError("Invalid game state for suggestion")
 
-        suspect = random.choice(suspect_pool)
-        weapon = random.choice(weapon_pool)
+        suspect = safe_random_choice(suspect_pool)
+        weapon = safe_random_choice(weapon_pool)
+        if suspect is None or weapon is None:
+            raise ValueError("Invalid game state for suggestion")
         return (suspect, weapon, location)
 
     def decide_accusation(self, state) -> bool:

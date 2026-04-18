@@ -6,7 +6,6 @@ This module maintains game status, player states, solution, and game progress.
 """
 
 import logging
-import random
 from copy import deepcopy
 from typing import Any
 from engine.cards import suspects, weapons, locations, create_deck
@@ -14,6 +13,7 @@ from engine.board import Board
 from engine.clue_reveal import reveal_clue
 from models.accusation import check_accusation
 from engine.dice import roll_dice
+from utils.helpers import safe_random_choice
 
 
 logger = logging.getLogger(__name__)
@@ -48,10 +48,15 @@ class GameState:
         self.deck = create_deck()
 
         # 2. Choose solution cards
+        chosen_suspect = safe_random_choice(suspects)
+        chosen_weapon = safe_random_choice(weapons)
+        chosen_location = safe_random_choice(locations)
+        if chosen_suspect is None or chosen_weapon is None or chosen_location is None:
+            raise ValueError("Cannot setup game without full suspect/weapon/location pools")
         self.solution = {
-            "suspect": random.choice(suspects),
-            "weapon": random.choice(weapons),
-            "location": random.choice(locations),
+            "suspect": chosen_suspect,
+            "weapon": chosen_weapon,
+            "location": chosen_location,
         }
 
         # 3. Remove solution cards from the deck
@@ -517,14 +522,73 @@ class GameState:
             return None
 
         player = self.get_current_player()
-        result = player.take_turn(self)
+        result = {
+            "dice": None,
+            "move": None,
+            "suggestion": None,
+            "revealer": None,
+            "revealed_card": None,
+            "accusation": None,
+        }
 
-        accusation = None
-        if isinstance(result, dict):
-            accusation = result.get("accusation")
+        if player.is_ai:
+            ai_agent = player.take_turn(self)
+            if ai_agent is None:
+                return None
 
-        if accusation is not None:
-            self.resolve_accusation(player, accusation)
+            dice_roll = roll_dice()
+            self.last_dice_roll = dice_roll
+            result["dice"] = dice_roll
+
+            if player.position is None:
+                valid_moves = self.board.get_all_locations()
+            else:
+                valid_moves = self.board.get_valid_moves(player.position, dice_roll.total)
+                passage_dest = self.board.get_passage_destination(player.position)
+                if passage_dest and passage_dest not in valid_moves:
+                    valid_moves = valid_moves + [passage_dest]
+
+            move = ai_agent.choose_move(self, valid_moves)
+            if move in valid_moves:
+                player.move(move)
+            elif move is not None:
+                logger.warning("AI returned invalid move '%s' in run_turn; ignoring", move)
+
+            self.current_location = player.position
+            result["move"] = player.position
+
+            suspect, weapon, _ = ai_agent.make_suggestion(self)
+            if suspect not in self.suspects:
+                fallback_suspect = safe_random_choice(self.suspects)
+                if fallback_suspect is None:
+                    raise ValueError("No suspects available for fallback suggestion")
+                suspect = fallback_suspect
+
+            if weapon not in self.weapons:
+                fallback_weapon = safe_random_choice(self.weapons)
+                if fallback_weapon is None:
+                    raise ValueError("No weapons available for fallback suggestion")
+                weapon = fallback_weapon
+
+            suggestion = player.make_suggestion(suspect, weapon, player.position)
+            result["suggestion"] = suggestion
+
+            revealer, card = reveal_clue(suggestion, self.players, self.current_turn)
+            if card is not None:
+                player.notebook.eliminate(card.name)
+                result["revealer"] = revealer.name if revealer is not None else None
+                result["revealed_card"] = card.name
+
+            if player.is_ai and card and hasattr(ai_agent, "update_from_clue"):
+                ai_agent.update_from_clue(card)
+            if player.is_ai and not card and hasattr(ai_agent, "handle_no_reveal"):
+                ai_agent.handle_no_reveal(suggestion)
+
+            should_accuse = ai_agent.decide_accusation(self)
+            if should_accuse:
+                accusation = player.make_accusation(suspect, weapon, player.position)
+                result["accusation"] = accusation
+                self.resolve_accusation(player, accusation)
 
         if not self.game_over:
             self.next_turn()
@@ -630,7 +694,7 @@ class GameState:
                 # a random legal move to keep the game progressing.
                 if valid_moves and move not in valid_moves:
                     logger.warning("AI returned invalid move '%s'; selecting random legal move", move)
-                    move = random.choice(valid_moves)
+                    move = safe_random_choice(valid_moves)
             elif human_move_selector is not None:
                 move = human_move_selector(player, valid_moves, self)
             elif valid_moves:
@@ -650,9 +714,15 @@ class GameState:
             if player.is_ai:
                 suspect, weapon, _ = player.ai_agent.make_suggestion(self)
                 if suspect not in self.suspects:
-                    suspect = random.choice(self.suspects)
+                    fallback_suspect = safe_random_choice(self.suspects)
+                    if fallback_suspect is None:
+                        raise ValueError("No suspects available for fallback suggestion")
+                    suspect = fallback_suspect
                 if weapon not in self.weapons:
-                    weapon = random.choice(self.weapons)
+                    fallback_weapon = safe_random_choice(self.weapons)
+                    if fallback_weapon is None:
+                        raise ValueError("No weapons available for fallback suggestion")
+                    weapon = fallback_weapon
             elif human_suggestion_selector is not None:
                 suspect, weapon = human_suggestion_selector(player, self)
             else:
