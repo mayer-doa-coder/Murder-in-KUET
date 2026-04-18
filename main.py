@@ -3,6 +3,7 @@
 import logging
 import random
 from time import perf_counter
+from typing import Any
 
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.minimax_ai import MinimaxAI
@@ -108,6 +109,70 @@ def _create_comparison_players(
     return players
 
 
+def run_single_game(
+    *,
+    seed: int | None = None,
+    max_turns: int | None = None,
+    max_players: int | None = None,
+    verbose: bool = False,
+) -> dict[str, Any]:
+    """Run one AI comparison game and return structured metrics.
+
+    Returns a per-game summary suitable for simulation aggregation layers.
+    """
+    if max_turns is None:
+        max_turns = get_positive_int(GAME_CONFIG, "MAX_TURNS", 250)
+
+    if max_players is None:
+        max_players = get_positive_int(GAME_CONFIG, "MAX_PLAYERS", 3)
+
+    if seed is not None:
+        random.seed(seed)
+
+    game = GameState()
+    per_game_metrics = _create_metrics()
+    players = _create_comparison_players(per_game_metrics, max_players=max_players)
+    for player in players:
+        game.add_player(player)
+    game.setup_game()
+
+    run_start = perf_counter()
+    winner = game.run_game(max_turns=max_turns, verbose=verbose)
+    runtime = perf_counter() - run_start
+
+    winner_name: str | None = None
+    winner_player: str | None = None
+    winner_moves = 0
+    winner_decision_time = 0.0
+    winner_decisions = 0
+
+    if winner is not None:
+        wrapped_agent = getattr(winner, "ai_agent", None)
+        base_agent = getattr(wrapped_agent, "_agent", None)
+        if base_agent is not None:
+            winner_name = type(base_agent).__name__
+        else:
+            winner_name = type(wrapped_agent).__name__ if wrapped_agent is not None else winner.name
+        winner_player = winner.name
+
+        if winner_name in per_game_metrics:
+            per_game_metrics[winner_name]["wins"] = 1
+            winner_moves = int(per_game_metrics[winner_name]["total_moves"])
+            winner_decision_time = float(per_game_metrics[winner_name]["decision_time"])
+            winner_decisions = int(per_game_metrics[winner_name]["decisions"])
+
+    return {
+        "winner": winner_name,
+        "winner_player": winner_player,
+        "moves": winner_moves,
+        "decision_time": winner_decision_time,
+        "decisions": winner_decisions,
+        "runtime": runtime,
+        "no_winner": winner is None,
+        "metrics": per_game_metrics,
+    }
+
+
 def _run_ai_performance_comparison() -> None:
     """Run multi-game AI performance comparison with metrics reporting."""
     num_games = get_positive_int(GAME_CONFIG, "SIMULATION_RUNS", 10)
@@ -125,26 +190,32 @@ def _run_ai_performance_comparison() -> None:
     for i in range(num_games):
         logger.info("=== Game %s ===", i + 1)
 
-        # Deterministic per-game seed keeps runs reproducible while varied.
-        random.seed(base_seed + i)
+        result = run_single_game(
+            seed=base_seed + i,
+            max_turns=max_turns,
+            max_players=max_players,
+            verbose=(i == 0),
+        )
+        game_runtime_seconds += float(result.get("runtime", 0.0))
 
-        game = GameState()
-        players = _create_comparison_players(metrics, max_players=max_players)
-        for player in players:
-            game.add_player(player)
-        game.setup_game()
+        winner_name = result.get("winner")
+        winner_player = result.get("winner_player")
 
-        run_start = perf_counter()
-        winner = game.run_game(max_turns=max_turns, verbose=(i == 0))
-        game_runtime_seconds += perf_counter() - run_start
-
-        if winner is None:
+        if not winner_name:
             no_winner_games += 1
             logger.warning("Winner: None (turn cap reached)")
         else:
-            winner_name = type(winner.ai_agent._agent).__name__
-            metrics[winner_name]["wins"] += 1
-            logger.info("Winner: %s (%s)", winner.name, winner_name)
+            logger.info("Winner: %s (%s)", winner_player, winner_name)
+
+        per_game_metrics = result.get("metrics", {})
+        if isinstance(per_game_metrics, dict):
+            for ai_name, ai_data in per_game_metrics.items():
+                if ai_name not in metrics or not isinstance(ai_data, dict):
+                    continue
+                metrics[ai_name]["wins"] += float(ai_data.get("wins", 0))
+                metrics[ai_name]["total_moves"] += float(ai_data.get("total_moves", 0))
+                metrics[ai_name]["decision_time"] += float(ai_data.get("decision_time", 0.0))
+                metrics[ai_name]["decisions"] += float(ai_data.get("decisions", 0))
 
     logger.info("=" * 68)
     logger.info("Final Performance Summary")
