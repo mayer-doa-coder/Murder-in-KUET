@@ -22939,3 +22939,1573 @@
 2026-04-18 07:45:40,833 - INFO - main - No-Winner Games: 1
 2026-04-18 07:45:40,833 - INFO - main - Average Game Runtime: 25.5506 sec
 2026-04-18 07:45:40,833 - INFO - main - ====================================================================
+2026-04-18 09:52:23,234 - INFO - __main__ - ====================================================================
+2026-04-18 09:52:23,235 - INFO - __main__ -  Murder in KUET - Minimax vs Expectiminimax vs Negamax Metrics
+2026-04-18 09:52:23,235 - INFO - __main__ - ====================================================================
+2026-04-18 09:52:23,235 - INFO - __main__ - === Game 1 ===
+2026-04-18 09:52:23,236 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:23,236 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:23,254 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:23,325 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:23,326 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:23,326 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:23,326 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:23,326 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:23,337 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:23,400 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:23,400 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:23,401 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:23,401 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:23,401 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:23,562 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:23,625 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:23,626 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:23,626 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:23,626 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:23,626 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:23,632 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:23,709 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:23,709 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:23,709 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:23,709 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:23,710 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:23,714 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:23,787 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:23,788 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-04-18 09:52:23,788 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:23,788 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:23,788 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:23,797 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:23,874 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:23,875 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:23,875 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:23,875 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:23,875 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:23,882 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:23,953 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:23,954 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:23,954 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:23,954 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:23,954 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:23,959 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:24,007 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:24,007 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:24,007 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,008 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:24,008 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:24,026 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:24,088 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Knife, Location=Library)
+2026-04-18 09:52:24,089 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:24,089 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,089 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:24,089 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:24,097 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:24,175 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:24,176 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:24,176 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,176 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:24,176 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:24,180 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:24,236 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:24,236 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:24,237 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,237 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:24,237 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:24,245 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:24,320 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:24,321 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:24,321 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,321 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:24,321 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:24,328 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:24,398 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:24,399 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:24,399 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,399 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:24,399 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:24,405 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:24,446 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:24,447 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:24,447 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,447 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:24,448 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:24,464 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:24,528 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Knife, Location=Library)
+2026-04-18 09:52:24,528 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:24,528 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,529 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:24,529 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:24,535 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:24,612 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:24,612 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:24,612 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,613 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:24,613 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:24,617 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:24,670 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:24,670 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:24,670 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,671 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:24,671 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:24,679 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:24,754 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:24,755 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:24,755 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,755 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:24,755 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:24,763 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:24,833 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:24,834 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:24,834 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,834 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:24,835 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:24,840 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:24,883 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:24,883 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:24,883 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,884 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:24,884 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:24,900 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:24,945 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hasina, Weapon=Knife, Location=Library)
+2026-04-18 09:52:24,945 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:24,946 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:24,946 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:24,946 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:24,952 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,033 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:25,033 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:25,033 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,034 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:25,034 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:25,038 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,090 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:25,090 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:25,091 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,091 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:25,091 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:25,099 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,163 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hasina, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:25,163 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:25,163 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,163 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:25,164 - INFO - engine.game_state - Dice: 2
+2026-04-18 09:52:25,165 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:25,223 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=VC Room)
+2026-04-18 09:52:25,223 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:25,223 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,224 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:25,224 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:25,229 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:25,271 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:25,272 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:25,272 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,272 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:25,272 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:25,289 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:25,325 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Opi Sir, Weapon=Knife, Location=Library)
+2026-04-18 09:52:25,326 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:25,326 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,326 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:25,326 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:25,333 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:25,404 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:25,404 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:25,405 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,405 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:25,405 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:25,409 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,462 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:25,462 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:25,462 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,463 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:25,463 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:25,471 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,523 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Opi Sir, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:25,523 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:25,523 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,524 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:25,524 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:25,531 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,608 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:25,609 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:25,609 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,609 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:25,609 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:25,614 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:25,657 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:25,658 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:25,658 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,658 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:25,658 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:25,675 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:25,702 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Shejan, Weapon=Knife, Location=Library)
+2026-04-18 09:52:25,702 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:25,703 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,703 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:25,703 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:25,710 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:25,780 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:25,781 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:25,781 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,781 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:25,781 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:25,785 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,842 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:25,842 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:25,842 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,842 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:25,842 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:25,850 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,876 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:25,877 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:25,877 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,877 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:25,877 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:25,884 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:25,964 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:25,964 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:25,964 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:25,965 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:25,965 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:25,970 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:26,014 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:26,014 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:26,014 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,015 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:26,015 - INFO - engine.game_state - Dice: 2
+2026-04-18 09:52:26,016 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:26,036 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=VC Room)
+2026-04-18 09:52:26,037 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:26,037 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,037 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:26,037 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:26,045 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:26,124 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:26,124 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:26,124 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,125 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:26,125 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:26,129 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:26,182 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:26,183 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:26,183 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,183 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:26,183 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:26,192 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:26,216 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:26,217 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:26,217 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,217 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:26,217 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:26,224 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:26,309 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:26,310 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:26,310 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,310 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:26,311 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:26,313 - INFO - engine.game_state - Move: Cafeteria
+2026-04-18 09:52:26,354 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Cafeteria)
+2026-04-18 09:52:26,354 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:26,355 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,355 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:26,355 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:26,364 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:26,390 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:26,390 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:26,391 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,391 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:26,391 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:26,398 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:26,475 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:26,475 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:26,475 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,475 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:26,476 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:26,479 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:26,533 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:26,534 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:26,534 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,534 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:26,534 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:26,551 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:26,570 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:26,571 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:26,571 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,571 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:26,571 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:26,577 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:26,659 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:26,659 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:26,660 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,661 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:26,661 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:26,667 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:26,714 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:26,714 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:26,714 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,715 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:26,715 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:26,723 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:26,750 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:26,750 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:26,750 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,751 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:26,751 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:26,758 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:26,829 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:26,830 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:26,830 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,830 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:26,830 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:26,835 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:26,893 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:26,893 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:26,894 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,894 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:26,894 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:26,911 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:26,929 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:26,930 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:26,930 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:26,930 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:26,930 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:26,937 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:27,014 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:27,015 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,015 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,015 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:27,015 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:27,021 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,065 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:27,066 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:27,066 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,066 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:27,067 - INFO - engine.game_state - Dice: 2
+2026-04-18 09:52:27,070 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:27,088 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=VC Room)
+2026-04-18 09:52:27,088 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,088 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,088 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:27,089 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:27,096 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,169 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:27,171 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,171 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,171 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:27,172 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:27,176 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:27,230 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:27,230 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:27,231 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,231 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:27,231 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:27,239 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,258 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:27,258 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:27,258 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,258 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:27,259 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:27,265 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:27,354 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:27,354 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,354 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,354 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:27,355 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:27,360 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,405 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:27,405 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:27,405 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,405 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:27,405 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:27,414 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:27,441 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:27,441 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,442 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,442 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:27,442 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:27,449 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,529 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:27,529 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,529 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,529 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:27,529 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:27,534 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:27,588 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:27,588 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:27,588 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,588 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:27,589 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:27,605 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,625 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:27,625 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:27,625 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,626 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:27,626 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:27,629 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:27,690 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=VC Room)
+2026-04-18 09:52:27,690 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,691 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,691 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:27,691 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:27,697 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,746 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:27,747 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:27,747 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,747 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:27,747 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:27,755 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:27,781 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:27,782 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,782 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,782 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:27,782 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:27,790 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,862 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:27,863 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:27,863 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,863 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:27,863 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:27,868 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:27,923 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:27,923 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:27,923 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,923 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:27,923 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:27,940 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:27,958 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:27,958 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:27,959 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:27,959 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:27,959 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:27,966 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:28,061 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:28,061 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,061 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,061 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:28,061 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:28,067 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:28,130 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:28,130 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:28,130 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,130 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:28,131 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:28,142 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:28,179 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:28,179 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,180 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,180 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:28,180 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:28,193 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:28,276 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:28,276 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,277 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,277 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:28,277 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:28,281 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:28,335 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:28,335 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:28,335 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,336 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:28,336 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:28,353 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:28,377 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:28,377 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:28,378 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,378 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:28,378 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:28,385 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:28,473 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:28,474 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,474 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,474 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:28,475 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:28,481 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:28,531 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:28,532 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:28,532 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,532 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:28,532 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:28,540 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:28,567 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:28,567 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,567 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,567 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:28,567 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:28,570 - INFO - engine.game_state - Move: Cafeteria
+2026-04-18 09:52:28,616 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Cafeteria)
+2026-04-18 09:52:28,616 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,616 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,617 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:28,617 - INFO - engine.game_state - Dice: 2
+2026-04-18 09:52:28,619 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:28,663 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=VC Room)
+2026-04-18 09:52:28,663 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:28,663 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,664 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:28,664 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:28,680 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:28,699 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:28,699 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:28,700 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,700 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:28,700 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:28,706 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:28,785 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:28,786 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,786 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,786 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:28,786 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:28,792 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:28,834 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:28,835 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:28,835 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,835 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:28,835 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:28,844 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:28,870 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:28,870 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,870 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,871 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:28,871 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:28,878 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:28,952 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:28,952 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:28,953 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:28,953 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:28,953 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:28,957 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:29,010 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:29,010 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:29,011 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,011 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:29,011 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:29,028 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,046 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:29,047 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:29,047 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,047 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:29,047 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:29,054 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:29,135 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:29,136 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,136 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,136 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:29,136 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:29,142 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,186 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:29,186 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:29,186 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,186 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:29,187 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:29,195 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:29,223 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:29,224 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,224 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,224 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:29,224 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:29,231 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,307 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:29,308 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,308 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,308 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:29,308 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:29,312 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:29,364 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:29,365 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:29,365 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,365 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:29,365 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:29,382 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,405 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:29,405 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:29,406 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,406 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:29,406 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:29,412 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:29,498 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:29,499 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,499 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,499 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:29,499 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:29,505 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,550 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:29,550 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:29,550 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,551 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:29,551 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:29,559 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:29,585 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:29,585 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,586 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,586 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:29,586 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:29,593 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,670 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:29,670 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,670 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,670 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:29,671 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:29,675 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:29,728 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:29,728 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:29,728 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,729 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:29,729 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:29,746 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,765 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:29,765 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:29,765 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,765 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:29,766 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:29,770 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:29,828 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=VC Room)
+2026-04-18 09:52:29,828 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,829 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,829 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:29,829 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:29,834 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,878 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:29,878 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:29,878 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,879 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:29,879 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:29,886 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:29,913 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:29,913 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,913 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,914 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:29,914 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:29,921 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:29,992 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:29,992 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:29,993 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:29,993 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:29,993 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:29,998 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:30,051 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:30,052 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:30,052 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,052 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:30,052 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:30,069 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:30,098 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:30,099 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:30,099 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,099 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:30,099 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:30,110 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:30,201 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:30,201 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:30,201 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,201 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:30,201 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:30,206 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:30,274 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:30,274 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:30,275 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,275 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:30,275 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:30,286 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:30,314 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:30,314 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:30,315 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,315 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:30,315 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:30,322 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:30,401 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:30,401 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:30,402 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,402 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:30,402 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:30,406 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:30,460 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:30,460 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:30,460 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,461 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:30,461 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:30,478 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:30,497 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:30,497 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:30,497 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,497 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:30,497 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:30,505 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:30,600 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:30,600 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:30,600 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,601 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:30,601 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:30,606 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:30,649 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:30,649 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:30,649 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,650 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:30,650 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:30,658 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:30,687 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:30,687 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:30,687 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,687 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:30,687 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:30,695 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:30,769 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:30,769 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:30,770 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,770 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:30,770 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:30,774 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:30,832 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:30,833 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:30,833 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,833 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:30,833 - INFO - engine.game_state - Dice: 2
+2026-04-18 09:52:30,834 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:30,853 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=VC Room)
+2026-04-18 09:52:30,853 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:30,854 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,854 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:30,854 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:30,860 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:30,938 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:30,939 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:30,939 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,940 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:30,940 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:30,945 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:30,990 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:30,990 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:30,990 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:30,991 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:30,991 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:30,999 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:31,018 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:31,018 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:31,018 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,018 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:31,019 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:31,027 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:31,099 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:31,100 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,100 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,100 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:31,100 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:31,105 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:31,158 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:31,158 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:31,158 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,158 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:31,159 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:31,167 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:31,193 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:31,194 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,194 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,194 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:31,194 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:31,201 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:31,280 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:31,281 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,281 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,281 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:31,281 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:31,286 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:31,330 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:31,331 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:31,331 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,331 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:31,331 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:31,348 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:31,367 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:31,367 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:31,368 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,368 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:31,368 - INFO - engine.game_state - Dice: 2
+2026-04-18 09:52:31,370 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:31,441 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=VC Room)
+2026-04-18 09:52:31,441 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,441 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,441 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:31,442 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:31,446 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:31,506 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:31,506 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:31,506 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,507 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:31,507 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:31,515 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:31,542 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:31,542 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,542 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,542 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:31,542 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:31,549 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:31,620 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:31,621 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,621 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,621 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:31,622 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:31,627 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:31,670 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:31,671 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:31,671 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,671 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:31,671 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:31,689 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:31,707 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:31,707 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:31,707 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,707 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:31,708 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:31,714 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:31,795 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:31,795 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,795 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,796 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:31,796 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:31,800 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:31,856 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:31,856 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:31,856 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,856 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:31,857 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:31,866 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:31,898 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:31,898 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,898 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,898 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:31,898 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:31,906 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:31,978 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:31,979 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:31,979 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:31,980 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:31,980 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:31,985 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:32,030 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:32,030 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:32,031 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,031 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:32,031 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:32,048 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:32,067 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:32,067 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:32,068 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,068 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:32,068 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:32,076 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:32,157 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:32,158 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:32,158 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,158 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:32,159 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:32,163 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:32,217 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:32,217 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:32,217 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,218 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:32,218 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:32,226 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:32,252 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:32,253 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:32,253 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,253 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:32,253 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:32,261 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:32,332 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:32,333 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:32,333 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,333 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:32,333 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:32,339 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:32,384 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:32,384 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:32,384 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,385 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:32,385 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:32,402 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:32,421 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:32,421 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:32,421 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,422 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:32,422 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:32,429 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:32,515 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:32,515 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:32,516 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,516 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:32,516 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:32,520 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:32,572 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:32,572 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:32,573 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,573 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:32,573 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:32,581 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:32,608 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:32,608 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:32,609 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,609 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:32,609 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:32,616 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:32,691 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:32,691 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:32,691 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,692 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:32,692 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:32,698 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:32,753 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:32,753 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:32,754 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,754 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:32,754 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:32,771 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:32,789 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:32,789 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:32,789 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,790 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:32,790 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:32,796 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:32,912 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:32,912 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:32,912 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,912 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:32,912 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:32,919 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:32,972 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:32,972 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:32,972 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:32,973 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:32,973 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:32,981 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:33,006 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:33,007 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:33,007 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,007 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:33,008 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:33,015 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:33,087 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:33,088 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:33,088 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,089 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:33,089 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:33,094 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:33,138 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:33,138 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:33,139 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,139 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:33,139 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:33,156 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:33,175 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:33,175 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:33,175 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,175 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:33,176 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:33,182 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:33,264 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:33,264 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:33,264 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,264 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:33,264 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:33,269 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:33,339 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:33,339 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:33,339 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,340 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:33,340 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:33,351 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:33,390 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:33,390 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:33,391 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,391 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:33,391 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:33,402 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:33,523 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:33,524 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:33,524 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,524 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:33,524 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:33,533 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:33,588 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:33,589 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:33,589 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,589 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:33,589 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:33,607 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:33,633 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Library)
+2026-04-18 09:52:33,633 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:33,633 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,634 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:33,634 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:33,640 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:33,727 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:33,728 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:33,728 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,728 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:33,728 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:33,732 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:33,785 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:33,785 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:33,785 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,785 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:33,786 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:33,794 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:33,822 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Academic Building)
+2026-04-18 09:52:33,822 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:33,822 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,822 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:33,822 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:33,830 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:33,902 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:33,902 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:33,902 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,902 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:33,903 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:33,908 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:33,952 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:33,953 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:33,953 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:33,953 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-04-18 09:52:33,953 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:33,956 - INFO - engine.game_state - Move: Cafeteria
+2026-04-18 09:52:33,981 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Tawhid, Weapon=Knife, Location=Cafeteria)
+2026-04-18 09:52:33,981 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:33,981 - WARNING - engine.game_state - AI Player 1 eliminated
+2026-04-18 09:52:33,981 - INFO - engine.game_state - Accusation Decision: True
+2026-04-18 09:52:33,981 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:33,981 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:33,988 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:34,068 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:34,068 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:34,068 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,069 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:34,069 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:34,073 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:34,125 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:34,126 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:34,126 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,126 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:34,126 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:34,134 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:34,204 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:34,205 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:34,205 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,205 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:34,205 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:34,212 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:34,263 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:34,264 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:34,264 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,264 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:34,264 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:34,268 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:34,326 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=VC Room)
+2026-04-18 09:52:34,326 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:34,326 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,326 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:34,326 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:34,330 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:34,387 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:34,388 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:34,388 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,388 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:34,388 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:34,395 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:34,467 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:34,467 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:34,467 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,467 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:34,468 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:34,472 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:34,516 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:34,517 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:34,517 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,517 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:34,517 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:34,524 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:34,603 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:34,603 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:34,604 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,604 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:34,604 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:34,608 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:34,660 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:34,661 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:34,661 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,661 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:34,661 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:34,669 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:34,742 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:34,742 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:34,742 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,743 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:34,743 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:34,748 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:34,792 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:34,792 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:34,793 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,793 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:34,793 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:34,799 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:34,884 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:34,884 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:34,884 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,884 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:34,884 - INFO - engine.game_state - Dice: 2
+2026-04-18 09:52:34,887 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:34,932 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=VC Room)
+2026-04-18 09:52:34,932 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:34,932 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:34,933 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:34,933 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:34,940 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:35,014 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:35,014 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:35,014 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,014 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:35,015 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:35,019 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:35,062 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:35,063 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:35,063 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,063 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:35,063 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:35,070 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:35,152 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:35,152 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:35,152 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,152 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:35,153 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:35,157 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:35,213 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:35,213 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:35,213 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,214 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:35,214 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:35,221 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:35,293 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:35,293 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:35,294 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,294 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:35,294 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:35,299 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:35,344 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:35,344 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:35,344 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,344 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:35,345 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:35,351 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:35,430 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:35,430 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:35,430 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,431 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:35,431 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:35,435 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:35,488 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:35,488 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:35,488 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,488 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:35,488 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:35,496 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:35,567 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:35,570 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:35,570 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,571 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:35,571 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:35,576 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:35,620 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:35,620 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:35,620 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,621 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:35,621 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:35,628 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:35,704 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:35,704 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:35,704 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,705 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:35,705 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:35,709 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:35,761 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:35,762 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:35,762 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,762 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:35,762 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:35,770 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:35,841 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:35,841 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:35,842 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,842 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:35,842 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:35,848 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:35,892 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:35,892 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:35,893 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,893 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:35,893 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:35,899 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:35,977 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:35,977 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:35,978 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:35,978 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:35,978 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:35,982 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:36,037 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:36,037 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:36,037 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,037 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:36,037 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:36,045 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:36,120 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:36,120 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:36,120 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,121 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:36,121 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:36,126 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:36,170 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:36,171 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:36,171 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,171 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:36,171 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:36,178 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:36,257 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:36,258 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:36,258 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,258 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:36,259 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:36,262 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:36,315 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:36,316 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:36,316 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,316 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:36,316 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:36,323 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:36,396 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:36,396 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:36,396 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,397 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:36,397 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:36,402 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:36,445 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:36,445 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:36,445 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,445 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:36,446 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:36,452 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:36,531 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:36,531 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:36,532 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,532 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:36,532 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:36,536 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:36,587 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:36,588 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:36,588 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,588 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:36,588 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:36,595 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:36,668 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:36,669 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:36,669 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,669 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:36,669 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:36,674 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:36,718 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:36,718 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:36,718 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,718 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:36,719 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:36,727 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:36,835 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:36,835 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:36,836 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,836 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:36,836 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:36,840 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:36,899 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:36,899 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:36,900 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,900 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:36,900 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:36,907 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:36,979 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:36,979 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:36,979 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:36,980 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:36,980 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:36,985 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:37,032 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:37,032 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:37,033 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,033 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:37,033 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:37,040 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:37,141 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:37,141 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:37,141 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,141 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:37,141 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:37,144 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:37,192 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=VC Room)
+2026-04-18 09:52:37,193 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:37,193 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,193 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:37,194 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:37,202 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:37,273 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:37,274 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:37,274 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,274 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:37,274 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:37,279 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:37,322 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:37,322 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:37,323 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,323 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:37,323 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:37,329 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:37,416 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:37,416 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:37,416 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,416 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:37,416 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:37,420 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:37,473 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:37,474 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:37,474 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,474 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:37,474 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:37,478 - INFO - engine.game_state - Move: Cafeteria
+2026-04-18 09:52:37,522 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Cafeteria)
+2026-04-18 09:52:37,523 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:37,523 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,523 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:37,523 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:37,528 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:37,572 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:37,573 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:37,573 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,573 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:37,573 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:37,578 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:37,659 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:37,659 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:37,659 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,659 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:37,659 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:37,663 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:37,716 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:37,716 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:37,716 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,716 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:37,717 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:37,724 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:37,795 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:37,795 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:37,796 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,796 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:37,796 - INFO - engine.game_state - Dice: 11
+2026-04-18 09:52:37,801 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:37,844 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:37,845 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:37,845 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,845 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:37,845 - INFO - engine.game_state - Dice: 2
+2026-04-18 09:52:37,848 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:37,908 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=VC Room)
+2026-04-18 09:52:37,908 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:37,908 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,908 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:37,909 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:37,913 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:37,966 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:37,967 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:37,967 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:37,967 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:37,967 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:37,974 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:38,048 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:38,049 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:38,049 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,049 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:38,049 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:38,054 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:38,098 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:38,098 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:38,099 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,099 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:38,099 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:38,105 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:38,184 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:38,185 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:38,185 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,185 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:38,185 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:38,193 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:38,245 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:38,246 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:38,246 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,246 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:38,247 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:38,255 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:38,328 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:38,329 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:38,329 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,329 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:38,329 - INFO - engine.game_state - Dice: 4
+2026-04-18 09:52:38,334 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:38,379 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:38,379 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:38,379 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,379 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:38,379 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:38,383 - INFO - engine.game_state - Move: VC Room
+2026-04-18 09:52:38,440 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=VC Room)
+2026-04-18 09:52:38,441 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:38,441 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,441 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:38,442 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:38,446 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:38,498 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:38,498 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:38,499 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,499 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:38,499 - INFO - engine.game_state - Dice: 6
+2026-04-18 09:52:38,507 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:38,578 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:38,578 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:38,578 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,578 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:38,578 - INFO - engine.game_state - Dice: 8
+2026-04-18 09:52:38,583 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:38,627 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:38,627 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:38,627 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,627 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:38,628 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:38,634 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:38,715 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:38,716 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:38,716 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,716 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:38,716 - INFO - engine.game_state - Dice: 5
+2026-04-18 09:52:38,720 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:38,773 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:38,774 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:38,774 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,774 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:38,774 - INFO - engine.game_state - Dice: 12
+2026-04-18 09:52:38,783 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:38,855 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:38,856 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:38,856 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,856 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:38,856 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:38,861 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:38,904 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Library)
+2026-04-18 09:52:38,905 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-04-18 09:52:38,905 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,905 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:38,905 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:38,911 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:38,990 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:38,990 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:38,990 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:38,990 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:38,990 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:38,994 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:39,047 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:39,047 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:39,048 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:39,048 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:39,048 - INFO - engine.game_state - Dice: 9
+2026-04-18 09:52:39,055 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:39,134 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:39,134 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:39,134 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:39,135 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:39,136 - INFO - engine.game_state - Dice: 3
+2026-04-18 09:52:39,138 - INFO - engine.game_state - Move: Cafeteria
+2026-04-18 09:52:39,171 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Cafeteria)
+2026-04-18 09:52:39,171 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:39,171 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:39,172 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:39,172 - INFO - engine.game_state - Dice: 7
+2026-04-18 09:52:39,179 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:39,274 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Academic Building)
+2026-04-18 09:52:39,274 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:39,274 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:39,275 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-04-18 09:52:39,275 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:39,282 - INFO - engine.game_state - Move: Academic Building
+2026-04-18 09:52:39,348 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Laptop Charger, Location=Academic Building)
+2026-04-18 09:52:39,349 - INFO - engine.game_state - No one could disprove
+2026-04-18 09:52:39,349 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:39,349 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-04-18 09:52:39,349 - INFO - engine.game_state - Dice: 10
+2026-04-18 09:52:39,357 - INFO - engine.game_state - Move: Library
+2026-04-18 09:52:39,429 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hashem Sir, Weapon=Anti Cutter, Location=Library)
+2026-04-18 09:52:39,429 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-04-18 09:52:39,429 - INFO - engine.game_state - Accusation Decision: False
+2026-04-18 09:52:39,430 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:52:39,430 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:52:39,430 - INFO - __main__ - === Game 2 ===
+2026-04-18 09:52:57,924 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:52:57,924 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:52:57,925 - INFO - __main__ - === Game 3 ===
+2026-04-18 09:53:15,856 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:53:15,856 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:53:15,856 - INFO - __main__ - === Game 4 ===
+2026-04-18 09:53:34,036 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:53:34,036 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:53:34,037 - INFO - __main__ - === Game 5 ===
+2026-04-18 09:53:51,741 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:53:51,742 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:53:51,742 - INFO - __main__ - === Game 6 ===
+2026-04-18 09:54:09,860 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:54:09,861 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:54:09,861 - INFO - __main__ - === Game 7 ===
+2026-04-18 09:54:30,969 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:54:30,969 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:54:30,969 - INFO - __main__ - === Game 8 ===
+2026-04-18 09:54:52,443 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:54:52,443 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:54:52,443 - INFO - __main__ - === Game 9 ===
+2026-04-18 09:55:11,858 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:55:11,858 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:55:11,858 - INFO - __main__ - === Game 10 ===
+2026-04-18 09:55:33,663 - INFO - __main__ - Game finished. Winner: None
+2026-04-18 09:55:33,664 - WARNING - __main__ - Winner: None (turn cap reached)
+2026-04-18 09:55:33,664 - INFO - __main__ - ====================================================================
+2026-04-18 09:55:33,665 - INFO - __main__ - Final Performance Summary
+2026-04-18 09:55:33,665 - INFO - __main__ - ====================================================================
+2026-04-18 09:55:33,665 - INFO - __main__ - MinimaxAI:
+2026-04-18 09:55:33,665 - INFO - __main__ - Wins: 0
+2026-04-18 09:55:33,666 - INFO - __main__ - Win Rate: 0.0%
+2026-04-18 09:55:33,666 - INFO - __main__ - Average Moves: 31.00
+2026-04-18 09:55:33,667 - INFO - __main__ - Average Decision Time: 0.02231 sec
+2026-04-18 09:55:33,668 - INFO - __main__ - Correct Accusations: 0
+2026-04-18 09:55:33,668 - INFO - __main__ - Wrong Accusations: 8
+2026-04-18 09:55:33,668 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-04-18 09:55:33,668 - INFO - __main__ - Average Turns To Win: 0.00
+2026-04-18 09:55:33,668 - INFO - __main__ - Suggestion Efficiency: 0.974
+2026-04-18 09:55:33,668 - INFO - __main__ - ExpectiminimaxAI:
+2026-04-18 09:55:33,668 - INFO - __main__ - Wins: 0
+2026-04-18 09:55:33,668 - INFO - __main__ - Win Rate: 0.0%
+2026-04-18 09:55:33,668 - INFO - __main__ - Average Moves: 109.30
+2026-04-18 09:55:33,668 - INFO - __main__ - Average Decision Time: 0.02241 sec
+2026-04-18 09:55:33,669 - INFO - __main__ - Correct Accusations: 0
+2026-04-18 09:55:33,669 - INFO - __main__ - Wrong Accusations: 0
+2026-04-18 09:55:33,669 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-04-18 09:55:33,669 - INFO - __main__ - Average Turns To Win: 0.00
+2026-04-18 09:55:33,669 - INFO - __main__ - Suggestion Efficiency: 0.745
+2026-04-18 09:55:33,669 - INFO - __main__ - NegamaxAI:
+2026-04-18 09:55:33,669 - INFO - __main__ - Wins: 0
+2026-04-18 09:55:33,669 - INFO - __main__ - Win Rate: 0.0%
+2026-04-18 09:55:33,669 - INFO - __main__ - Average Moves: 109.70
+2026-04-18 09:55:33,669 - INFO - __main__ - Average Decision Time: 0.02909 sec
+2026-04-18 09:55:33,670 - INFO - __main__ - Correct Accusations: 0
+2026-04-18 09:55:33,670 - INFO - __main__ - Wrong Accusations: 0
+2026-04-18 09:55:33,670 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-04-18 09:55:33,670 - INFO - __main__ - Average Turns To Win: 0.00
+2026-04-18 09:55:33,670 - INFO - __main__ - Suggestion Efficiency: 0.870
+2026-04-18 09:55:33,670 - INFO - __main__ - No-Winner Games: 10
+2026-04-18 09:55:33,670 - INFO - __main__ - Average Game Runtime: 19.0420 sec
+2026-04-18 09:55:33,670 - INFO - __main__ - ====================================================================
