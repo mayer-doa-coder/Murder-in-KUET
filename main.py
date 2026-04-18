@@ -43,12 +43,19 @@ class InstrumentedAI:
                     "total_moves": 0,
                     "decision_time": 0.0,
                     "decisions": 0,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 0,
+                    "total_turns": 0,
+                    "suggestion_success": 0,
+                    "suggestion_total": 0,
                 },
             )
             metric_bucket["decision_time"] += elapsed
             metric_bucket["decisions"] += 1
             if method_name == "choose_move":
                 metric_bucket["total_moves"] += 1
+            if method_name == "make_suggestion":
+                metric_bucket["suggestion_total"] += 1
 
             logger.debug("%s %s decision time: %.6fs", self._name, method_name, elapsed)
 
@@ -62,6 +69,22 @@ class InstrumentedAI:
         return self._measure("decide_accusation", state)
 
     def update_from_clue(self, card) -> None:
+        metric_bucket = self._metrics.setdefault(
+            self._name,
+            {
+                "wins": 0,
+                "total_moves": 0,
+                "decision_time": 0.0,
+                "decisions": 0,
+                "correct_accusations": 0,
+                "wrong_accusations": 0,
+                "total_turns": 0,
+                "suggestion_success": 0,
+                "suggestion_total": 0,
+            },
+        )
+        metric_bucket["suggestion_success"] += 1
+
         if hasattr(self._agent, "update_from_clue"):
             self._agent.update_from_clue(card)
 
@@ -78,18 +101,33 @@ def _create_metrics() -> dict[str, dict[str, float]]:
             "total_moves": 0,
             "decision_time": 0.0,
             "decisions": 0,
+            "correct_accusations": 0,
+            "wrong_accusations": 0,
+            "total_turns": 0,
+            "suggestion_success": 0,
+            "suggestion_total": 0,
         },
         "ExpectiminimaxAI": {
             "wins": 0,
             "total_moves": 0,
             "decision_time": 0.0,
             "decisions": 0,
+            "correct_accusations": 0,
+            "wrong_accusations": 0,
+            "total_turns": 0,
+            "suggestion_success": 0,
+            "suggestion_total": 0,
         },
         "NegamaxAI": {
             "wins": 0,
             "total_moves": 0,
             "decision_time": 0.0,
             "decisions": 0,
+            "correct_accusations": 0,
+            "wrong_accusations": 0,
+            "total_turns": 0,
+            "suggestion_success": 0,
+            "suggestion_total": 0,
         },
     }
 
@@ -146,6 +184,7 @@ def run_single_game(
     game = GameState()
     per_game_metrics = _create_metrics()
     players = _create_comparison_players(per_game_metrics, max_players=max_players)
+    random.shuffle(players)
     for player in players:
         game.add_player(player)
     game.setup_game()
@@ -169,13 +208,26 @@ def run_single_game(
     total_decisions = int(
         sum(float(ai_data.get("decisions", 0)) for ai_data in per_game_metrics.values())
     )
+    total_correct_accusations = 0
+    total_wrong_accusations = 0
+    total_suggestion_success = int(
+        sum(float(ai_data.get("suggestion_success", 0)) for ai_data in per_game_metrics.values())
+    )
+    total_suggestion_total = int(
+        sum(float(ai_data.get("suggestion_total", 0)) for ai_data in per_game_metrics.values())
+    )
+
+    def _player_ai_name(player_obj: Any) -> str | None:
+        wrapped_agent = getattr(player_obj, "ai_agent", None)
+        core_ai = getattr(wrapped_agent, "_agent", wrapped_agent)
+        if core_ai is None:
+            return None
+        return type(core_ai).__name__
 
     if winner is not None:
-        wrapped_agent = getattr(winner, "ai_agent", None)
-        base_agent = getattr(wrapped_agent, "_agent", None)
-        if base_agent is not None:
-            winner_name = type(base_agent).__name__
-        else:
+        winner_name = _player_ai_name(winner)
+        if winner_name is None:
+            wrapped_agent = getattr(winner, "ai_agent", None)
             winner_name = type(wrapped_agent).__name__ if wrapped_agent is not None else winner.name
         winner_player = winner.name
 
@@ -184,6 +236,26 @@ def run_single_game(
             winner_moves = int(per_game_metrics[winner_name]["total_moves"])
             winner_decision_time = float(per_game_metrics[winner_name]["decision_time"])
             winner_decisions = int(per_game_metrics[winner_name]["decisions"])
+
+    active_players = [p for p in game.players if getattr(p, "active", False)]
+    winner_by_correct_accusation = winner is not None and len(active_players) > 1
+
+    for player in game.players:
+        ai_name = _player_ai_name(player)
+        if ai_name not in per_game_metrics:
+            continue
+
+        if not getattr(player, "active", False) and (winner is None or player is not winner):
+            per_game_metrics[ai_name]["wrong_accusations"] += 1
+            total_wrong_accusations += 1
+            logger.debug("%s made wrong accusation", ai_name)
+
+    if winner_name in per_game_metrics:
+        per_game_metrics[winner_name]["total_turns"] += total_turns
+        if winner_by_correct_accusation:
+            per_game_metrics[winner_name]["correct_accusations"] += 1
+            total_correct_accusations += 1
+            logger.debug("%s made correct accusation", winner_name)
 
     logger.info("Game finished. Winner: %s", winner_name if winner_name else "None")
 
@@ -197,6 +269,10 @@ def run_single_game(
         "decisions": total_decisions,
         "winner_decision_time": winner_decision_time,
         "winner_decisions": winner_decisions,
+        "correct_accusations": total_correct_accusations,
+        "wrong_accusations": total_wrong_accusations,
+        "suggestion_success": total_suggestion_success,
+        "suggestion_total": total_suggestion_total,
         "runtime": runtime,
         "no_winner": winner is None,
         "metrics": per_game_metrics,
@@ -246,6 +322,11 @@ def _run_ai_performance_comparison() -> None:
                 metrics[ai_name]["total_moves"] += float(ai_data.get("total_moves", 0))
                 metrics[ai_name]["decision_time"] += float(ai_data.get("decision_time", 0.0))
                 metrics[ai_name]["decisions"] += float(ai_data.get("decisions", 0))
+                metrics[ai_name]["correct_accusations"] += float(ai_data.get("correct_accusations", 0))
+                metrics[ai_name]["wrong_accusations"] += float(ai_data.get("wrong_accusations", 0))
+                metrics[ai_name]["total_turns"] += float(ai_data.get("total_turns", 0))
+                metrics[ai_name]["suggestion_success"] += float(ai_data.get("suggestion_success", 0))
+                metrics[ai_name]["suggestion_total"] += float(ai_data.get("suggestion_total", 0))
 
     logger.info("=" * 68)
     logger.info("Final Performance Summary")
@@ -255,12 +336,21 @@ def _run_ai_performance_comparison() -> None:
         avg_moves = data["total_moves"] / num_games
         avg_time = data["decision_time"] / max(data["decisions"], 1)
         win_rate = (data["wins"] / num_games) * 100.0
+        accusation_total = data["correct_accusations"] + data["wrong_accusations"]
+        accusation_accuracy = (data["correct_accusations"] / max(accusation_total, 1)) * 100.0
+        avg_turns_to_win = data["total_turns"] / max(data["wins"], 1)
+        suggestion_efficiency = data["suggestion_success"] / max(data["suggestion_total"], 1)
 
         logger.info("%s:", ai_name)
         logger.info("Wins: %s", int(data["wins"]))
         logger.info("Win Rate: %.1f%%", win_rate)
         logger.info("Average Moves: %.2f", avg_moves)
         logger.info("Average Decision Time: %.5f sec", avg_time)
+        logger.info("Correct Accusations: %s", int(data["correct_accusations"]))
+        logger.info("Wrong Accusations: %s", int(data["wrong_accusations"]))
+        logger.info("Accusation Accuracy: %.1f%%", accusation_accuracy)
+        logger.info("Average Turns To Win: %.2f", avg_turns_to_win)
+        logger.info("Suggestion Efficiency: %.3f", suggestion_efficiency)
 
     logger.info("No-Winner Games: %s", no_winner_games)
     logger.info("Average Game Runtime: %.4f sec", game_runtime_seconds / num_games)

@@ -1,0 +1,35 @@
+{
+    "MinimaxAI": {
+        "wins": 0.0,
+        "moves": 73.0,
+        "decision_time": 6.276666399935493,
+        "decisions": 219.0,
+        "correct_accusations": 0.0,
+        "wrong_accusations": 2.0,
+        "total_turns": 0.0,
+        "suggestion_success": 71.0,
+        "suggestion_total": 73.0
+    },
+    "ExpectiminimaxAI": {
+        "wins": 0.0,
+        "moves": 213.0,
+        "decision_time": 8.689996800123481,
+        "decisions": 639.0,
+        "correct_accusations": 0.0,
+        "wrong_accusations": 0.0,
+        "total_turns": 0.0,
+        "suggestion_success": 78.0,
+        "suggestion_total": 213.0
+    },
+    "NegamaxAI": {
+        "wins": 0.0,
+        "moves": 214.0,
+        "decision_time": 17.371733600564767,
+        "decisions": 642.0,
+        "correct_accusations": 0.0,
+        "wrong_accusations": 0.0,
+        "total_turns": 0.0,
+        "suggestion_success": 214.0,
+        "suggestion_total": 214.0
+    }
+}

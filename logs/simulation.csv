@@ -1,0 +1,4 @@
+AI,Wins,Avg Moves,Avg Time,Avg Turns To Win,Accusation Accuracy,Suggestion Efficiency
+MinimaxAI,0,73.0,0.02866,0.0,0.0,0.9726
+ExpectiminimaxAI,0,213.0,0.0136,0.0,0.0,0.3662
+NegamaxAI,0,214.0,0.02706,0.0,0.0,1.0

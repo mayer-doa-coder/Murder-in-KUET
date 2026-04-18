@@ -1,0 +1,223 @@
+{
+    "results": [
+        {
+            "winner": null,
+            "winner_player": null,
+            "moves": 250,
+            "winner_moves": 0,
+            "turns": 250,
+            "decision_time": 14.667410299996845,
+            "decisions": 750,
+            "winner_decision_time": 0.0,
+            "winner_decisions": 0,
+            "correct_accusations": 0,
+            "wrong_accusations": 1,
+            "suggestion_success": 196,
+            "suggestion_total": 250,
+            "runtime": 14.677509600005578,
+            "no_winner": true,
+            "metrics": {
+                "MinimaxAI": {
+                    "wins": 0,
+                    "total_moves": 4,
+                    "decision_time": 0.4474910999997519,
+                    "decisions": 12,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 1,
+                    "total_turns": 0,
+                    "suggestion_success": 3,
+                    "suggestion_total": 4
+                },
+                "ExpectiminimaxAI": {
+                    "wins": 0,
+                    "total_moves": 123,
+                    "decision_time": 3.8875226998934522,
+                    "decisions": 369,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 0,
+                    "total_turns": 0,
+                    "suggestion_success": 70,
+                    "suggestion_total": 123
+                },
+                "NegamaxAI": {
+                    "wins": 0,
+                    "total_moves": 123,
+                    "decision_time": 10.332396500103641,
+                    "decisions": 369,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 0,
+                    "total_turns": 0,
+                    "suggestion_success": 123,
+                    "suggestion_total": 123
+                }
+            }
+        },
+        {
+            "winner": null,
+            "winner_player": null,
+            "moves": 250,
+            "winner_moves": 0,
+            "turns": 250,
+            "decision_time": 19.47483429987915,
+            "decisions": 750,
+            "winner_decision_time": 0.0,
+            "winner_decisions": 0,
+            "correct_accusations": 0,
+            "wrong_accusations": 1,
+            "suggestion_success": 167,
+            "suggestion_total": 250,
+            "runtime": 19.48423939998611,
+            "no_winner": true,
+            "metrics": {
+                "MinimaxAI": {
+                    "wins": 0,
+                    "total_moves": 69,
+                    "decision_time": 6.220834700245177,
+                    "decisions": 207,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 1,
+                    "total_turns": 0,
+                    "suggestion_success": 68,
+                    "suggestion_total": 69
+                },
+                "ExpectiminimaxAI": {
+                    "wins": 0,
+                    "total_moves": 90,
+                    "decision_time": 5.245704399800161,
+                    "decisions": 270,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 0,
+                    "total_turns": 0,
+                    "suggestion_success": 8,
+                    "suggestion_total": 90
+                },
+                "NegamaxAI": {
+                    "wins": 0,
+                    "total_moves": 91,
+                    "decision_time": 8.00829519983381,
+                    "decisions": 273,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 0,
+                    "total_turns": 0,
+                    "suggestion_success": 91,
+                    "suggestion_total": 91
+                }
+            }
+        },
+        {
+            "winner": null,
+            "winner_player": null,
+            "moves": 250,
+            "winner_moves": 0,
+            "turns": 250,
+            "decision_time": 18.264078599691857,
+            "decisions": 750,
+            "winner_decision_time": 0.0,
+            "winner_decisions": 0,
+            "correct_accusations": 0,
+            "wrong_accusations": 1,
+            "suggestion_success": 188,
+            "suggestion_total": 250,
+            "runtime": 18.27353880001465,
+            "no_winner": true,
+            "metrics": {
+                "MinimaxAI": {
+                    "wins": 0,
+                    "total_moves": 1,
+                    "decision_time": 0.24219079996692017,
+                    "decisions": 3,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 1,
+                    "total_turns": 0,
+                    "suggestion_success": 0,
+                    "suggestion_total": 1
+                },
+                "ExpectiminimaxAI": {
+                    "wins": 0,
+                    "total_moves": 124,
+                    "decision_time": 7.090977899497375,
+                    "decisions": 372,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 0,
+                    "total_turns": 0,
+                    "suggestion_success": 63,
+                    "suggestion_total": 124
+                },
+                "NegamaxAI": {
+                    "wins": 0,
+                    "total_moves": 125,
+                    "decision_time": 10.930909900227562,
+                    "decisions": 375,
+                    "correct_accusations": 0,
+                    "wrong_accusations": 0,
+                    "total_turns": 0,
+                    "suggestion_success": 125,
+                    "suggestion_total": 125
+                }
+            }
+        }
+    ],
+    "metrics": {
+        "MinimaxAI": {
+            "wins": 0.0,
+            "moves": 74.0,
+            "decision_time": 6.910516600211849,
+            "decisions": 222.0,
+            "correct_accusations": 0.0,
+            "wrong_accusations": 3.0,
+            "total_turns": 0.0,
+            "suggestion_success": 71.0,
+            "suggestion_total": 74.0
+        },
+        "ExpectiminimaxAI": {
+            "wins": 0.0,
+            "moves": 337.0,
+            "decision_time": 16.224204999190988,
+            "decisions": 1011.0,
+            "correct_accusations": 0.0,
+            "wrong_accusations": 0.0,
+            "total_turns": 0.0,
+            "suggestion_success": 141.0,
+            "suggestion_total": 337.0
+        },
+        "NegamaxAI": {
+            "wins": 0.0,
+            "moves": 339.0,
+            "decision_time": 29.271601600165013,
+            "decisions": 1017.0,
+            "correct_accusations": 0.0,
+            "wrong_accusations": 0.0,
+            "total_turns": 0.0,
+            "suggestion_success": 339.0,
+            "suggestion_total": 339.0
+        }
+    },
+    "summary": {
+        "MinimaxAI": {
+            "win_rate": 0.0,
+            "move_efficiency": 74.0,
+            "avg_decision_time": 0.03112845315410743,
+            "avg_turns_to_win": 0.0,
+            "accusation_accuracy": 0.0,
+            "suggestion_efficiency": 0.9594594594594594
+        },
+        "ExpectiminimaxAI": {
+            "win_rate": 0.0,
+            "move_efficiency": 337.0,
+            "avg_decision_time": 0.016047680513542027,
+            "avg_turns_to_win": 0.0,
+            "accusation_accuracy": 0.0,
+            "suggestion_efficiency": 0.41839762611275966
+        },
+        "NegamaxAI": {
+            "win_rate": 0.0,
+            "move_efficiency": 339.0,
+            "avg_decision_time": 0.02878230245837268,
+            "avg_turns_to_win": 0.0,
+            "accusation_accuracy": 0.0,
+            "suggestion_efficiency": 1.0
+        }
+    },
+    "completed_games": 3,
+    "failed_games": 0
+}
