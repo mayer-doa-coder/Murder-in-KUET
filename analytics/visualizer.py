@@ -106,3 +106,74 @@ class Visualizer:
         plt.xticks(rotation=15)
         plt.tight_layout()
         plt.show()
+
+    def plot_moves(self) -> None:
+        """Plot a bar chart comparing average moves required to win for each AI agent."""
+        if not self.metrics:
+            raise ValueError("Metrics data is empty")
+
+        names: list[str] = []
+        moves: list[float] = []
+
+        for ai_name, data in self.metrics.items():
+            total_moves = float(data.get("moves", data.get("total_moves", 0)) or 0)
+            wins = float(data.get("wins", 0) or 0)
+            avg_moves = total_moves / max(wins, 1.0)
+
+            names.append(ai_name)
+            moves.append(avg_moves)
+
+        plt.figure(figsize=(9, 5))
+        plt.bar(names, moves, color="#e76f51")
+        plt.title("Average Moves to Win")
+        plt.xlabel("AI Agents")
+        plt.ylabel("Moves (Lower is Better)")
+        plt.xticks(rotation=15)
+        plt.tight_layout()
+        plt.show()
+
+    def generate_insights(self) -> dict[str, str]:
+        """Analyze metrics and print key insights about AI performance."""
+        if not self.metrics:
+            raise ValueError("Metrics data is empty")
+
+        best_ai = max(
+            self.metrics,
+            key=lambda ai: float(self.metrics[ai].get("wins", 0) or 0),
+        )
+
+        fastest_ai = min(
+            self.metrics,
+            key=lambda ai: (
+                float(self.metrics[ai].get("decision_time", 0) or 0)
+                / max(float(self.metrics[ai].get("decisions", 0) or 0), 1.0)
+            ),
+        )
+
+        most_efficient_ai = min(
+            self.metrics,
+            key=lambda ai: (
+                float(self.metrics[ai].get("moves", self.metrics[ai].get("total_moves", 0)) or 0)
+                / max(float(self.metrics[ai].get("wins", 0) or 0), 1.0)
+            ),
+        )
+
+        best_accuracy_ai = max(
+            self.metrics,
+            key=lambda ai: float(self.metrics[ai].get("correct_accusations", 0) or 0),
+        )
+
+        insights = {
+            "best_ai": best_ai,
+            "fastest_ai": fastest_ai,
+            "most_efficient_ai": most_efficient_ai,
+            "best_accuracy_ai": best_accuracy_ai,
+        }
+
+        print("\n===== AI INSIGHTS =====")
+        print(f"Best AI (Win Rate): {best_ai}")
+        print(f"Fastest AI: {fastest_ai}")
+        print(f"Most Efficient AI (Fewest Moves): {most_efficient_ai}")
+        print(f"Most Accurate AI: {best_accuracy_ai}")
+
+        return insights
