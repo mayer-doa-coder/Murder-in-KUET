@@ -360,8 +360,38 @@ class NegamaxAI(BaseAI):
         return best
 
     def decide_accusation(self, state: Any) -> bool:
-        """Decide whether to make a final accusation.
+        """Decide whether to make a final accusation based on certainty.
 
-        This placeholder will later use certainty/risk-aware Negamax logic.
+        Returns:
+            bool: True only when exactly one suspect, weapon, and location
+            remain as candidates; otherwise False.
         """
-        pass
+        if state is None:
+            raise ValueError("State cannot be None")
+
+        suspects = self._as_set(getattr(state, "possible_suspects", None))
+        weapons = self._as_set(getattr(state, "possible_weapons", None))
+        locations = self._as_set(getattr(state, "possible_locations", None))
+
+        if suspects is None or weapons is None or locations is None:
+            notebook = self._get_current_notebook(state)
+            if notebook is not None:
+                suspects = self._as_set(getattr(notebook, "possible_suspects", set()))
+                weapons = self._as_set(getattr(notebook, "possible_weapons", set()))
+                locations = self._as_set(getattr(notebook, "possible_locations", set()))
+
+        if suspects is None:
+            suspects = set(getattr(state, "suspects", []))
+        if weapons is None:
+            weapons = set(getattr(state, "weapons", []))
+        if locations is None:
+            locations = set(getattr(state, "locations", []))
+
+        if not suspects or not weapons or not locations:
+            return False
+
+        return (
+            len(suspects) == 1
+            and len(weapons) == 1
+            and len(locations) == 1
+        )
