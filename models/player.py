@@ -2,10 +2,9 @@
 player.py - Player Object Module
 
 Purpose: Defines player objects and manages player-specific data.
-This module handles player attributes, hand management, and player actions.
+This module handles player attributes and lightweight player interfaces.
 """
 
-from engine.dice import roll_dice
 from models.suggestion import Suggestion
 from models.accusation import Accusation
 from engine.cards import suspects, weapons, locations
@@ -14,7 +13,7 @@ from ai.notebook import Notebook
 
 class Player:
 
-    def __init__(self, name, is_ai=False):
+    def __init__(self, name: str, is_ai: bool = False):
         self.name = name
         self.is_ai = is_ai
         self.ai_agent = None
@@ -115,75 +114,24 @@ class Player:
                 return card
         return None
 
-    def take_turn(self, state, valid_moves=None):
+    def take_turn(self, state):
+        """Return the AI agent for the game loop to execute decisions.
+
+        Player objects do not execute game rules or AI logic directly.
         """
-        Execute this player's turn.
+        if not self.active:
+            return None
 
-        For AI players the agent drives every decision automatically.
-        For human players this is a hook; the CLI / API layer calls the
-        individual methods (move, make_suggestion, make_accusation) directly
-        based on user input.
+        if self.is_ai and not self.ai_agent:
+            raise ValueError("AI agent not assigned")
 
-        Returns:
-            dict | None: For AI players, a result dict with keys:
-                           'dice'        – DiceRoll(die1, die2, total)
-                           'move'        – location moved to (or None if stayed)
-                           'suggestion'  – suggestion dict made this turn
-                           'accusation'  – accusation dict or None
-                         For human players, returns None (caller handles input).
-        """
-        game_state = state
-        if self.is_ai:
-            if self.ai_agent is None:
-                raise ValueError("AI player has no ai_agent assigned")
+        if self.is_ai and self.ai_agent:
+            return self.ai_agent
 
-            # 1. Roll both dice — total is the step budget for this turn.
-            dice = roll_dice()
-            # Publish on game_state so any agent can read it via game_state.last_dice_roll.
-            game_state.last_dice_roll = dice
-
-            # 2. Engine computes the valid destinations (BFS up to dice.total hops).
-            #    An empty position means the game just started; every location is reachable.
-            from ai.board_utils import get_possible_moves
-            if valid_moves is None:
-                valid_moves = get_possible_moves(game_state.board, self, steps=dice.total)
-
-            # 3. Hand the ready-made list to the agent — it only needs to choose.
-            #    Returning None means "stay in current room" (legal in Cluedo).
-            move = self.ai_agent.choose_move(game_state, valid_moves)
-            if move:
-                moved = self.try_move(move, valid_moves)
-                if not moved:
-                    # Agent returned a location outside the valid set — this
-                    # should not happen with a well-behaved agent, but guard
-                    # against bugs in custom agents without crashing the game.
-                    move = None
-
-            game_state.current_location = self.position
-            suspect, weapon, location = self.ai_agent.make_suggestion(game_state)
-            suggestion = self.make_suggestion(suspect, weapon, location)
-            revealer, revealed_card = game_state.process_suggestion(self, suggestion)
-            should_accuse = self.ai_agent.decide_accusation(game_state)
-            accusation = (
-                self.make_accusation(suspect, weapon, location)
-                if should_accuse else None
-            )
-
-            return {
-                "dice": dice,
-                "move": self.position,
-                "suggestion": suggestion,
-                "revealer": revealer.name if revealer else None,
-                "revealed_card": revealed_card.name if revealed_card else None,
-                "accusation": accusation,
-            }
-
-        # Human turn — handled externally by CLI/API
         return None
 
     def __repr__(self):
-        kind = "AI" if self.is_ai else "Human"
-        return f"Player({self.name}, {kind}, position={self.position})"
+        return f"Player({self.name}, AI={self.is_ai}, Active={self.active})"
 
 
 class AIPlayer(Player):

@@ -7,6 +7,7 @@ search-state representation that supports simulation and evaluation.
 
 from __future__ import annotations
 
+import logging
 import random
 from copy import deepcopy
 from dataclasses import dataclass
@@ -15,6 +16,9 @@ from typing import Any, Sequence
 
 from ai.base_ai import BaseAI
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -459,8 +463,7 @@ class MinimaxAI(BaseAI):
         locations = search_state.possible_locations
 
         if getattr(self, "debug", False):
-            print("Accusation Decision Check:")
-            print(suspects, weapons, locations)
+            logger.debug("Accusation Decision Check: %s %s %s", suspects, weapons, locations)
 
         if not suspects or not weapons or not locations:
             return False
@@ -600,6 +603,7 @@ if __name__ == "__main__":
     from engine.game_state import GameState as EngineGameState
     from config.settings import AI_CONFIG
     from models.player import AIPlayer
+    from utils.logger import setup_logger
 
     # Example usage with engine state.
     engine_state = EngineGameState()
@@ -619,6 +623,7 @@ if __name__ == "__main__":
     suggestion = ai.make_suggestion(engine_state)
     accuse = ai.decide_accusation(engine_state)
 
-    print("Move:", move)
-    print("Suggestion:", suggestion)
-    print("Accuse:", accuse)
+    setup_logger()
+    logger.info("Move: %s", move)
+    logger.info("Suggestion: %s", suggestion)
+    logger.info("Accuse: %s", accuse)

@@ -6,6 +6,7 @@ that extends minimax with chance nodes.
 
 from __future__ import annotations
 
+import logging
 import random
 from copy import deepcopy
 from math import inf, isclose
@@ -13,6 +14,9 @@ from typing import Any, List, Sequence, Tuple
 
 from ai.base_ai import BaseAI
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
+
+
+logger = logging.getLogger(__name__)
 
 
 class ExpectiminimaxAI(BaseAI):
@@ -409,7 +413,7 @@ class ExpectiminimaxAI(BaseAI):
 
             score = self.expectiminimax(new_state, self.depth, "chance")
             if getattr(self, "debug", False):
-                print(f"Evaluating Move: {move}, Score: {score}")
+                logger.debug("Evaluating Move: %s, Score: %s", move, score)
 
             if score > best_score:
                 best_score = score
@@ -459,7 +463,7 @@ class ExpectiminimaxAI(BaseAI):
 
                 score = self.expectiminimax(new_state, self.depth, "chance")
                 if getattr(self, "debug", False):
-                    print(f"Suggestion: {suggestion}, Score: {score}")
+                    logger.debug("Suggestion: %s, Score: %s", suggestion, score)
 
                 if score > best_score:
                     best_score = score
@@ -487,7 +491,7 @@ class ExpectiminimaxAI(BaseAI):
         suspects, weapons, locations = self._resolve_suggestion_space(state)
 
         if getattr(self, "debug", False):
-            print("Accusation Decision Check:", suspects)
+            logger.debug("Accusation Decision Check: %s", suspects)
 
         if not suspects or not weapons or not locations:
             return False

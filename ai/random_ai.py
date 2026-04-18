@@ -5,10 +5,14 @@ Purpose: Implements a baseline AI that makes random decisions.
 This module provides a simple AI for testing and as a baseline for smarter agents.
 """
 
+import logging
 import random
 from types import SimpleNamespace
 from ai.base_ai import BaseAI
 from engine.cards import suspects, weapons, locations
+
+
+logger = logging.getLogger(__name__)
 
 
 class RandomAI(BaseAI):
@@ -108,4 +112,4 @@ if __name__ == "__main__":
     )
     ai = RandomAI()
     suggestion = ai.make_suggestion(state)
-    print(suggestion)
+    logger.info("Suggestion: %s", suggestion)

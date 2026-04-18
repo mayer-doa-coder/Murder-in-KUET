@@ -5,6 +5,7 @@ Purpose: Manages and tracks the current state of the game.
 This module maintains game status, player states, solution, and game progress.
 """
 
+import logging
 import random
 from copy import deepcopy
 from typing import Any
@@ -13,6 +14,9 @@ from engine.board import Board
 from engine.clue_reveal import reveal_clue
 from models.accusation import check_accusation
 from engine.dice import roll_dice
+
+
+logger = logging.getLogger(__name__)
 
 
 class GameState:
@@ -269,19 +273,19 @@ class GameState:
             current_index = self.players.index(player)
 
         if verbose:
-            print(f"{player.name} suggests: {suggestion}")
+            logger.info("%s suggests: %s", player.name, suggestion)
         revealer, card = reveal_clue(suggestion, self.players, current_index)
 
         if card is not None:
             if verbose and revealer is not None:
-                print(f"{revealer.name} revealed a card!")
+                logger.info("%s revealed a card", revealer.name)
             player.notebook.eliminate(card.name)
 
             if player.is_ai and hasattr(player.ai_agent, "update_from_clue"):
                 player.ai_agent.update_from_clue(card)
         else:
             if verbose:
-                print("No one could reveal a clue!")
+                logger.info("No one could reveal a clue")
             if player.is_ai and hasattr(player.ai_agent, "handle_no_reveal"):
                 player.ai_agent.handle_no_reveal(suggestion)
 
@@ -454,13 +458,13 @@ class GameState:
         if len(active_players) == 1:
             self.winner = active_players[0]
             self.game_over = True
-            print(f"{active_players[0].name} wins by default!")
+            logger.info("%s wins by default", active_players[0].name)
             return True
 
         if len(active_players) == 0:
             self.winner = None
             self.game_over = True
-            print("No players remaining. Game ends.")
+            logger.warning("No players remaining. Game ends")
             return True
 
         return False
@@ -479,12 +483,12 @@ class GameState:
             return False
 
         if check_accusation(accusation, self.solution):
-            print(f"{player.name} wins!")
+            logger.info("%s wins", player.name)
             self.winner = player
             self.game_over = True
             return True
 
-        print(f"{player.name} eliminated!")
+        logger.warning("%s eliminated", player.name)
         player.active = False
         self.check_end_conditions()
         return False
@@ -555,6 +559,7 @@ class GameState:
             object | None: Winning player object, or None if no winner.
         """
         if not self.players:
+            logger.error("Cannot run game without players")
             raise ValueError("Cannot run game without players")
 
         turns_played = 0
@@ -566,14 +571,14 @@ class GameState:
                 self.winner = active_players[0]
                 self.game_over = True
                 if verbose:
-                    print(f"{active_players[0].name} wins by default!")
+                    logger.info("%s wins by default", active_players[0].name)
                 break
 
             if len(active_players) == 0:
                 self.winner = None
                 self.game_over = True
                 if verbose:
-                    print("Game ended. No players remaining.")
+                    logger.warning("Game ended. No players remaining")
                 break
 
             if max_turns is not None and turns_played >= max_turns:
@@ -595,16 +600,16 @@ class GameState:
                     else:
                         core_ai = getattr(ai_obj, "_agent", ai_obj)
                         ai_name = type(core_ai).__name__
-                    print(f"\n--- {player.name} ({ai_name}) Turn ---")
+                    logger.info("--- %s (%s) Turn ---", player.name, ai_name)
                 else:
-                    print(f"\n--- {player.name}'s Turn ---")
+                    logger.info("--- %s's Turn ---", player.name)
 
             # 1) Roll dice.
             dice_roll = roll_dice()
             self.last_dice_roll = dice_roll
             dice_value = dice_roll.total
             if verbose:
-                print(f"Dice: {dice_value}")
+                logger.info("Dice: %s", dice_value)
 
             # 2) Movement phase.
             if player.position is None:
@@ -618,11 +623,13 @@ class GameState:
             move = None
             if player.is_ai:
                 if getattr(player, "ai_agent", None) is None:
+                    logger.error("AI player %s has no ai_agent assigned", player.name)
                     raise ValueError(f"AI player {player.name} has no ai_agent assigned")
                 move = player.ai_agent.choose_move(self, valid_moves)
                 # Safety fallback: if AI returns an invalid move, recover with
                 # a random legal move to keep the game progressing.
                 if valid_moves and move not in valid_moves:
+                    logger.warning("AI returned invalid move '%s'; selecting random legal move", move)
                     move = random.choice(valid_moves)
             elif human_move_selector is not None:
                 move = human_move_selector(player, valid_moves, self)
@@ -637,7 +644,7 @@ class GameState:
 
             self.current_location = player.position
             if verbose:
-                print(f"Move: {player.position}")
+                logger.info("Move: %s", player.position)
 
             # 3) Suggestion phase.
             if player.is_ai:
@@ -655,7 +662,7 @@ class GameState:
             suggestion = player.make_suggestion(suspect, weapon, player.position)
             assert suggestion is not None, "Suggestion failed"
             if verbose:
-                print(f"Suggestion: {suggestion}")
+                logger.info("Suggestion: %s", suggestion)
 
             # 4) Clue revelation.
             revealer, card = reveal_clue(suggestion, self.players, current_index)
@@ -664,9 +671,9 @@ class GameState:
             if card:
                 player.notebook.eliminate(card.name)
                 if verbose and revealer is not None:
-                    print(f"{revealer.name} revealed a card!")
+                    logger.info("%s revealed a card", revealer.name)
             elif verbose:
-                print("No one could disprove!")
+                logger.info("No one could disprove")
 
             # 6) AI knowledge update.
             if player.is_ai and card and hasattr(player.ai_agent, "update_from_clue"):
@@ -718,16 +725,16 @@ class GameState:
 
                 if check_accusation(accusation, self.solution):
                     if verbose:
-                        print(f"{player.name} wins!")
+                        logger.info("%s wins", player.name)
                     self.winner = player
                     self.game_over = True
                 else:
                     if verbose:
-                        print(f"{player.name} eliminated!")
+                        logger.warning("%s eliminated", player.name)
                     player.active = False
 
             if verbose and player.is_ai:
-                print(f"Accusation Decision: {should_accuse}")
+                logger.info("Accusation Decision: %s", should_accuse)
 
             # 8) Turn rotation.
             current_index = (current_index + 1) % len(self.players)

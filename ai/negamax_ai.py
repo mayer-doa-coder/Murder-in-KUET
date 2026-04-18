@@ -4,12 +4,16 @@ Purpose: Defines a clean, extensible structure for a Negamax-based AI agent
 that will later support alpha-beta pruning and high-performance search.
 """
 
+import logging
 import random
 
 from ai.base_ai import BaseAI
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from math import inf
 from typing import Any, Sequence
+
+
+logger = logging.getLogger(__name__)
 
 
 class NegamaxAI(BaseAI):
@@ -250,7 +254,7 @@ class NegamaxAI(BaseAI):
 
             score = -self.negamax(new_state, self.depth, float("-inf"), float("inf"))
             if getattr(self, "debug", False):
-                print(f"Move: {move}, Score: {score}")
+                logger.debug("Move: %s, Score: %s", move, score)
 
             if score > best_score:
                 best_score = score
@@ -340,7 +344,7 @@ class NegamaxAI(BaseAI):
 
                 score = -self.negamax(new_state, self.depth, float("-inf"), float("inf"))
                 if getattr(self, "debug", False):
-                    print(f"Suggestion: {suggestion}, Score: {score}")
+                    logger.debug("Suggestion: %s, Score: %s", suggestion, score)
 
                 if score > best_score:
                     best_score = score
