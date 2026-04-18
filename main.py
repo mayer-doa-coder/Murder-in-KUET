@@ -28,15 +28,29 @@ class InstrumentedAI:
     def _measure(self, method_name: str, *args, **kwargs):
         start_time = perf_counter()
         method = getattr(self._agent, method_name)
-        result = method(*args, **kwargs)
-        elapsed = perf_counter() - start_time
 
-        self._metrics[self._name]["decision_time"] += elapsed
-        self._metrics[self._name]["decisions"] += 1
-        if method_name == "choose_move":
-            self._metrics[self._name]["total_moves"] += 1
+        try:
+            return method(*args, **kwargs)
+        except Exception as exc:
+            logger.error("%s decision failed in %s: %s", self._name, method_name, exc)
+            raise
+        finally:
+            elapsed = perf_counter() - start_time
+            metric_bucket = self._metrics.setdefault(
+                self._name,
+                {
+                    "wins": 0,
+                    "total_moves": 0,
+                    "decision_time": 0.0,
+                    "decisions": 0,
+                },
+            )
+            metric_bucket["decision_time"] += elapsed
+            metric_bucket["decisions"] += 1
+            if method_name == "choose_move":
+                metric_bucket["total_moves"] += 1
 
-        return result
+            logger.debug("%s %s decision time: %.6fs", self._name, method_name, elapsed)
 
     def choose_move(self, state, valid_moves):
         return self._measure("choose_move", state, valid_moves)
@@ -145,6 +159,16 @@ def run_single_game(
     winner_moves = 0
     winner_decision_time = 0.0
     winner_decisions = 0
+    total_moves = int(
+        sum(float(ai_data.get("total_moves", 0)) for ai_data in per_game_metrics.values())
+    )
+    total_turns = total_moves
+    total_decision_time = float(
+        sum(float(ai_data.get("decision_time", 0.0)) for ai_data in per_game_metrics.values())
+    )
+    total_decisions = int(
+        sum(float(ai_data.get("decisions", 0)) for ai_data in per_game_metrics.values())
+    )
 
     if winner is not None:
         wrapped_agent = getattr(winner, "ai_agent", None)
@@ -161,12 +185,18 @@ def run_single_game(
             winner_decision_time = float(per_game_metrics[winner_name]["decision_time"])
             winner_decisions = int(per_game_metrics[winner_name]["decisions"])
 
+    logger.info("Game finished. Winner: %s", winner_name if winner_name else "None")
+
     return {
         "winner": winner_name,
         "winner_player": winner_player,
-        "moves": winner_moves,
-        "decision_time": winner_decision_time,
-        "decisions": winner_decisions,
+        "moves": total_moves,
+        "winner_moves": winner_moves,
+        "turns": total_turns,
+        "decision_time": total_decision_time,
+        "decisions": total_decisions,
+        "winner_decision_time": winner_decision_time,
+        "winner_decisions": winner_decisions,
         "runtime": runtime,
         "no_winner": winner is None,
         "metrics": per_game_metrics,
