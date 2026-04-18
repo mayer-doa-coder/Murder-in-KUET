@@ -177,3 +177,36 @@ class Visualizer:
         print(f"Most Accurate AI: {best_accuracy_ai}")
 
         return insights
+
+    def show_dashboard(self) -> None:
+        """Display AI performance metrics in a clean CLI format."""
+        if not self.metrics:
+            raise ValueError("Metrics data is empty")
+
+        print("\n===== AI PERFORMANCE DASHBOARD =====")
+
+        for ai_name, data in self.metrics.items():
+            wins = float(data.get("wins", 0) or 0)
+            total_moves = float(data.get("moves", data.get("total_moves", 0)) or 0)
+            total_time = float(data.get("decision_time", 0) or 0)
+            decisions = float(data.get("decisions", 0) or 0)
+
+            avg_moves = total_moves / max(wins, 1.0)
+            avg_time = total_time / max(decisions, 1.0)
+
+            print(f"\n{ai_name}")
+            print(f"Wins: {int(wins)}")
+            print(f"Avg Moves: {avg_moves:.2f}")
+            print(f"Avg Decision Time: {avg_time:.5f}s")
+
+        sorted_ai = sorted(
+            self.metrics,
+            key=lambda ai: float(self.metrics[ai].get("wins", 0) or 0),
+            reverse=True,
+        )
+
+        print("\n--- Ranking ---")
+        for index, ai_name in enumerate(sorted_ai, 1):
+            print(f"{index}. {ai_name}")
+
+        print("\n----------------------------------")

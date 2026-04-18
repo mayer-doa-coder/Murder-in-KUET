@@ -8,6 +8,7 @@ from multiprocessing import Pool
 from pathlib import Path
 from typing import Any, Dict, List
 
+from analytics.visualizer import Visualizer
 from main import run_single_game
 
 
@@ -290,3 +291,14 @@ class SimulationRunner:
                         round(suggestion_efficiency, 4),
                     ]
                 )
+
+    def run_visual_dashboard(self, metrics_or_result: Dict[str, Any]) -> Dict[str, str]:
+        """Render CLI dashboard, visualization charts, and insight summary for AI metrics."""
+        metric_rows = self._extract_metrics(metrics_or_result)
+        visualizer = Visualizer(metric_rows)
+
+        visualizer.show_dashboard()
+        visualizer.plot_win_rate()
+        visualizer.plot_decision_time()
+        visualizer.plot_moves()
+        return visualizer.generate_insights()
