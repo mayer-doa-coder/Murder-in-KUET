@@ -179,6 +179,23 @@ class BayesianNotebook:
         """Update probabilities when a card is revealed."""
         self.eliminate(card)
 
+    def most_likely(self) -> tuple[str, str, str]:
+        """Return the highest-probability suspect, weapon, and location."""
+        if not self.suspects or not self.weapons or not self.locations:
+            raise ValueError("Probability distributions are empty")
+
+        if all(value == 0.0 for value in self.suspects.values()):
+            raise ValueError("Invalid suspect distribution")
+        if all(value == 0.0 for value in self.weapons.values()):
+            raise ValueError("Invalid weapon distribution")
+        if all(value == 0.0 for value in self.locations.values()):
+            raise ValueError("Invalid location distribution")
+
+        suspect = max(self.suspects, key=self.suspects.get)
+        weapon = max(self.weapons, key=self.weapons.get)
+        location = max(self.locations, key=self.locations.get)
+        return suspect, weapon, location
+
     def is_solved(self) -> bool:
         """Return True when one candidate remains in each category."""
         return (

@@ -630,6 +630,16 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
                     best = suggestion
 
         if best is None:
+            notebook = getattr(search_state, "notebook", None)
+            most_likely = getattr(notebook, "most_likely", None)
+            if callable(most_likely):
+                try:
+                    likely_suspect, likely_weapon, _likely_location = most_likely()
+                    if likely_suspect in suspects and likely_weapon in weapons:
+                        return (likely_suspect, likely_weapon, location)
+                except Exception:
+                    pass
+
             fallback_suspect = safe_random_choice(suspects)
             fallback_weapon = safe_random_choice(weapons)
             if fallback_suspect is None or fallback_weapon is None:
