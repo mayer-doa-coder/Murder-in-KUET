@@ -427,34 +427,28 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
                     best = suggestion
 
         if best is None:
-            fallback_suspect = safe_random_choice(suspects)
-            fallback_weapon = safe_random_choice(weapons)
-            if fallback_suspect is None or fallback_weapon is None:
-                raise ValueError("Invalid state: no possible suggestions")
-            return (fallback_suspect, fallback_weapon, location)
+            notebook = self._get_current_notebook(state)
+            most_likely = getattr(notebook, "most_likely", None)
+            if callable(most_likely):
+                try:
+                    likely_suspect, likely_weapon, _likely_location = most_likely()
+                    if likely_suspect in suspects and likely_weapon in weapons:
+                        return (likely_suspect, likely_weapon, location)
+                except Exception:
+                    pass
+
+            return (sorted(suspects)[0], sorted(weapons)[0], location)
 
         return best
 
     def decide_accusation(self, state: Any) -> bool:
-        """Decide whether to make a final accusation based on certainty.
-
-        Returns:
-            bool: True only when exactly one suspect, weapon, and location
-            remain as candidates; otherwise False.
-        """
+        """Decide whether to accuse using notebook probability confidence."""
         if state is None:
             raise ValueError("Invalid state")
 
-        suspects, weapons, locations = self._resolve_suggestion_space(state)
+        notebook = self._get_current_notebook(state)
+        confidence_check = getattr(notebook, "confident_accusation", None)
+        if callable(confidence_check):
+            return bool(confidence_check())
 
-        if getattr(self, "debug", False):
-            logger.debug("Accusation Decision Check: %s", suspects)
-
-        if not suspects or not weapons or not locations:
-            return False
-
-        return (
-            len(suspects) == 1
-            and len(weapons) == 1
-            and len(locations) == 1
-        )
+        return False

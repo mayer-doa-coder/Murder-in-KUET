@@ -640,57 +640,20 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
                 except Exception:
                     pass
 
-            fallback_suspect = safe_random_choice(suspects)
-            fallback_weapon = safe_random_choice(weapons)
-            if fallback_suspect is None or fallback_weapon is None:
-                raise ValueError("Invalid state: empty suggestion space")
-            return (fallback_suspect, fallback_weapon, location)
+            return (suspects[0], weapons[0], location)
 
         return best
 
     def decide_accusation(self, state: Any) -> bool:
-        """Decide whether to make a final accusation on this turn.
-
-        Decision policy (pure, non-mutating):
-        1. Reject invalid/empty possibility states.
-        2. Accuse only when each category is exactly solved (1 candidate).
-        3. If still uncertain (up to 2 candidates per category), keep playing.
-
-        Returns:
-            bool: True to accuse now, False to continue gathering information.
-        """
+        """Decide whether to accuse using notebook probability confidence."""
         if state is None:
             raise ValueError("Invalid state provided")
 
         search_state = self._coerce_state(state)
-
-        suspects = search_state.possible_suspects
-        weapons = search_state.possible_weapons
-        locations = search_state.possible_locations
-
-        if getattr(self, "debug", False):
-            logger.debug("Accusation Decision Check: %s %s %s", suspects, weapons, locations)
-
-        if not suspects or not weapons or not locations:
-            return False
-
-        solved = (
-            len(suspects) == 1
-            and len(weapons) == 1
-            and len(locations) == 1
-        )
-        if solved:
-            return True
-
-        # Conservative guardrail: avoid premature all-in plays while
-        # probability/risk-aware policies are not yet enabled.
-        uncertainty_threshold = 2
-        if (
-            len(suspects) <= uncertainty_threshold
-            and len(weapons) <= uncertainty_threshold
-            and len(locations) <= uncertainty_threshold
-        ):
-            return False
+        notebook = getattr(search_state, "notebook", None)
+        confidence_check = getattr(notebook, "confident_accusation", None)
+        if callable(confidence_check):
+            return bool(confidence_check())
 
         return False
 

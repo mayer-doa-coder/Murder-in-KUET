@@ -196,6 +196,28 @@ class BayesianNotebook:
         location = max(self.locations, key=self.locations.get)
         return suspect, weapon, location
 
+    def confident_accusation(self, threshold: float = 0.8) -> bool:
+        """Return True when top probabilities in all categories exceed threshold."""
+        if not isinstance(threshold, (int, float)):
+            raise TypeError("threshold must be numeric")
+
+        threshold_value = float(threshold)
+        if threshold_value < 0.0 or threshold_value > 1.0:
+            raise ValueError("threshold must be between 0 and 1")
+
+        if not self.suspects or not self.weapons or not self.locations:
+            return False
+
+        s_prob = max(self.suspects.values(), default=0.0)
+        w_prob = max(self.weapons.values(), default=0.0)
+        l_prob = max(self.locations.values(), default=0.0)
+
+        return (
+            s_prob > threshold_value
+            and w_prob > threshold_value
+            and l_prob > threshold_value
+        )
+
     def is_solved(self) -> bool:
         """Return True when one candidate remains in each category."""
         return (
