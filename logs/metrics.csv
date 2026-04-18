@@ -1,0 +1,4 @@
+AI,Wins,Moves,Decision Time,Decisions,Avg Moves,Avg Decision Time
+MinimaxAI,2,1026.0,137.11849,3078,513.0,0.044548
+ExpectiminimaxAI,0,5506.0,460.386519,16518,5506.0,0.027872
+NegamaxAI,0,5514.0,699.138316,16542,5514.0,0.042264

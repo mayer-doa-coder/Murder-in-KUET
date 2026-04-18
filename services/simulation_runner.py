@@ -298,7 +298,11 @@ class SimulationRunner:
         visualizer = Visualizer(metric_rows)
 
         visualizer.show_dashboard()
+        visualizer.show_table()
         visualizer.plot_win_rate()
         visualizer.plot_decision_time()
         visualizer.plot_moves()
-        return visualizer.generate_insights()
+        insights = visualizer.generate_insights()
+        visualizer.export_csv()
+        visualizer.export_json()
+        return insights

@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import csv
+import json
 import logging
+from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 class Visualizer:
@@ -28,6 +32,44 @@ class Visualizer:
         self.metrics = metrics
         self._validate_metrics_structure()
         logging.info("Visualizer initialized")
+
+    def _ensure_logs_dir(self) -> Path:
+        """Ensure logs directory exists and return its path."""
+        logs_dir = Path("logs")
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        return logs_dir
+
+    def _build_metrics_table(self) -> pd.DataFrame:
+        """Build comparative metrics table for dashboards and exports."""
+        rows: list[dict[str, Any]] = []
+
+        for ai_name, data in self.metrics.items():
+            wins = float(data.get("wins", 0) or 0)
+            moves = float(data.get("moves", data.get("total_moves", 0)) or 0)
+            decision_time = float(data.get("decision_time", 0) or 0)
+            decisions = float(data.get("decisions", 0) or 0)
+
+            rows.append(
+                {
+                    "AI": ai_name,
+                    "wins": int(wins),
+                    "moves": moves,
+                    "decision_time": decision_time,
+                    "decisions": int(decisions),
+                    "avg_moves": moves / max(wins, 1.0),
+                    "avg_decision_time": decision_time / max(decisions, 1.0),
+                }
+            )
+
+        return pd.DataFrame(rows)
+
+    def get_ranking(self) -> list[str]:
+        """Return AI names ranked by total wins (descending)."""
+        return sorted(
+            self.metrics,
+            key=lambda ai: float(self.metrics[ai].get("wins", 0) or 0),
+            reverse=True,
+        )
 
     def _validate_metrics_structure(self) -> None:
         """Validate top-level metrics structure expected by analytics workflows."""
@@ -80,7 +122,9 @@ class Visualizer:
         plt.ylabel("Win Rate")
         plt.xticks(rotation=15)
         plt.tight_layout()
+        plt.savefig(self._ensure_logs_dir() / "win_rate.png", dpi=150)
         plt.show()
+        plt.close()
 
     def plot_decision_time(self) -> None:
         """Plot a bar chart comparing average decision time of all AI agents."""
@@ -105,7 +149,9 @@ class Visualizer:
         plt.ylabel("Average Decision Time (seconds)")
         plt.xticks(rotation=15)
         plt.tight_layout()
+        plt.savefig(self._ensure_logs_dir() / "decision_time.png", dpi=150)
         plt.show()
+        plt.close()
 
     def plot_moves(self) -> None:
         """Plot a bar chart comparing average moves required to win for each AI agent."""
@@ -130,7 +176,9 @@ class Visualizer:
         plt.ylabel("Moves (Lower is Better)")
         plt.xticks(rotation=15)
         plt.tight_layout()
+        plt.savefig(self._ensure_logs_dir() / "moves.png", dpi=150)
         plt.show()
+        plt.close()
 
     def generate_insights(self) -> dict[str, str]:
         """Analyze metrics and print key insights about AI performance."""
@@ -199,14 +247,75 @@ class Visualizer:
             print(f"Avg Moves: {avg_moves:.2f}")
             print(f"Avg Decision Time: {avg_time:.5f}s")
 
-        sorted_ai = sorted(
-            self.metrics,
-            key=lambda ai: float(self.metrics[ai].get("wins", 0) or 0),
-            reverse=True,
-        )
+        sorted_ai = self.get_ranking()
 
         print("\n--- Ranking ---")
         for index, ai_name in enumerate(sorted_ai, 1):
             print(f"{index}. {ai_name}")
 
         print("\n----------------------------------")
+
+    def show_table(self) -> pd.DataFrame:
+        """Display comparative metrics table in CLI and return dataframe."""
+        if not self.metrics:
+            raise ValueError("Metrics data is empty")
+
+        table = self._build_metrics_table()
+        print("\n=== Metrics Table ===")
+        if table.empty:
+            print("No metrics available")
+        else:
+            print(table.to_string(index=False))
+
+        return table
+
+    def export_csv(self, file_path: str = "logs/metrics.csv") -> Path:
+        """Export key metrics into a CSV file and return target path."""
+        if not self.metrics:
+            raise ValueError("Metrics data is empty")
+
+        target = Path(file_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        with target.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.writer(handle)
+            writer.writerow([
+                "AI",
+                "Wins",
+                "Moves",
+                "Decision Time",
+                "Decisions",
+                "Avg Moves",
+                "Avg Decision Time",
+            ])
+
+            for ai_name, data in self.metrics.items():
+                wins = float(data.get("wins", 0) or 0)
+                moves = float(data.get("moves", data.get("total_moves", 0)) or 0)
+                decision_time = float(data.get("decision_time", 0) or 0)
+                decisions = float(data.get("decisions", 0) or 0)
+                writer.writerow(
+                    [
+                        ai_name,
+                        int(wins),
+                        round(moves, 4),
+                        round(decision_time, 6),
+                        int(decisions),
+                        round(moves / max(wins, 1.0), 4),
+                        round(decision_time / max(decisions, 1.0), 6),
+                    ]
+                )
+
+        return target
+
+    def export_json(self, file_path: str = "logs/metrics.json") -> Path:
+        """Export raw metrics into a JSON file and return target path."""
+        if not self.metrics:
+            raise ValueError("Metrics data is empty")
+
+        target = Path(file_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("w", encoding="utf-8") as handle:
+            json.dump(self.metrics, handle, indent=4)
+
+        return target
