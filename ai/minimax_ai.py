@@ -7,13 +7,18 @@ search-state representation that supports simulation and evaluation.
 
 from __future__ import annotations
 
-import random
+import logging
 from copy import deepcopy
 from dataclasses import dataclass
 from math import inf
 from typing import Any, Sequence
 
 from ai.base_ai import BaseAI
+from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
+from utils.helpers import safe_random_choice
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -203,8 +208,14 @@ class GameState:
 class MinimaxAI(BaseAI):
     """Search-based AI using fixed-depth minimax over a simulation state."""
 
-    def __init__(self, depth: int = 2) -> None:
+    def __init__(self, depth: int | None = None) -> None:
         """Create a minimax AI with bounded depth for performance safety."""
+        if depth is None:
+            depth = get_positive_int(
+                AI_CONFIG,
+                "MINIMAX_DEPTH",
+                get_positive_int(GAME_CONFIG, "AI_DEPTH", 1),
+            )
         if depth < 1:
             raise ValueError("depth must be >= 1")
         self.depth = min(depth, 3)
@@ -375,7 +386,7 @@ class MinimaxAI(BaseAI):
                 best_move = move
 
         if best_move is None:
-            best_move = random.choice(valid_moves)
+            best_move = safe_random_choice(valid_moves)
 
         return best_move
 
@@ -423,11 +434,11 @@ class MinimaxAI(BaseAI):
                     best = suggestion
 
         if best is None:
-            return (
-                random.choice(suspects),
-                random.choice(weapons),
-                location,
-            )
+            fallback_suspect = safe_random_choice(suspects)
+            fallback_weapon = safe_random_choice(weapons)
+            if fallback_suspect is None or fallback_weapon is None:
+                raise ValueError("Invalid state: empty suggestion space")
+            return (fallback_suspect, fallback_weapon, location)
 
         return best
 
@@ -452,8 +463,7 @@ class MinimaxAI(BaseAI):
         locations = search_state.possible_locations
 
         if getattr(self, "debug", False):
-            print("Accusation Decision Check:")
-            print(suspects, weapons, locations)
+            logger.debug("Accusation Decision Check: %s %s %s", suspects, weapons, locations)
 
         if not suspects or not weapons or not locations:
             return False
@@ -591,13 +601,15 @@ def _safe_str_set(value: Any, name: str) -> set[str]:
 
 if __name__ == "__main__":
     from engine.game_state import GameState as EngineGameState
-    from engine.player import AIPlayer
+    from config.settings import AI_CONFIG
+    from models.player import AIPlayer
+    from utils.logger import setup_logger
 
     # Example usage with engine state.
     engine_state = EngineGameState()
-    ai = MinimaxAI(depth=2)
+    ai = MinimaxAI(depth=AI_CONFIG.get("MINIMAX_DEPTH"))
     player = AIPlayer("AI Player", ai)
-    opponent = AIPlayer("AI Opponent", MinimaxAI(depth=1))
+    opponent = AIPlayer("AI Opponent", MinimaxAI(depth=AI_CONFIG.get("MINIMAX_DEPTH")))
 
     engine_state.add_player(player)
     engine_state.add_player(opponent)
@@ -611,6 +623,7 @@ if __name__ == "__main__":
     suggestion = ai.make_suggestion(engine_state)
     accuse = ai.decide_accusation(engine_state)
 
-    print("Move:", move)
-    print("Suggestion:", suggestion)
-    print("Accuse:", accuse)
+    setup_logger()
+    logger.info("Move: %s", move)
+    logger.info("Suggestion: %s", suggestion)
+    logger.info("Accuse: %s", accuse)

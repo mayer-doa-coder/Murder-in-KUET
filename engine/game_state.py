@@ -5,13 +5,18 @@ Purpose: Manages and tracks the current state of the game.
 This module maintains game status, player states, solution, and game progress.
 """
 
-import random
+import logging
 from copy import deepcopy
+from typing import Any
 from engine.cards import suspects, weapons, locations, create_deck
 from engine.board import Board
 from engine.clue_reveal import reveal_clue
-from engine.accusation import check_accusation
+from models.accusation import check_accusation
 from engine.dice import roll_dice
+from utils.helpers import safe_random_choice
+
+
+logger = logging.getLogger(__name__)
 
 
 class GameState:
@@ -43,10 +48,15 @@ class GameState:
         self.deck = create_deck()
 
         # 2. Choose solution cards
+        chosen_suspect = safe_random_choice(suspects)
+        chosen_weapon = safe_random_choice(weapons)
+        chosen_location = safe_random_choice(locations)
+        if chosen_suspect is None or chosen_weapon is None or chosen_location is None:
+            raise ValueError("Cannot setup game without full suspect/weapon/location pools")
         self.solution = {
-            "suspect": random.choice(suspects),
-            "weapon": random.choice(weapons),
-            "location": random.choice(locations),
+            "suspect": chosen_suspect,
+            "weapon": chosen_weapon,
+            "location": chosen_location,
         }
 
         # 3. Remove solution cards from the deck
@@ -66,6 +76,143 @@ class GameState:
     def add_player(self, player):
         """Add a player to the game."""
         self.players.append(player)
+
+    @property
+    def current_player(self):
+        """Return the current player or None when no players are present."""
+        if not self.players:
+            return None
+        return self.get_current_player()
+
+    def clone(self) -> "GameState":
+        """Create a deep copy of the current game state for safe simulation."""
+        if self is None:
+            raise ValueError("Invalid state")
+        return deepcopy(self)
+
+    def get_possible_moves(self) -> list[str]:
+        """Return legal moves for the current player in this state snapshot.
+
+        This method is recursion-safe and does not mutate state.
+        """
+        if not self.players:
+            return []
+
+        player = self.get_current_player()
+        if player is None:
+            return []
+
+        if player.position is None:
+            return list(self.board.get_all_locations())
+
+        steps = 12
+        if self.last_dice_roll is not None and hasattr(self.last_dice_roll, "total"):
+            try:
+                parsed_steps = int(self.last_dice_roll.total)
+                if parsed_steps > 0:
+                    steps = parsed_steps
+            except (TypeError, ValueError):
+                pass
+
+        valid_moves = list(self.board.get_valid_moves(player.position, steps))
+        passage_dest = self.board.get_passage_destination(player.position)
+        if passage_dest and passage_dest not in valid_moves:
+            valid_moves.append(passage_dest)
+        return valid_moves
+
+    def simulate_move(self, move: str) -> "GameState":
+        """Return a new state with a simulated move applied.
+
+        The original state is never mutated.
+        """
+        if self is None:
+            raise ValueError("Invalid state")
+
+        new_state = self.clone()
+
+        if not isinstance(move, str) or not move.strip():
+            return new_state
+
+        allowed_moves = self.get_possible_moves()
+        if move not in allowed_moves:
+            return new_state
+
+        player = new_state.current_player
+        if player is None:
+            return new_state
+
+        player.move(move)
+        new_state.current_location = player.position
+        return new_state
+
+    def simulate_suggestion(self, suggestion: Any) -> "GameState":
+        """Return a new state with a simulated suggestion inference update.
+
+        The update is intentionally lightweight for search expansion and keeps
+        the original state untouched.
+        """
+        if self is None:
+            raise ValueError("Invalid state")
+
+        new_state = self.clone()
+        suspect, weapon, location = self._unpack_suggestion(suggestion)
+
+        notebook = self._get_current_notebook(new_state)
+        if notebook is not None:
+            suspects_set = getattr(notebook, "possible_suspects", None)
+            weapons_set = getattr(notebook, "possible_weapons", None)
+            locations_set = getattr(notebook, "possible_locations", None)
+
+            if isinstance(suspects_set, set) and suspect in suspects_set and len(suspects_set) > 1:
+                suspects_set.discard(suspect)
+            if isinstance(weapons_set, set) and weapon in weapons_set and len(weapons_set) > 1:
+                weapons_set.discard(weapon)
+            if isinstance(locations_set, set) and location in locations_set and len(locations_set) > 1:
+                locations_set.discard(location)
+        else:
+            suspects_set = getattr(new_state, "possible_suspects", None)
+            weapons_set = getattr(new_state, "possible_weapons", None)
+            locations_set = getattr(new_state, "possible_locations", None)
+
+            if isinstance(suspects_set, set) and suspect in suspects_set and len(suspects_set) > 1:
+                suspects_set.discard(suspect)
+            if isinstance(weapons_set, set) and weapon in weapons_set and len(weapons_set) > 1:
+                weapons_set.discard(weapon)
+            if isinstance(locations_set, set) and location in locations_set and len(locations_set) > 1:
+                locations_set.discard(location)
+
+        return new_state
+
+    def simulate(self, action: Any) -> "GameState":
+        """Return a new state after applying a generic simulation action.
+
+        Supported action forms:
+            - str: movement destination
+            - tuple/list length 3 or suggestion-like object: suggestion
+            - dict: {"type": "move", "value": ...} or {"type": "suggestion", "value": ...}
+        """
+        if self is None:
+            raise ValueError("Invalid state")
+
+        if isinstance(action, dict):
+            action_type = action.get("type")
+            value = action.get("value")
+            if action_type == "move":
+                return self.simulate_move(value)
+            if action_type == "suggestion":
+                return self.simulate_suggestion(value)
+            return self.clone()
+
+        if isinstance(action, str):
+            return self.simulate_move(action)
+
+        if (
+            (isinstance(action, (tuple, list)) and len(action) == 3)
+            or (hasattr(action, "suspect") and hasattr(action, "weapon") and hasattr(action, "location"))
+        ):
+            return self.simulate_suggestion(action)
+
+        return self.clone()
 
     def get_current_player(self):
         """Return the player whose turn it is."""
@@ -131,25 +278,25 @@ class GameState:
             current_index = self.players.index(player)
 
         if verbose:
-            print(f"{player.name} suggests: {suggestion}")
+            logger.info("%s suggests: %s", player.name, suggestion)
         revealer, card = reveal_clue(suggestion, self.players, current_index)
 
         if card is not None:
             if verbose and revealer is not None:
-                print(f"{revealer.name} revealed a card!")
+                logger.info("%s revealed a card", revealer.name)
             player.notebook.eliminate(card.name)
 
             if player.is_ai and hasattr(player.ai_agent, "update_from_clue"):
                 player.ai_agent.update_from_clue(card)
         else:
             if verbose:
-                print("No one could reveal a clue!")
+                logger.info("No one could reveal a clue")
             if player.is_ai and hasattr(player.ai_agent, "handle_no_reveal"):
                 player.ai_agent.handle_no_reveal(suggestion)
 
         return (revealer, card)
 
-    def get_chance_outcomes(self, suggestion) -> list:
+    def get_chance_outcomes(self, suggestion: Any | None = None) -> list[tuple[float, "GameState"]]:
         """Return probabilistic outcomes after a suggestion.
 
         This method models two simplified chance outcomes for expectiminimax:
@@ -166,7 +313,8 @@ class GameState:
 
         Args:
             suggestion: Suggestion object or tuple/list
-                (suspect, weapon, location).
+                (suspect, weapon, location). If None, a safe fallback
+                suggestion is inferred from current candidates.
 
         Returns:
             list: List of (probability, GameState copy) tuples.
@@ -175,7 +323,25 @@ class GameState:
             ValueError: If suggestion is None or malformed.
         """
         if suggestion is None:
-            raise ValueError("Invalid suggestion")
+            possible_suspects, possible_weapons, possible_locations = self._get_possible_sets(self)
+
+            if not possible_suspects:
+                possible_suspects = set(self.suspects)
+            if not possible_weapons:
+                possible_weapons = set(self.weapons)
+            if not possible_locations:
+                possible_locations = set(self.locations)
+
+            current_player = self.current_player
+            fallback_location = getattr(current_player, "position", None) if current_player is not None else None
+            if not isinstance(fallback_location, str) or not fallback_location.strip():
+                fallback_location = sorted(possible_locations)[0]
+
+            suggestion = (
+                sorted(possible_suspects)[0],
+                sorted(possible_weapons)[0],
+                fallback_location,
+            )
 
         suspect, weapon, location = self._unpack_suggestion(suggestion)
 
@@ -183,7 +349,7 @@ class GameState:
         num_possible = len(possible_suspects) + len(possible_weapons)
 
         if num_possible == 0:
-            return [(1.0, deepcopy(self))]
+            return [(1.0, self.clone())]
 
         prob_reveal = 1.0 / num_possible
         prob_no_reveal = 1.0 - prob_reveal
@@ -191,7 +357,7 @@ class GameState:
         outcomes = []
 
         # Case 1: card revealed -> gain direct knowledge.
-        state_reveal = deepcopy(self)
+        state_reveal = self.clone()
         reveal_notebook = self._get_current_notebook(state_reveal)
         if reveal_notebook is not None and hasattr(reveal_notebook, "eliminate"):
             if suspect in getattr(reveal_notebook, "possible_suspects", set()):
@@ -208,7 +374,7 @@ class GameState:
         outcomes.append((prob_reveal, state_reveal))
 
         # Case 2: no card revealed -> strong deduction toward the suggestion.
-        state_no_reveal = deepcopy(self)
+        state_no_reveal = self.clone()
         no_reveal_notebook = self._get_current_notebook(state_no_reveal)
         if no_reveal_notebook is not None:
             suspects_set = getattr(no_reveal_notebook, "possible_suspects", None)
@@ -297,13 +463,13 @@ class GameState:
         if len(active_players) == 1:
             self.winner = active_players[0]
             self.game_over = True
-            print(f"{active_players[0].name} wins by default!")
+            logger.info("%s wins by default", active_players[0].name)
             return True
 
         if len(active_players) == 0:
             self.winner = None
             self.game_over = True
-            print("No players remaining. Game ends.")
+            logger.warning("No players remaining. Game ends")
             return True
 
         return False
@@ -322,12 +488,12 @@ class GameState:
             return False
 
         if check_accusation(accusation, self.solution):
-            print(f"{player.name} wins!")
+            logger.info("%s wins", player.name)
             self.winner = player
             self.game_over = True
             return True
 
-        print(f"{player.name} eliminated!")
+        logger.warning("%s eliminated", player.name)
         player.active = False
         self.check_end_conditions()
         return False
@@ -356,14 +522,73 @@ class GameState:
             return None
 
         player = self.get_current_player()
-        result = player.take_turn(self)
+        result = {
+            "dice": None,
+            "move": None,
+            "suggestion": None,
+            "revealer": None,
+            "revealed_card": None,
+            "accusation": None,
+        }
 
-        accusation = None
-        if isinstance(result, dict):
-            accusation = result.get("accusation")
+        if player.is_ai:
+            ai_agent = player.take_turn(self)
+            if ai_agent is None:
+                return None
 
-        if accusation is not None:
-            self.resolve_accusation(player, accusation)
+            dice_roll = roll_dice()
+            self.last_dice_roll = dice_roll
+            result["dice"] = dice_roll
+
+            if player.position is None:
+                valid_moves = self.board.get_all_locations()
+            else:
+                valid_moves = self.board.get_valid_moves(player.position, dice_roll.total)
+                passage_dest = self.board.get_passage_destination(player.position)
+                if passage_dest and passage_dest not in valid_moves:
+                    valid_moves = valid_moves + [passage_dest]
+
+            move = ai_agent.choose_move(self, valid_moves)
+            if move in valid_moves:
+                player.move(move)
+            elif move is not None:
+                logger.warning("AI returned invalid move '%s' in run_turn; ignoring", move)
+
+            self.current_location = player.position
+            result["move"] = player.position
+
+            suspect, weapon, _ = ai_agent.make_suggestion(self)
+            if suspect not in self.suspects:
+                fallback_suspect = safe_random_choice(self.suspects)
+                if fallback_suspect is None:
+                    raise ValueError("No suspects available for fallback suggestion")
+                suspect = fallback_suspect
+
+            if weapon not in self.weapons:
+                fallback_weapon = safe_random_choice(self.weapons)
+                if fallback_weapon is None:
+                    raise ValueError("No weapons available for fallback suggestion")
+                weapon = fallback_weapon
+
+            suggestion = player.make_suggestion(suspect, weapon, player.position)
+            result["suggestion"] = suggestion
+
+            revealer, card = reveal_clue(suggestion, self.players, self.current_turn)
+            if card is not None:
+                player.notebook.eliminate(card.name)
+                result["revealer"] = revealer.name if revealer is not None else None
+                result["revealed_card"] = card.name
+
+            if player.is_ai and card and hasattr(ai_agent, "update_from_clue"):
+                ai_agent.update_from_clue(card)
+            if player.is_ai and not card and hasattr(ai_agent, "handle_no_reveal"):
+                ai_agent.handle_no_reveal(suggestion)
+
+            should_accuse = ai_agent.decide_accusation(self)
+            if should_accuse:
+                accusation = player.make_accusation(suspect, weapon, player.position)
+                result["accusation"] = accusation
+                self.resolve_accusation(player, accusation)
 
         if not self.game_over:
             self.next_turn()
@@ -398,6 +623,7 @@ class GameState:
             object | None: Winning player object, or None if no winner.
         """
         if not self.players:
+            logger.error("Cannot run game without players")
             raise ValueError("Cannot run game without players")
 
         turns_played = 0
@@ -409,14 +635,14 @@ class GameState:
                 self.winner = active_players[0]
                 self.game_over = True
                 if verbose:
-                    print(f"{active_players[0].name} wins by default!")
+                    logger.info("%s wins by default", active_players[0].name)
                 break
 
             if len(active_players) == 0:
                 self.winner = None
                 self.game_over = True
                 if verbose:
-                    print("Game ended. No players remaining.")
+                    logger.warning("Game ended. No players remaining")
                 break
 
             if max_turns is not None and turns_played >= max_turns:
@@ -438,16 +664,16 @@ class GameState:
                     else:
                         core_ai = getattr(ai_obj, "_agent", ai_obj)
                         ai_name = type(core_ai).__name__
-                    print(f"\n--- {player.name} ({ai_name}) Turn ---")
+                    logger.info("--- %s (%s) Turn ---", player.name, ai_name)
                 else:
-                    print(f"\n--- {player.name}'s Turn ---")
+                    logger.info("--- %s's Turn ---", player.name)
 
             # 1) Roll dice.
             dice_roll = roll_dice()
             self.last_dice_roll = dice_roll
             dice_value = dice_roll.total
             if verbose:
-                print(f"Dice: {dice_value}")
+                logger.info("Dice: %s", dice_value)
 
             # 2) Movement phase.
             if player.position is None:
@@ -461,12 +687,14 @@ class GameState:
             move = None
             if player.is_ai:
                 if getattr(player, "ai_agent", None) is None:
+                    logger.error("AI player %s has no ai_agent assigned", player.name)
                     raise ValueError(f"AI player {player.name} has no ai_agent assigned")
                 move = player.ai_agent.choose_move(self, valid_moves)
                 # Safety fallback: if AI returns an invalid move, recover with
                 # a random legal move to keep the game progressing.
                 if valid_moves and move not in valid_moves:
-                    move = random.choice(valid_moves)
+                    logger.warning("AI returned invalid move '%s'; selecting random legal move", move)
+                    move = safe_random_choice(valid_moves)
             elif human_move_selector is not None:
                 move = human_move_selector(player, valid_moves, self)
             elif valid_moves:
@@ -480,15 +708,21 @@ class GameState:
 
             self.current_location = player.position
             if verbose:
-                print(f"Move: {player.position}")
+                logger.info("Move: %s", player.position)
 
             # 3) Suggestion phase.
             if player.is_ai:
                 suspect, weapon, _ = player.ai_agent.make_suggestion(self)
                 if suspect not in self.suspects:
-                    suspect = random.choice(self.suspects)
+                    fallback_suspect = safe_random_choice(self.suspects)
+                    if fallback_suspect is None:
+                        raise ValueError("No suspects available for fallback suggestion")
+                    suspect = fallback_suspect
                 if weapon not in self.weapons:
-                    weapon = random.choice(self.weapons)
+                    fallback_weapon = safe_random_choice(self.weapons)
+                    if fallback_weapon is None:
+                        raise ValueError("No weapons available for fallback suggestion")
+                    weapon = fallback_weapon
             elif human_suggestion_selector is not None:
                 suspect, weapon = human_suggestion_selector(player, self)
             else:
@@ -498,7 +732,7 @@ class GameState:
             suggestion = player.make_suggestion(suspect, weapon, player.position)
             assert suggestion is not None, "Suggestion failed"
             if verbose:
-                print(f"Suggestion: {suggestion}")
+                logger.info("Suggestion: %s", suggestion)
 
             # 4) Clue revelation.
             revealer, card = reveal_clue(suggestion, self.players, current_index)
@@ -507,9 +741,9 @@ class GameState:
             if card:
                 player.notebook.eliminate(card.name)
                 if verbose and revealer is not None:
-                    print(f"{revealer.name} revealed a card!")
+                    logger.info("%s revealed a card", revealer.name)
             elif verbose:
-                print("No one could disprove!")
+                logger.info("No one could disprove")
 
             # 6) AI knowledge update.
             if player.is_ai and card and hasattr(player.ai_agent, "update_from_clue"):
@@ -561,16 +795,16 @@ class GameState:
 
                 if check_accusation(accusation, self.solution):
                     if verbose:
-                        print(f"{player.name} wins!")
+                        logger.info("%s wins", player.name)
                     self.winner = player
                     self.game_over = True
                 else:
                     if verbose:
-                        print(f"{player.name} eliminated!")
+                        logger.warning("%s eliminated", player.name)
                     player.active = False
 
             if verbose and player.is_ai:
-                print(f"Accusation Decision: {should_accuse}")
+                logger.info("Accusation Decision: %s", should_accuse)
 
             # 8) Turn rotation.
             current_index = (current_index + 1) % len(self.players)

@@ -7,8 +7,8 @@ one matching card when possible.
 
 from __future__ import annotations
 
-import random
 from typing import Any, Optional, Sequence, Tuple
+from utils.helpers import safe_random_choice
 
 
 def reveal_clue(
@@ -68,7 +68,9 @@ def reveal_clue(
 
         matching_cards = [card for card in hand if getattr(card, "name", None) in targets]
         if matching_cards:
-            revealed_card = random.choice(matching_cards)
+            revealed_card = safe_random_choice(matching_cards)
+            if revealed_card is None:
+                continue
             return (player, revealed_card)
 
     return (None, None)

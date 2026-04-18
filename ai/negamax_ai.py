@@ -4,18 +4,31 @@ Purpose: Defines a clean, extensible structure for a Negamax-based AI agent
 that will later support alpha-beta pruning and high-performance search.
 """
 
-import random
+import logging
 
 from ai.base_ai import BaseAI
+from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from math import inf
 from typing import Any, Sequence
+from utils.helpers import safe_random_choice
+
+
+logger = logging.getLogger(__name__)
 
 
 class NegamaxAI(BaseAI):
     """Negamax AI skeleton compatible with the existing AI interface."""
 
-    def __init__(self, depth: int = 2):
+    def __init__(self, depth: int | None = None):
         """Store search depth for future recursive Negamax logic."""
+        if depth is None:
+            depth = get_positive_int(
+                AI_CONFIG,
+                "NEGAMAX_DEPTH",
+                get_positive_int(GAME_CONFIG, "AI_DEPTH", 1),
+            )
+        if depth < 1:
+            raise ValueError("depth must be >= 1")
         self.depth = depth
 
     def negamax(self, state: Any, depth: int, alpha: float, beta: float) -> float:
@@ -241,14 +254,14 @@ class NegamaxAI(BaseAI):
 
             score = -self.negamax(new_state, self.depth, float("-inf"), float("inf"))
             if getattr(self, "debug", False):
-                print(f"Move: {move}, Score: {score}")
+                logger.debug("Move: %s, Score: %s", move, score)
 
             if score > best_score:
                 best_score = score
                 best_move = move
 
         if best_move is None:
-            best_move = random.choice(valid_moves)
+            best_move = safe_random_choice(valid_moves)
 
         return best_move
 
@@ -331,24 +344,54 @@ class NegamaxAI(BaseAI):
 
                 score = -self.negamax(new_state, self.depth, float("-inf"), float("inf"))
                 if getattr(self, "debug", False):
-                    print(f"Suggestion: {suggestion}, Score: {score}")
+                    logger.debug("Suggestion: %s, Score: %s", suggestion, score)
 
                 if score > best_score:
                     best_score = score
                     best = suggestion
 
         if best is None:
-            best = (
-                random.choice(list(suspects)),
-                random.choice(list(weapons)),
-                location,
-            )
+            fallback_suspect = safe_random_choice(suspects)
+            fallback_weapon = safe_random_choice(weapons)
+            if fallback_suspect is None or fallback_weapon is None:
+                raise ValueError("Invalid state: no suggestion options")
+            best = (fallback_suspect, fallback_weapon, location)
 
         return best
 
     def decide_accusation(self, state: Any) -> bool:
-        """Decide whether to make a final accusation.
+        """Decide whether to make a final accusation based on certainty.
 
-        This placeholder will later use certainty/risk-aware Negamax logic.
+        Returns:
+            bool: True only when exactly one suspect, weapon, and location
+            remain as candidates; otherwise False.
         """
-        pass
+        if state is None:
+            raise ValueError("State cannot be None")
+
+        suspects = self._as_set(getattr(state, "possible_suspects", None))
+        weapons = self._as_set(getattr(state, "possible_weapons", None))
+        locations = self._as_set(getattr(state, "possible_locations", None))
+
+        if suspects is None or weapons is None or locations is None:
+            notebook = self._get_current_notebook(state)
+            if notebook is not None:
+                suspects = self._as_set(getattr(notebook, "possible_suspects", set()))
+                weapons = self._as_set(getattr(notebook, "possible_weapons", set()))
+                locations = self._as_set(getattr(notebook, "possible_locations", set()))
+
+        if suspects is None:
+            suspects = set(getattr(state, "suspects", []))
+        if weapons is None:
+            weapons = set(getattr(state, "weapons", []))
+        if locations is None:
+            locations = set(getattr(state, "locations", []))
+
+        if not suspects or not weapons or not locations:
+            return False
+
+        return (
+            len(suspects) == 1
+            and len(weapons) == 1
+            and len(locations) == 1
+        )

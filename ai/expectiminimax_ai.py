@@ -6,12 +6,17 @@ that extends minimax with chance nodes.
 
 from __future__ import annotations
 
-import random
+import logging
 from copy import deepcopy
 from math import inf, isclose
 from typing import Any, List, Sequence, Tuple
 
 from ai.base_ai import BaseAI
+from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
+from utils.helpers import safe_random_choice
+
+
+logger = logging.getLogger(__name__)
 
 
 class ExpectiminimaxAI(BaseAI):
@@ -23,8 +28,14 @@ class ExpectiminimaxAI(BaseAI):
     - "chance": probabilistic game outcome branch.
     """
 
-    def __init__(self, depth: int = 2) -> None:
+    def __init__(self, depth: int | None = None) -> None:
         """Initialize recursion depth budget for future expectiminimax logic."""
+        if depth is None:
+            depth = get_positive_int(
+                AI_CONFIG,
+                "EXPECTIMINIMAX_DEPTH",
+                get_positive_int(GAME_CONFIG, "AI_DEPTH", 1),
+            )
         if depth < 1:
             raise ValueError("depth must be >= 1")
         self.depth = depth
@@ -402,14 +413,14 @@ class ExpectiminimaxAI(BaseAI):
 
             score = self.expectiminimax(new_state, self.depth, "chance")
             if getattr(self, "debug", False):
-                print(f"Evaluating Move: {move}, Score: {score}")
+                logger.debug("Evaluating Move: %s, Score: %s", move, score)
 
             if score > best_score:
                 best_score = score
                 best_move = move
 
         if best_move is None:
-            best_move = random.choice(valid_moves)
+            best_move = safe_random_choice(valid_moves)
 
         return best_move
 
@@ -452,18 +463,18 @@ class ExpectiminimaxAI(BaseAI):
 
                 score = self.expectiminimax(new_state, self.depth, "chance")
                 if getattr(self, "debug", False):
-                    print(f"Suggestion: {suggestion}, Score: {score}")
+                    logger.debug("Suggestion: %s, Score: %s", suggestion, score)
 
                 if score > best_score:
                     best_score = score
                     best = suggestion
 
         if best is None:
-            return (
-                random.choice(list(suspects)),
-                random.choice(list(weapons)),
-                location,
-            )
+            fallback_suspect = safe_random_choice(suspects)
+            fallback_weapon = safe_random_choice(weapons)
+            if fallback_suspect is None or fallback_weapon is None:
+                raise ValueError("Invalid state: no possible suggestions")
+            return (fallback_suspect, fallback_weapon, location)
 
         return best
 
@@ -480,7 +491,7 @@ class ExpectiminimaxAI(BaseAI):
         suspects, weapons, locations = self._resolve_suggestion_space(state)
 
         if getattr(self, "debug", False):
-            print("Accusation Decision Check:", suspects)
+            logger.debug("Accusation Decision Check: %s", suspects)
 
         if not suspects or not weapons or not locations:
             return False
