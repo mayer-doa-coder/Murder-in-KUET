@@ -147,22 +147,45 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
     def get_chance_outcomes(self, state: Any) -> List[Tuple[float, Any]]:
         """Return probabilistic branches for a chance node.
 
-        Expected return format:
-            [
-                (0.4, state_if_card_revealed),
-                (0.6, state_if_no_card_revealed),
-            ]
+        Models two outcomes for a Cluedo suggestion:
+          - reveal branch  (prob_reveal):    a card is shown → eliminate it
+          - no-reveal branch (prob_no_reveal): nobody shows a card → boost it
+
+        Probability model (conservative):
+            remaining = |possible_suspects| + |possible_weapons|
+            prob_reveal = 1 / max(remaining, 1)
+            prob_no_reveal = 1 - prob_reveal
 
         Args:
-            state (Any): Current search state snapshot.
+            state: Current search-state snapshot.
 
         Returns:
-            List[Tuple[float, Any]]: (probability, next_state) pairs.
-
-        Raises:
-            NotImplementedError: Until probability modeling is implemented.
+            List of (probability, successor_state) pairs.
         """
-        return [(1.0, state)]
+        from copy import deepcopy
+
+        suspects = self._as_set(getattr(state, "possible_suspects", None)) or set()
+        weapons = self._as_set(getattr(state, "possible_weapons", None)) or set()
+        num_remaining = len(suspects) + len(weapons)
+
+        if num_remaining == 0:
+            return [(1.0, state)]
+
+        prob_reveal = 1.0 / num_remaining
+        prob_no_reveal = 1.0 - prob_reveal
+
+        # Reveal branch: eliminate the most likely suspect as a proxy for
+        # "a card was shown", narrowing the solution space.
+        state_reveal = deepcopy(state)
+        r_suspects = getattr(state_reveal, "possible_suspects", None)
+        if isinstance(r_suspects, set) and len(r_suspects) > 1:
+            r_suspects.discard(sorted(r_suspects)[0])
+
+        # No-reveal branch: keep the state as-is (no elimination needed;
+        # probability boost is handled by the notebook at the engine level).
+        state_no_reveal = deepcopy(state)
+
+        return [(prob_reveal, state_reveal), (prob_no_reveal, state_no_reveal)]
 
     def _is_terminal_state(self, state: Any) -> bool:
         """Return whether a state should stop recursion."""

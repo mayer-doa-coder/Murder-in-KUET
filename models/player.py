@@ -23,8 +23,18 @@ class Player:
         self.notebook = Notebook(suspects, weapons, locations)
 
     def add_card(self, card):
-        """Add a card to the player's hand."""
+        """Add a card to the player's hand and eliminate it from the notebook.
+
+        Cards held in hand cannot be the solution, so their probability is set
+        to zero immediately.  This is the foundational Bayesian prior: I know
+        with certainty that my own cards are not in the envelope.
+        """
         self.cards.append(card)
+        if self.notebook is not None:
+            try:
+                self.notebook.eliminate(card.name)
+            except (ValueError, TypeError):
+                pass
 
     def move(self, new_location):
         """Move the player to a new KUET location (raw setter).
@@ -142,11 +152,8 @@ class AIPlayer(Player):
         self.ai_agent = ai_agent
 
     def add_card(self, card):
-        """
-        Add a card to hand and immediately register it with the AI's
-        knowledge base so it is excluded from solution candidates.
-        """
-        super().add_card(card)
+        """Add a card to hand and register it with any legacy knowledge base."""
+        super().add_card(card)  # Player.add_card already eliminates from notebook
         if hasattr(self.ai_agent, "knowledge_base"):
             self.ai_agent.knowledge_base.add_own_card(card.name)
 

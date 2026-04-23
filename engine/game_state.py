@@ -163,23 +163,20 @@ class GameState:
             weapons_set = getattr(notebook, "possible_weapons", None)
             locations_set = getattr(notebook, "possible_locations", None)
 
-            if isinstance(suspects_set, set) and suspect in suspects_set and len(suspects_set) > 1:
-                suspects_set.discard(suspect)
-            if isinstance(weapons_set, set) and weapon in weapons_set and len(weapons_set) > 1:
-                weapons_set.discard(weapon)
-            if isinstance(locations_set, set) and location in locations_set and len(locations_set) > 1:
-                locations_set.discard(location)
+            # Narrow TOWARD the suggested cards: remove one non-suggested
+            # alternative from each set.  The suggestion is a hypothesis that
+            # these cards are the solution, so we tighten around them.
+            _narrow_set_toward(suspects_set, suspect)
+            _narrow_set_toward(weapons_set, weapon)
+            _narrow_set_toward(locations_set, location)
         else:
             suspects_set = getattr(new_state, "possible_suspects", None)
             weapons_set = getattr(new_state, "possible_weapons", None)
             locations_set = getattr(new_state, "possible_locations", None)
 
-            if isinstance(suspects_set, set) and suspect in suspects_set and len(suspects_set) > 1:
-                suspects_set.discard(suspect)
-            if isinstance(weapons_set, set) and weapon in weapons_set and len(weapons_set) > 1:
-                weapons_set.discard(weapon)
-            if isinstance(locations_set, set) and location in locations_set and len(locations_set) > 1:
-                locations_set.discard(location)
+            _narrow_set_toward(suspects_set, suspect)
+            _narrow_set_toward(weapons_set, weapon)
+            _narrow_set_toward(locations_set, location)
 
         return new_state
 
@@ -277,14 +274,18 @@ class GameState:
         if current_index is None:
             current_index = self.players.index(player)
 
+        if suggestion is None:
+            return (None, None)
+
         if verbose:
             logger.info("%s suggests: %s", player.name, suggestion)
         revealer, card = reveal_clue(suggestion, self.players, current_index)
 
+        self._apply_bayesian_notebook_updates(suggestion, card, suggesting_player=player)
+
         if card is not None:
             if verbose and revealer is not None:
                 logger.info("%s revealed a card", revealer.name)
-            player.notebook.eliminate(card.name)
 
             if player.is_ai and hasattr(player.ai_agent, "update_from_clue"):
                 player.ai_agent.update_from_clue(card)
@@ -295,6 +296,51 @@ class GameState:
                 player.ai_agent.handle_no_reveal(suggestion)
 
         return (revealer, card)
+
+    def _apply_bayesian_notebook_updates(
+        self,
+        suggestion: Any,
+        card: Any | None,
+        suggesting_player: Any | None = None,
+    ) -> None:
+        """Apply Bayesian notebook updates after a suggestion.
+
+        Reveal information is PRIVATE in Cluedo — only the suggesting player
+        learns which specific card was shown.  No-reveal information is PUBLIC
+        — all players can update their probability distributions.
+        """
+        if suggestion is None:
+            return
+
+        if card is not None and not hasattr(card, "name"):
+            raise ValueError("Invalid card object")
+
+        suspect = getattr(suggestion, "suspect", None)
+        weapon = getattr(suggestion, "weapon", None)
+        location = getattr(suggestion, "location", None)
+        if not all(isinstance(value, str) and value.strip() for value in (suspect, weapon, location)):
+            return
+
+        for player in self.players:
+            if not getattr(player, "is_ai", False):
+                continue
+
+            if not hasattr(player, "notebook"):
+                raise ValueError("Player notebook not initialized")
+
+            notebook = player.notebook
+            if card is not None:
+                # Only the suggesting player learns which card was revealed.
+                if suggesting_player is not None and player is not suggesting_player:
+                    continue
+                update_reveal = getattr(notebook, "update_reveal", None)
+                if callable(update_reveal):
+                    update_reveal(card.name)
+            else:
+                # No-reveal is public: all players update accordingly.
+                update_no_reveal = getattr(notebook, "update_no_reveal", None)
+                if callable(update_no_reveal):
+                    update_no_reveal(suspect, weapon, location)
 
     def get_chance_outcomes(self, suggestion: Any | None = None) -> list[tuple[float, "GameState"]]:
         """Return probabilistic outcomes after a suggestion.
@@ -585,11 +631,13 @@ class GameState:
                 weapon = fallback_weapon
 
             suggestion = player.make_suggestion(suspect, weapon, player.position)
+            if suggestion is None:
+                return result
             result["suggestion"] = suggestion
 
             revealer, card = reveal_clue(suggestion, self.players, self.current_turn)
+            self._apply_bayesian_notebook_updates(suggestion, card, suggesting_player=player)
             if card is not None:
-                player.notebook.eliminate(card.name)
                 result["revealer"] = revealer.name if revealer is not None else None
                 result["revealed_card"] = card.name
 
@@ -750,10 +798,10 @@ class GameState:
 
             # 4) Clue revelation.
             revealer, card = reveal_clue(suggestion, self.players, current_index)
+            self._apply_bayesian_notebook_updates(suggestion, card, suggesting_player=player)
 
             # 5) Notebook update.
             if card:
-                player.notebook.eliminate(card.name)
                 if verbose and revealer is not None:
                     logger.info("%s revealed a card", revealer.name)
             elif verbose:
@@ -794,12 +842,20 @@ class GameState:
 
             if should_accuse:
                 if accusation is None:
+                    # Prefer a fully-certain solution; fall back to highest-
+                    # probability candidates; last resort: current suggestion.
                     solved = None
                     if hasattr(player, "notebook") and hasattr(player.notebook, "get_solution"):
                         solved = player.notebook.get_solution()
 
                     if solved is not None:
                         accusation = player.make_accusation(solved[0], solved[1], solved[2])
+                    elif hasattr(player, "notebook") and hasattr(player.notebook, "most_likely"):
+                        try:
+                            best_s, best_w, best_l = player.notebook.most_likely()
+                            accusation = player.make_accusation(best_s, best_w, best_l)
+                        except Exception:
+                            accusation = player.make_accusation(suspect, weapon, player.position)
                     else:
                         accusation = player.make_accusation(suspect, weapon, player.position)
                 elif isinstance(accusation, tuple) and len(accusation) == 3:
@@ -825,3 +881,18 @@ class GameState:
             turns_played += 1
 
         return self.winner
+
+
+def _narrow_set_toward(possible_set, preferred: str) -> None:
+    """Remove one non-preferred alternative from possible_set in-place.
+
+    Used by simulate_suggestion to narrow toward the suggested cards without
+    fully eliminating any candidate — the simulation stays conservative.
+    """
+    if not isinstance(possible_set, set) or len(possible_set) <= 1:
+        return
+    if preferred not in possible_set:
+        return
+    removable = sorted(v for v in possible_set if v != preferred)
+    if removable:
+        possible_set.discard(removable[0])

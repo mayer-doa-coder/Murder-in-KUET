@@ -396,8 +396,12 @@ class StrategicEvaluationMixin:
         return None
 
     def _entropy(self, n: int) -> float:
-        """Return entropy-like uncertainty term for positive cardinalities."""
-        return (-float(n) * log(float(n))) if n > 0 else 0.0
+        """Return Shannon entropy of a uniform distribution over n elements.
+
+        H(uniform(n)) = log(n).  Higher n → higher entropy → more uncertain.
+        Returns 0.0 for n <= 1 (no uncertainty when at most one option).
+        """
+        return log(float(n)) if n > 1 else 0.0
 
     def _resolve_possibility_space(self, state: Any) -> tuple[set[str], set[str], set[str]]:
         """Resolve suspect/weapon/location candidate sets from supported states."""
@@ -675,12 +679,25 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
         return coerced
 
     def update_from_clue(self, card) -> None:
-        """Consume revealed-card evidence by eliminating it from notebook."""
+        """Consume revealed-card evidence by eliminating it from notebook.
+
+        _apply_bayesian_notebook_updates already calls eliminate() for the
+        suggesting player before this method is invoked.  The guard inside
+        eliminate() (prob != 0 check) prevents a crash, but we skip the call
+        entirely when the card is already known to avoid wasted work.
+        """
         if card is None or self._last_notebook is None:
             return
 
         name = getattr(card, "name", None)
-        if isinstance(name, str) and name.strip() and hasattr(self._last_notebook, "eliminate"):
+        if not (isinstance(name, str) and name.strip()):
+            return
+
+        known = getattr(self._last_notebook, "known_cards", None)
+        if isinstance(known, set) and name in known:
+            return  # already eliminated by _apply_bayesian_notebook_updates
+
+        if hasattr(self._last_notebook, "eliminate"):
             self._last_notebook.eliminate(name)
 
     def handle_no_reveal(self, suggestion) -> None:

@@ -138,19 +138,38 @@ class BayesianNotebook:
         suspect: str,
         weapon: str,
         location: str,
-        increment: float = 0.2,
+        boost: float = 2.0,
     ) -> None:
-        """Increase suggestion-card likelihood when no player reveals a card."""
+        """Bayesian update when no player can disprove a suggestion.
+
+        No-reveal means none of the other players holds any of the three
+        suggested cards.  This is strong evidence that the suggested cards
+        are the solution.  We apply a multiplicative boost (likelihood
+        ratio) to each suggested card's probability, then renormalize.
+
+        A boost of 2.0 means the suggested card is twice as likely after
+        observing no-reveal, which is a conservative but principled prior.
+        Additive increments are NOT used because they are not calibrated to
+        the current probability scale and cause convergence rates that vary
+        unpredictably with game length.
+
+        Args:
+            suspect: Suggested suspect name.
+            weapon:  Suggested weapon name.
+            location: Suggested location name.
+            boost:   Likelihood ratio multiplier applied to each suggested
+                     card (must be > 1.0).  Default 2.0.
+        """
         if not isinstance(suspect, str) or not suspect.strip():
             raise TypeError("suspect must be a non-empty string")
         if not isinstance(weapon, str) or not weapon.strip():
             raise TypeError("weapon must be a non-empty string")
         if not isinstance(location, str) or not location.strip():
             raise TypeError("location must be a non-empty string")
-        if not isinstance(increment, (int, float)):
-            raise TypeError("increment must be numeric")
-        if increment <= 0.0:
-            raise ValueError("increment must be greater than 0")
+        if not isinstance(boost, (int, float)):
+            raise TypeError("boost must be numeric")
+        if boost <= 1.0:
+            raise ValueError("boost must be greater than 1.0")
 
         suspect_name = suspect.strip()
         weapon_name = weapon.strip()
@@ -163,13 +182,14 @@ class BayesianNotebook:
         if location_name not in self.locations:
             raise ValueError("Invalid location")
 
-        # Do not resurrect cards already confirmed as not in the solution.
+        # Multiply each suggested card's probability by the boost factor.
+        # Cards already eliminated (probability == 0) are left at zero.
         if suspect_name not in self.known_cards and self.suspects[suspect_name] > 0.0:
-            self.suspects[suspect_name] += float(increment)
+            self.suspects[suspect_name] *= float(boost)
         if weapon_name not in self.known_cards and self.weapons[weapon_name] > 0.0:
-            self.weapons[weapon_name] += float(increment)
+            self.weapons[weapon_name] *= float(boost)
         if location_name not in self.known_cards and self.locations[location_name] > 0.0:
-            self.locations[location_name] += float(increment)
+            self.locations[location_name] *= float(boost)
 
         self.normalize(self.suspects)
         self.normalize(self.weapons)
