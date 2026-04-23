@@ -30,6 +30,16 @@ AI_CONFIG = {
     # Minimum combined probability confidence required to make a final accusation.
     # Range [0, 1]. Lower → more aggressive; higher → more conservative.
     "MONTE_CARLO_ACCUSATION_THRESHOLD": 0.70,
+    # Early stopping: skip remaining moves once a candidate exceeds this win-ratio.
+    # Set to 1.0 (or False below) to disable.  Range (0, 1].
+    "MONTE_CARLO_EARLY_STOP_THRESHOLD": 0.9,
+    # Toggle early stopping on/off without changing the threshold.
+    "MONTE_CARLO_EARLY_STOP_ENABLED": True,
+    # Adaptive simulation count: scale sims down when the move branching factor
+    # is high so total rollout work stays bounded.
+    "MONTE_CARLO_ADAPTIVE_SIMS_ENABLED": True,
+    # Hard lower bound on simulations regardless of adaptive scaling.
+    "MONTE_CARLO_MIN_SIMULATIONS": 5,
 }
 
 

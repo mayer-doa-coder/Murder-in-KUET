@@ -32,6 +32,7 @@ from __future__ import annotations
 import logging
 import random
 from copy import deepcopy
+from time import perf_counter
 from typing import Any, Sequence
 
 from ai.base_ai import BaseAI
@@ -94,6 +95,28 @@ class MonteCarloAI(StrategicEvaluationMixin, BaseAI):
             )
         except (TypeError, ValueError):
             self.accusation_threshold = 0.70
+
+        # Early stopping: stop evaluating remaining moves once a candidate
+        # exceeds this win-ratio.  Configurable and togglable independently.
+        raw_early_stop = AI_CONFIG.get("MONTE_CARLO_EARLY_STOP_THRESHOLD", 0.9)
+        try:
+            self.early_stop_threshold: float = float(
+                max(0.0, min(1.0, raw_early_stop))
+            )
+        except (TypeError, ValueError):
+            self.early_stop_threshold = 0.9
+        self.early_stop_enabled: bool = bool(
+            AI_CONFIG.get("MONTE_CARLO_EARLY_STOP_ENABLED", True)
+        )
+
+        # Adaptive simulations: scale per-move rollout count down when the
+        # branching factor is large so total work stays bounded.
+        self.adaptive_sims_enabled: bool = bool(
+            AI_CONFIG.get("MONTE_CARLO_ADAPTIVE_SIMS_ENABLED", True)
+        )
+        self._min_simulations: int = get_positive_int(
+            AI_CONFIG, "MONTE_CARLO_MIN_SIMULATIONS", 5
+        )
 
         # Notebook reference kept in sync so update_from_clue / handle_no_reveal work.
         self._last_notebook: Any | None = None
@@ -197,17 +220,19 @@ class MonteCarloAI(StrategicEvaluationMixin, BaseAI):
     # Move evaluation (win ratio)
     # ------------------------------------------------------------------
 
-    def evaluate_move(self, state: Any, move: str) -> float:
+    def evaluate_move(self, state: Any, move: str, *, sims: int | None = None) -> float:
         """Estimate the win probability for one candidate move.
 
         Completes our player's full turn for this specific move (movement +
-        suggestion + reveal + Bayesian update), then runs `self.simulations`
-        independent rollouts from the resulting state.  Returns the fraction
-        of rollouts our player wins.
+        suggestion + reveal + Bayesian update), then runs rollouts from the
+        resulting state.  Returns the fraction of rollouts our player wins.
 
         Args:
             state: Current engine game state snapshot.
             move: Candidate destination to evaluate.
+            sims: Rollout count override.  Defaults to ``self.simulations``
+                  when None.  Callers (e.g. ``choose_move`` with adaptive
+                  scaling) pass a reduced count to bound total work.
 
         Returns:
             float: Win ratio in [0.0, 1.0].  Returns 0.0 if the move cannot
@@ -246,11 +271,9 @@ class MonteCarloAI(StrategicEvaluationMixin, BaseAI):
         # Every simulation clones `base` internally so they are fully independent.
         base.next_turn()
 
-        wins = sum(
-            self.simulate_random_game(base, our_idx)
-            for _ in range(self.simulations)
-        )
-        return wins / self.simulations
+        n = sims if (isinstance(sims, int) and sims >= 1) else self.simulations
+        wins = sum(self.simulate_random_game(base, our_idx) for _ in range(n))
+        return wins / n
 
     # ------------------------------------------------------------------
     # Suggestion evaluation (win ratio)
@@ -324,9 +347,16 @@ class MonteCarloAI(StrategicEvaluationMixin, BaseAI):
     def choose_move(self, state: Any, valid_moves: Sequence[str]) -> str | None:
         """Select the move with the highest Monte Carlo win ratio.
 
-        Evaluates every candidate using evaluate_move() and returns the one
-        with the highest estimated win probability.  Falls back to a random
-        choice only when all candidates score identically.
+        Optimization layers applied in order:
+          1. Adaptive simulation count  — fewer rollouts per move when the
+             branching factor is large, keeping total work O(budget) not
+             O(moves × simulations).
+          2. Early stopping             — once a move exceeds
+             ``early_stop_threshold``, skip the remaining candidates.
+             This exploits the observation that a near-certain win rarely
+             needs confirmation from further evaluation.
+
+        Both layers are independently togglable via AI_CONFIG.
 
         Args:
             state: Current game state snapshot.
@@ -345,26 +375,50 @@ class MonteCarloAI(StrategicEvaluationMixin, BaseAI):
         if not valid_moves:
             return None
 
-        # Cache the current player's notebook for the callback hooks.
         self._cache_notebook(state)
 
+        num_moves = len(valid_moves)
+        sims = self._scaled_sim_count(num_moves)
+
+        t_start = perf_counter()
         best_move: str | None = None
         best_score = -1.0
+        moves_evaluated = 0
 
-        for move in valid_moves:
-            score = self.evaluate_move(state, move)
-            logger.debug("MC move '%s' → win-ratio=%.4f", move, score)
+        for i, move in enumerate(valid_moves):
+            score = self.evaluate_move(state, move, sims=sims)
+            moves_evaluated += 1
+            logger.debug(
+                "MC move %d/%d '%s' → win-ratio=%.4f (sims=%d)",
+                i + 1, num_moves, move, score, sims,
+            )
             if score > best_score:
                 best_score = score
                 best_move = move
 
-        # Fallback: all moves scored equally (e.g. empty possibility space).
+            if (
+                self.early_stop_enabled
+                and score >= self.early_stop_threshold
+            ):
+                logger.debug(
+                    "MC early-stop: '%s' score=%.4f ≥ threshold=%.2f "
+                    "after %d/%d moves evaluated",
+                    move, score, self.early_stop_threshold,
+                    i + 1, num_moves,
+                )
+                break
+
         if best_move is None:
             best_move = safe_random_choice(valid_moves)
 
+        elapsed = perf_counter() - t_start
         logger.debug(
-            "MonteCarloAI chose '%s' (win-ratio=%.4f, sims=%d)",
-            best_move, best_score, self.simulations,
+            "MonteCarloAI chose '%s' score=%.4f sims=%d "
+            "moves_evaluated=%d/%d early_stop=%s elapsed=%.4fs",
+            best_move, best_score, sims,
+            moves_evaluated, num_moves,
+            moves_evaluated < num_moves,
+            elapsed,
         )
         return best_move
 
@@ -569,6 +623,33 @@ class MonteCarloAI(StrategicEvaluationMixin, BaseAI):
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
+
+    def _scaled_sim_count(self, num_moves: int) -> int:
+        """Return the per-move rollout count for this turn.
+
+        When ``adaptive_sims_enabled`` is True the budget is distributed
+        across moves so total rollouts stay close to
+        ``simulations × 4`` regardless of branching factor:
+
+            per_move = simulations × 4 // num_moves
+
+        The result is clamped to [_min_simulations, simulations]:
+          - _min_simulations  prevents the estimate from becoming too noisy.
+          - simulations       caps it so we never exceed the configured max.
+
+        When adaptive is disabled (or there is only one move) the full
+        ``self.simulations`` count is returned unchanged.
+
+        Args:
+            num_moves: Number of candidate moves to evaluate this turn.
+
+        Returns:
+            int: Rollout count to use per move.
+        """
+        if not self.adaptive_sims_enabled or num_moves <= 1:
+            return self.simulations
+        per_move = (self.simulations * 4) // num_moves
+        return max(self._min_simulations, min(self.simulations, per_move))
 
     def _clone_engine_state(self, state: Any) -> Any:
         """Return a fully independent copy of the game state.

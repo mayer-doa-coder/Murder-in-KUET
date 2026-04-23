@@ -319,3 +319,134 @@ class TestIntegration:
         agent.handle_no_reveal(sug)
 
         assert notebook.suspects[top_s] > before_s or notebook.weapons[top_w] > before_w
+
+
+# ---------------------------------------------------------------------------
+# Part 4 — Performance optimization tests
+# ---------------------------------------------------------------------------
+
+
+class TestScaledSimCount:
+    """_scaled_sim_count controls per-move rollout budget."""
+
+    def test_returns_full_sims_when_adaptive_disabled(self):
+        agent = MonteCarloAI(simulations=20)
+        agent.adaptive_sims_enabled = False
+        assert agent._scaled_sim_count(10) == 20
+
+    def test_returns_full_sims_for_single_move(self):
+        agent = MonteCarloAI(simulations=20)
+        agent.adaptive_sims_enabled = True
+        assert agent._scaled_sim_count(1) == 20
+
+    def test_scales_down_with_many_moves(self):
+        agent = MonteCarloAI(simulations=20)
+        agent.adaptive_sims_enabled = True
+        agent._min_simulations = 2
+        # 20 moves → 20*4//20 = 4 sims per move (below full 20)
+        result = agent._scaled_sim_count(20)
+        assert result < 20
+        assert result >= agent._min_simulations
+
+    def test_never_drops_below_min_simulations(self):
+        agent = MonteCarloAI(simulations=20)
+        agent.adaptive_sims_enabled = True
+        agent._min_simulations = 5
+        # Extreme branching factor — should still respect the floor.
+        result = agent._scaled_sim_count(1000)
+        assert result >= 5
+
+    def test_never_exceeds_configured_simulations(self):
+        agent = MonteCarloAI(simulations=10)
+        agent.adaptive_sims_enabled = True
+        result = agent._scaled_sim_count(1)
+        assert result <= 10
+
+    def test_budget_formula_correct(self):
+        """Total rollouts should be at most simulations × 4."""
+        agent = MonteCarloAI(simulations=20)
+        agent.adaptive_sims_enabled = True
+        agent._min_simulations = 1
+        for num_moves in (2, 5, 10, 20, 50):
+            sims = agent._scaled_sim_count(num_moves)
+            assert sims * num_moves <= agent.simulations * 4 * num_moves  # trivially true
+            # More meaningfully: sims is bounded above by the budget per move.
+            assert sims <= max(1, (agent.simulations * 4) // num_moves) or sims == agent._min_simulations
+
+
+class TestEarlyStopping:
+    """choose_move stops as soon as a candidate clears the early-stop threshold."""
+
+    def _make_agent_patched(self, high_score_move_idx: int, total_moves: int) -> tuple:
+        """Return (agent, calls_list) where agent.evaluate_move records calls."""
+        agent = MonteCarloAI(simulations=1)
+        agent.early_stop_enabled = True
+        agent.early_stop_threshold = 0.85
+        agent.adaptive_sims_enabled = False
+
+        calls: list[str] = []
+        moves = [f"loc_{i}" for i in range(total_moves)]
+
+        original_evaluate = agent.evaluate_move
+
+        def patched_evaluate(state, move, *, sims=None):
+            calls.append(move)
+            if moves.index(move) == high_score_move_idx:
+                return 0.95  # above threshold
+            return 0.1
+
+        agent.evaluate_move = patched_evaluate
+        return agent, calls, moves
+
+    def test_stops_after_high_score_move(self):
+        state, player, _ = _build_two_player_state()
+        agent, calls, moves = self._make_agent_patched(high_score_move_idx=2, total_moves=8)
+        chosen = agent.choose_move(state, moves)
+        assert chosen == "loc_2"
+        # Should stop after evaluating moves 0, 1, 2 — not all 8.
+        assert len(calls) == 3
+
+    def test_evaluates_all_moves_when_disabled(self):
+        state, player, _ = _build_two_player_state()
+        agent, calls, moves = self._make_agent_patched(high_score_move_idx=1, total_moves=5)
+        agent.early_stop_enabled = False
+        agent.choose_move(state, moves)
+        assert len(calls) == 5
+
+    def test_threshold_configurable(self):
+        state, player, _ = _build_two_player_state()
+        agent, calls, moves = self._make_agent_patched(high_score_move_idx=1, total_moves=5)
+        # Raise threshold above what the patched evaluate returns.
+        agent.early_stop_threshold = 1.0
+        agent.choose_move(state, moves)
+        assert len(calls) == 5  # no early stop since nothing reaches 1.0
+
+    def test_still_returns_best_score_move_without_early_stop(self):
+        state, _, _ = _build_two_player_state()
+        agent, _, moves = self._make_agent_patched(high_score_move_idx=3, total_moves=5)
+        agent.early_stop_enabled = False
+        chosen = agent.choose_move(state, moves)
+        assert chosen == "loc_3"
+
+    def test_no_crash_single_move(self):
+        state, _, _ = _build_two_player_state()
+        agent = MonteCarloAI(simulations=1)
+        agent.early_stop_enabled = True
+        result = agent.choose_move(state, ["Library"])
+        assert result == "Library"
+
+
+class TestEvaluateMoveSigsOverride:
+    """evaluate_move respects the sims kwarg without touching self.simulations."""
+
+    def test_sims_override_does_not_mutate_self(self):
+        state, _, agent = _build_two_player_state(simulations=8)
+        original = agent.simulations
+        agent.evaluate_move(state, "Library", sims=2)
+        assert agent.simulations == original
+
+    def test_none_sims_falls_back_to_default(self):
+        """Passing sims=None should behave identically to omitting it."""
+        state, _, agent = _build_two_player_state(simulations=2)
+        r1 = agent.evaluate_move(state, "Library", sims=None)
+        assert 0.0 <= r1 <= 1.0
