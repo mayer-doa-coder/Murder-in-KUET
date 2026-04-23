@@ -646,9 +646,32 @@ class GameState:
             if player.is_ai and not card and hasattr(ai_agent, "handle_no_reveal"):
                 ai_agent.handle_no_reveal(suggestion)
 
-            should_accuse = ai_agent.decide_accusation(self)
+            should_accuse = False
+            accusation = None
+            decision = ai_agent.decide_accusation(self)
+            if isinstance(decision, bool):
+                should_accuse = decision
+            elif decision is not None:
+                should_accuse = True
+                accusation = decision
+
             if should_accuse:
-                accusation = player.make_accusation(suspect, weapon, player.position)
+                if accusation is None:
+                    solved = None
+                    if hasattr(player, "notebook") and hasattr(player.notebook, "get_solution"):
+                        solved = player.notebook.get_solution()
+                    if solved is not None:
+                        accusation = player.make_accusation(solved[0], solved[1], solved[2])
+                    elif hasattr(player, "notebook") and hasattr(player.notebook, "most_likely"):
+                        try:
+                            best_s, best_w, best_l = player.notebook.most_likely()
+                            accusation = player.make_accusation(best_s, best_w, best_l)
+                        except Exception:
+                            accusation = player.make_accusation(suspect, weapon, player.position)
+                    else:
+                        accusation = player.make_accusation(suspect, weapon, player.position)
+                elif isinstance(accusation, tuple) and len(accusation) == 3:
+                    accusation = player.make_accusation(accusation[0], accusation[1], accusation[2])
                 result["accusation"] = accusation
                 self.resolve_accusation(player, accusation)
 

@@ -399,15 +399,14 @@ class MonteCarloAI(StrategicEvaluationMixin, BaseAI):
         self._cache_notebook(state)
         notebook = self._last_notebook
 
-        # --- Candidate pool from Bayesian notebook ---
-        suspects = sorted(
-            getattr(notebook, "possible_suspects", [])
-            if notebook else getattr(state, "suspects", [])
-        )
-        weapons = sorted(
-            getattr(notebook, "possible_weapons", [])
-            if notebook else getattr(state, "weapons", [])
-        )
+        # --- Candidate pool from Bayesian notebook, with full-list fallback ---
+        # possible_suspects/weapons are sets; an empty set (all eliminated) falls
+        # back to the game's full list so a suggestion can always be formed.
+        notebook_suspects = getattr(notebook, "possible_suspects", set()) if notebook else set()
+        notebook_weapons = getattr(notebook, "possible_weapons", set()) if notebook else set()
+
+        suspects = sorted(notebook_suspects or getattr(state, "suspects", []))
+        weapons = sorted(notebook_weapons or getattr(state, "weapons", []))
 
         if not suspects or not weapons:
             raise ValueError("Empty suggestion space — cannot make suggestion")
