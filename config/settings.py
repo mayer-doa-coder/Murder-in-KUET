@@ -40,6 +40,15 @@ AI_CONFIG = {
     "MONTE_CARLO_ADAPTIVE_SIMS_ENABLED": True,
     # Hard lower bound on simulations regardless of adaptive scaling.
     "MONTE_CARLO_MIN_SIMULATIONS": 5,
+    # MCTS: iterations per choose_move call (tree depth × breadth budget).
+    "MCTS_ITERATIONS": 50,
+    # UCT exploration constant.  sqrt(2) ≈ 1.4142 is the theoretically
+    # derived value for rewards normalised to [0, 1].
+    "MCTS_EXPLORATION_CONSTANT": 1.4142135623730951,
+    # Maximum rollout steps per simulation — guarantees termination.
+    "MCTS_ROLLOUT_DEPTH": 50,
+    # Minimum Bayesian confidence across all three categories to trigger accusation.
+    "MCTS_ACCUSATION_THRESHOLD": 0.70,
 }
 
 
