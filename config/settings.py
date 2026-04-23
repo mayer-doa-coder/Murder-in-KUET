@@ -8,7 +8,7 @@ from __future__ import annotations
 
 
 GAME_CONFIG = {
-    "MAX_PLAYERS": 3,
+    "MAX_PLAYERS": 4,  # raised to include MonteCarloAI in every comparison run
     "AI_DEPTH": 2,
     "SIMULATION_RUNS": 10,
     "MAX_TURNS": 250,
@@ -19,6 +19,17 @@ AI_CONFIG = {
     "MINIMAX_DEPTH": 2,
     "EXPECTIMINIMAX_DEPTH": 2,
     "NEGAMAX_DEPTH": 2,
+    # Monte Carlo move-evaluation budget (rollouts per move candidate).
+    "MONTE_CARLO_SIMULATIONS": 30,
+    # Monte Carlo suggestion-evaluation budget (rollouts per suspect+weapon pair).
+    # Kept lower than MONTE_CARLO_SIMULATIONS to limit per-turn cost.
+    "MONTE_CARLO_SUGGESTION_SIMS": 5,
+    # Maximum number of suspect+weapon pairs to evaluate per make_suggestion call.
+    # Pairs are ranked by notebook probability so only the best are evaluated.
+    "MONTE_CARLO_MAX_SUGGESTION_PAIRS": 9,
+    # Minimum combined probability confidence required to make a final accusation.
+    # Range [0, 1]. Lower → more aggressive; higher → more conservative.
+    "MONTE_CARLO_ACCUSATION_THRESHOLD": 0.70,
 }
 
 

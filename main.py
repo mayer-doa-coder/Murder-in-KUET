@@ -1,12 +1,15 @@
 """Main entry point for AI performance comparison simulations."""
 
+import json
 import logging
 import random
+from pathlib import Path
 from time import perf_counter
 from typing import Any
 
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.minimax_ai import MinimaxAI
+from ai.monte_carlo_ai import MonteCarloAI
 from ai.negamax_ai import NegamaxAI
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from engine.game_state import GameState
@@ -93,42 +96,28 @@ class InstrumentedAI:
             self._agent.handle_no_reveal(suggestion)
 
 
+def _blank_metrics() -> dict[str, float]:
+    """Return a zeroed metrics bucket for one AI agent."""
+    return {
+        "wins": 0,
+        "total_moves": 0,
+        "decision_time": 0.0,
+        "decisions": 0,
+        "correct_accusations": 0,
+        "wrong_accusations": 0,
+        "total_turns": 0,
+        "suggestion_success": 0,
+        "suggestion_total": 0,
+    }
+
+
 def _create_metrics() -> dict[str, dict[str, float]]:
     """Create metrics structure for all AI variants."""
     return {
-        "MinimaxAI": {
-            "wins": 0,
-            "total_moves": 0,
-            "decision_time": 0.0,
-            "decisions": 0,
-            "correct_accusations": 0,
-            "wrong_accusations": 0,
-            "total_turns": 0,
-            "suggestion_success": 0,
-            "suggestion_total": 0,
-        },
-        "ExpectiminimaxAI": {
-            "wins": 0,
-            "total_moves": 0,
-            "decision_time": 0.0,
-            "decisions": 0,
-            "correct_accusations": 0,
-            "wrong_accusations": 0,
-            "total_turns": 0,
-            "suggestion_success": 0,
-            "suggestion_total": 0,
-        },
-        "NegamaxAI": {
-            "wins": 0,
-            "total_moves": 0,
-            "decision_time": 0.0,
-            "decisions": 0,
-            "correct_accusations": 0,
-            "wrong_accusations": 0,
-            "total_turns": 0,
-            "suggestion_success": 0,
-            "suggestion_total": 0,
-        },
+        "MinimaxAI": _blank_metrics(),
+        "ExpectiminimaxAI": _blank_metrics(),
+        "NegamaxAI": _blank_metrics(),
+        "MonteCarloAI": _blank_metrics(),
     }
 
 
@@ -144,6 +133,10 @@ def _create_comparison_players(
             ExpectiminimaxAI(depth=AI_CONFIG.get("EXPECTIMINIMAX_DEPTH")),
         ),
         ("AI Player 3", NegamaxAI(depth=AI_CONFIG.get("NEGAMAX_DEPTH"))),
+        (
+            "AI Player 4",
+            MonteCarloAI(simulations=AI_CONFIG.get("MONTE_CARLO_SIMULATIONS")),
+        ),
     ]
 
     slots = min(max(1, max_players), len(agents))
@@ -279,6 +272,15 @@ def run_single_game(
     }
 
 
+def _save_metrics_json(metrics: dict[str, Any], path: str = "logs/metrics.json") -> None:
+    """Persist aggregated AI metrics to JSON so the dashboard can load them."""
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open("w", encoding="utf-8") as fh:
+        json.dump(metrics, fh, indent=4)
+    logger.info("Metrics saved to %s", target)
+
+
 def _run_ai_performance_comparison() -> None:
     """Run multi-game AI performance comparison with metrics reporting."""
     num_games = get_positive_int(GAME_CONFIG, "SIMULATION_RUNS", 10)
@@ -290,7 +292,7 @@ def _run_ai_performance_comparison() -> None:
     game_runtime_seconds = 0.0
 
     logger.info("=" * 68)
-    logger.info(" Murder in KUET - Minimax vs Expectiminimax vs Negamax Metrics")
+    logger.info(" Murder in KUET - Minimax vs Expectiminimax vs Negamax vs MonteCarlo Metrics")
     logger.info("=" * 68)
 
     for i in range(num_games):
@@ -355,6 +357,9 @@ def _run_ai_performance_comparison() -> None:
     logger.info("No-Winner Games: %s", no_winner_games)
     logger.info("Average Game Runtime: %.4f sec", game_runtime_seconds / num_games)
     logger.info("=" * 68)
+
+    # Persist final metrics so the Streamlit dashboard can read them.
+    _save_metrics_json(metrics)
 
 
 def main() -> None:

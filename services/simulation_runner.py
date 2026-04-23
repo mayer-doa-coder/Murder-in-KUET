@@ -120,42 +120,27 @@ class SimulationRunner:
             "failed_games": num_games - completed_games,
         }
 
+    def _blank_agent_metrics(self) -> Dict[str, float]:
+        """Return a zeroed metrics bucket for one AI agent."""
+        return {
+            "wins": 0,
+            "moves": 0,
+            "decision_time": 0.0,
+            "decisions": 0,
+            "correct_accusations": 0,
+            "wrong_accusations": 0,
+            "total_turns": 0,
+            "suggestion_success": 0,
+            "suggestion_total": 0,
+        }
+
     def _create_metrics(self) -> Dict[str, Dict[str, float]]:
         """Create metrics structure for all supported AI variants."""
         return {
-            "MinimaxAI": {
-                "wins": 0,
-                "moves": 0,
-                "decision_time": 0.0,
-                "decisions": 0,
-                "correct_accusations": 0,
-                "wrong_accusations": 0,
-                "total_turns": 0,
-                "suggestion_success": 0,
-                "suggestion_total": 0,
-            },
-            "ExpectiminimaxAI": {
-                "wins": 0,
-                "moves": 0,
-                "decision_time": 0.0,
-                "decisions": 0,
-                "correct_accusations": 0,
-                "wrong_accusations": 0,
-                "total_turns": 0,
-                "suggestion_success": 0,
-                "suggestion_total": 0,
-            },
-            "NegamaxAI": {
-                "wins": 0,
-                "moves": 0,
-                "decision_time": 0.0,
-                "decisions": 0,
-                "correct_accusations": 0,
-                "wrong_accusations": 0,
-                "total_turns": 0,
-                "suggestion_success": 0,
-                "suggestion_total": 0,
-            },
+            "MinimaxAI": self._blank_agent_metrics(),
+            "ExpectiminimaxAI": self._blank_agent_metrics(),
+            "NegamaxAI": self._blank_agent_metrics(),
+            "MonteCarloAI": self._blank_agent_metrics(),
         }
 
     def _extract_metrics(self, metrics_or_result: Dict[str, Any]) -> Dict[str, Dict[str, float]]:
