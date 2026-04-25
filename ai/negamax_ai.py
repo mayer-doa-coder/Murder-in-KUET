@@ -312,47 +312,29 @@ class NegamaxAI(StrategicEvaluationMixin, BaseAI):
                     best = suggestion
 
         if best is None:
-            fallback_suspect = safe_random_choice(suspects)
-            fallback_weapon = safe_random_choice(weapons)
-            if fallback_suspect is None or fallback_weapon is None:
-                raise ValueError("Invalid state: no suggestion options")
-            best = (fallback_suspect, fallback_weapon, location)
+            notebook = self._get_current_notebook(working_state)
+            most_likely = getattr(notebook, "most_likely", None)
+            if callable(most_likely):
+                try:
+                    likely_suspect, likely_weapon, _likely_location = most_likely()
+                    if likely_suspect in suspects and likely_weapon in weapons:
+                        best = (likely_suspect, likely_weapon, location)
+                except Exception:
+                    pass
+
+        if best is None:
+            best = (sorted(suspects)[0], sorted(weapons)[0], location)
 
         return best
 
     def decide_accusation(self, state: Any) -> bool:
-        """Decide whether to make a final accusation based on certainty.
-
-        Returns:
-            bool: True only when exactly one suspect, weapon, and location
-            remain as candidates; otherwise False.
-        """
+        """Decide whether to accuse using notebook probability confidence."""
         if state is None:
             raise ValueError("State cannot be None")
 
-        suspects = self._as_set(getattr(state, "possible_suspects", None))
-        weapons = self._as_set(getattr(state, "possible_weapons", None))
-        locations = self._as_set(getattr(state, "possible_locations", None))
+        notebook = self._get_current_notebook(state)
+        confidence_check = getattr(notebook, "confident_accusation", None)
+        if callable(confidence_check):
+            return bool(confidence_check())
 
-        if suspects is None or weapons is None or locations is None:
-            notebook = self._get_current_notebook(state)
-            if notebook is not None:
-                suspects = self._as_set(getattr(notebook, "possible_suspects", set()))
-                weapons = self._as_set(getattr(notebook, "possible_weapons", set()))
-                locations = self._as_set(getattr(notebook, "possible_locations", set()))
-
-        if suspects is None:
-            suspects = set(getattr(state, "suspects", []))
-        if weapons is None:
-            weapons = set(getattr(state, "weapons", []))
-        if locations is None:
-            locations = set(getattr(state, "locations", []))
-
-        if not suspects or not weapons or not locations:
-            return False
-
-        return (
-            len(suspects) == 1
-            and len(weapons) == 1
-            and len(locations) == 1
-        )
+        return False

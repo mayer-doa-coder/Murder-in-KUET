@@ -36,14 +36,16 @@ def reveal_clue(
             - (None, None) if nobody can reveal a matching card.
 
     Raises:
-        ValueError: If players are empty, current_index is invalid, or
+        ValueError: If players are empty, current_index is not integer-like, or
             suggestion is invalid.
     """
     if not players:
         raise ValueError("players list cannot be empty")
 
-    if current_index < 0 or current_index >= len(players):
-        raise ValueError("current_index is out of range")
+    try:
+        normalized_index = int(current_index) % len(players)
+    except (TypeError, ValueError):
+        raise ValueError("current_index must be an integer") from None
 
     required_fields = ("suspect", "weapon", "location")
     if suggestion is None or any(not hasattr(suggestion, field) for field in required_fields):
@@ -60,7 +62,7 @@ def reveal_clue(
     total_players = len(players)
 
     for offset in range(1, total_players):
-        idx = (current_index + offset) % total_players
+        idx = (normalized_index + offset) % total_players
         player = players[idx]
         hand = getattr(player, "cards", None)
         if hand is None:

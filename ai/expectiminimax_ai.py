@@ -121,6 +121,8 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
             return float(expected_value)
 
         # node_type == "min"
+        # After the opponent's move, it is our turn again (max).
+        # Correct cycle: max → chance → min → max → chance → min → ...
         min_eval = inf
         moves = self._get_possible_moves(state)
 
@@ -133,7 +135,7 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
             if new_state is None:
                 continue
             progressed = True
-            eval_score = self.expectiminimax(new_state, depth - 1, "chance")
+            eval_score = self.expectiminimax(new_state, depth - 1, "max")
             min_eval = min(min_eval, eval_score)
 
         if not progressed:
@@ -147,22 +149,60 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
     def get_chance_outcomes(self, state: Any) -> List[Tuple[float, Any]]:
         """Return probabilistic branches for a chance node.
 
-        Expected return format:
-            [
-                (0.4, state_if_card_revealed),
-                (0.6, state_if_no_card_revealed),
-            ]
+        Models two outcomes for a Cluedo suggestion:
+          - reveal branch  (prob_reveal):    a card is shown → eliminate it
+          - no-reveal branch (prob_no_reveal): nobody shows a card → boost it
+
+        Probability model (conservative):
+            remaining = |possible_suspects| + |possible_weapons|
+            prob_reveal = 1 / max(remaining, 1)
+            prob_no_reveal = 1 - prob_reveal
 
         Args:
-            state (Any): Current search state snapshot.
+            state: Current search-state snapshot.
 
         Returns:
-            List[Tuple[float, Any]]: (probability, next_state) pairs.
-
-        Raises:
-            NotImplementedError: Until probability modeling is implemented.
+            List of (probability, successor_state) pairs.
         """
-        return [(1.0, state)]
+        from copy import deepcopy
+
+        suspects = self._as_set(getattr(state, "possible_suspects", None)) or set()
+        weapons = self._as_set(getattr(state, "possible_weapons", None)) or set()
+        num_remaining = len(suspects) + len(weapons)
+
+        if num_remaining == 0:
+            return [(1.0, state)]
+
+        prob_reveal = 1.0 / num_remaining
+        prob_no_reveal = 1.0 - prob_reveal
+
+        # Reveal branch: eliminate the highest-probability suspect as a proxy
+        # for "a card was shown", narrowing the solution space.
+        state_reveal = deepcopy(state)
+        notebook = self._get_current_notebook(state_reveal)
+        eliminated = False
+        if notebook is not None:
+            s_probs = getattr(notebook, "suspects", {})
+            r_suspects = getattr(notebook, "possible_suspects", None)
+            if isinstance(r_suspects, set) and len(r_suspects) > 1 and s_probs:
+                best_s = max(r_suspects, key=lambda s: s_probs.get(s, 0.0))
+                update_reveal = getattr(notebook, "update_reveal", None)
+                if callable(update_reveal):
+                    try:
+                        update_reveal(best_s)
+                        eliminated = True
+                    except Exception:
+                        pass
+        if not eliminated:
+            r_suspects = getattr(state_reveal, "possible_suspects", None)
+            if isinstance(r_suspects, set) and len(r_suspects) > 1:
+                r_suspects.discard(next(iter(r_suspects)))
+
+        # No-reveal branch: keep the state as-is (no elimination needed;
+        # probability boost is handled by the notebook at the engine level).
+        state_no_reveal = deepcopy(state)
+
+        return [(prob_reveal, state_reveal), (prob_no_reveal, state_no_reveal)]
 
     def _is_terminal_state(self, state: Any) -> bool:
         """Return whether a state should stop recursion."""
@@ -427,34 +467,28 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
                     best = suggestion
 
         if best is None:
-            fallback_suspect = safe_random_choice(suspects)
-            fallback_weapon = safe_random_choice(weapons)
-            if fallback_suspect is None or fallback_weapon is None:
-                raise ValueError("Invalid state: no possible suggestions")
-            return (fallback_suspect, fallback_weapon, location)
+            notebook = self._get_current_notebook(state)
+            most_likely = getattr(notebook, "most_likely", None)
+            if callable(most_likely):
+                try:
+                    likely_suspect, likely_weapon, _likely_location = most_likely()
+                    if likely_suspect in suspects and likely_weapon in weapons:
+                        return (likely_suspect, likely_weapon, location)
+                except Exception:
+                    pass
+
+            return (sorted(suspects)[0], sorted(weapons)[0], location)
 
         return best
 
     def decide_accusation(self, state: Any) -> bool:
-        """Decide whether to make a final accusation based on certainty.
-
-        Returns:
-            bool: True only when exactly one suspect, weapon, and location
-            remain as candidates; otherwise False.
-        """
+        """Decide whether to accuse using notebook probability confidence."""
         if state is None:
             raise ValueError("Invalid state")
 
-        suspects, weapons, locations = self._resolve_suggestion_space(state)
+        notebook = self._get_current_notebook(state)
+        confidence_check = getattr(notebook, "confident_accusation", None)
+        if callable(confidence_check):
+            return bool(confidence_check())
 
-        if getattr(self, "debug", False):
-            logger.debug("Accusation Decision Check: %s", suspects)
-
-        if not suspects or not weapons or not locations:
-            return False
-
-        return (
-            len(suspects) == 1
-            and len(weapons) == 1
-            and len(locations) == 1
-        )
+        return False

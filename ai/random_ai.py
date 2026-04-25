@@ -7,10 +7,9 @@ This module provides a simple AI for testing and as a baseline for smarter agent
 
 import logging
 from types import SimpleNamespace
-from ai.base_ai import BaseAI
-from engine.cards import suspects, weapons, locations
-from utils.helpers import safe_random_choice
 
+from ai.base_ai import BaseAI
+from utils.helpers import safe_random_choice
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +64,12 @@ class RandomAI(BaseAI):
         weapon_pool = getattr(state, "weapons", None)
         location = getattr(state, "current_location", None)
 
-        if not suspect_pool or not weapon_pool or not isinstance(location, str) or not location.strip():
+        if (
+            not suspect_pool
+            or not weapon_pool
+            or not isinstance(location, str)
+            or not location.strip()
+        ):
             raise ValueError("Invalid game state for suggestion")
 
         suspect = safe_random_choice(suspect_pool)
@@ -107,8 +111,8 @@ class RandomAI(BaseAI):
 if __name__ == "__main__":
     state = SimpleNamespace(
         suspects=["Professor Karim", "Student Rahim"],
-        weapons=["Knife", "Poison"],
-        current_location="Library",
+        weapons=["Knife", "Sleeping Pills"],
+        current_location="Auditorium",
     )
     ai = RandomAI()
     suggestion = ai.make_suggestion(state)

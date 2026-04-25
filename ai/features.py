@@ -5,7 +5,7 @@ Purpose: Converts the current game state into a structured feature dict
 that AI agents can consume for decision-making.
 """
 
-from engine.cards import suspects, weapons, locations
+from engine.cards import locations, suspects, weapons
 
 
 def extract_features(game_state, player):
@@ -42,18 +42,24 @@ def extract_features(game_state, player):
 
     # Pull narrowed-down candidates from KB if the player has one,
     # otherwise fall back to the full lists
-    kb = getattr(getattr(player, "ai_agent", None), "knowledge_base", None)
+    kb = getattr(player, "notebook", None)
 
     if kb:
-        possible_suspects = list(kb.possible_suspects)
-        possible_weapons = list(kb.possible_weapons)
-        possible_locations = list(kb.possible_locations)
-        solution_known = kb.is_solution_known()
+        possible_suspects = sorted(getattr(kb, "possible_suspects", set()))
+        possible_weapons = sorted(getattr(kb, "possible_weapons", set()))
+        possible_locations = sorted(getattr(kb, "possible_locations", set()))
+        # BayesianNotebook uses is_solved(); KnowledgeBase uses is_solution_known()
+        if hasattr(kb, "is_solved"):
+            solution_known = kb.is_solved()
+        else:
+            solution_known = (
+                kb.is_solution_known() if hasattr(kb, "is_solution_known") else False
+            )
     else:
         # For human players, show everything not in their hand per category
         possible_suspects = [s for s in suspects if s not in known_cards]
         possible_weapons = [w for w in weapons if w not in known_cards]
-        possible_locations = [l for l in locations if l not in known_cards]
+        possible_locations = [loc for loc in locations if loc not in known_cards]
         solution_known = False
 
     # Active (non-eliminated) players

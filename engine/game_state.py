@@ -8,19 +8,19 @@ This module maintains game status, player states, solution, and game progress.
 import logging
 from copy import deepcopy
 from typing import Any
-from engine.cards import suspects, weapons, locations, create_deck
-from engine.board import Board
-from engine.clue_reveal import reveal_clue
-from models.accusation import check_accusation
-from engine.dice import roll_dice
-from utils.helpers import safe_random_choice
 
+from engine.asset_mapping import get_asset_manifest
+from engine.board import Board
+from engine.cards import create_deck, locations, suspects, weapons
+from engine.clue_reveal import reveal_clue
+from engine.dice import roll_dice
+from models.accusation import check_accusation
+from utils.helpers import safe_random_choice
 
 logger = logging.getLogger(__name__)
 
 
 class GameState:
-
     def __init__(self):
         self.players = []
         self.solution = None
@@ -52,7 +52,9 @@ class GameState:
         chosen_weapon = safe_random_choice(weapons)
         chosen_location = safe_random_choice(locations)
         if chosen_suspect is None or chosen_weapon is None or chosen_location is None:
-            raise ValueError("Cannot setup game without full suspect/weapon/location pools")
+            raise ValueError(
+                "Cannot setup game without full suspect/weapon/location pools"
+            )
         self.solution = {
             "suspect": chosen_suspect,
             "weapon": chosen_weapon,
@@ -61,8 +63,10 @@ class GameState:
 
         # 3. Remove solution cards from the deck
         self.deck = [
-            card for card in self.deck
-            if card.name not in (
+            card
+            for card in self.deck
+            if card.name
+            not in (
                 self.solution["suspect"],
                 self.solution["weapon"],
                 self.solution["location"],
@@ -86,8 +90,6 @@ class GameState:
 
     def clone(self) -> "GameState":
         """Create a deep copy of the current game state for safe simulation."""
-        if self is None:
-            raise ValueError("Invalid state")
         return deepcopy(self)
 
     def get_possible_moves(self) -> list[str]:
@@ -125,9 +127,6 @@ class GameState:
 
         The original state is never mutated.
         """
-        if self is None:
-            raise ValueError("Invalid state")
-
         new_state = self.clone()
 
         if not isinstance(move, str) or not move.strip():
@@ -151,9 +150,6 @@ class GameState:
         The update is intentionally lightweight for search expansion and keeps
         the original state untouched.
         """
-        if self is None:
-            raise ValueError("Invalid state")
-
         new_state = self.clone()
         suspect, weapon, location = self._unpack_suggestion(suggestion)
 
@@ -163,23 +159,20 @@ class GameState:
             weapons_set = getattr(notebook, "possible_weapons", None)
             locations_set = getattr(notebook, "possible_locations", None)
 
-            if isinstance(suspects_set, set) and suspect in suspects_set and len(suspects_set) > 1:
-                suspects_set.discard(suspect)
-            if isinstance(weapons_set, set) and weapon in weapons_set and len(weapons_set) > 1:
-                weapons_set.discard(weapon)
-            if isinstance(locations_set, set) and location in locations_set and len(locations_set) > 1:
-                locations_set.discard(location)
+            # Narrow TOWARD the suggested cards: remove one non-suggested
+            # alternative from each set.  The suggestion is a hypothesis that
+            # these cards are the solution, so we tighten around them.
+            _narrow_set_toward(suspects_set, suspect)
+            _narrow_set_toward(weapons_set, weapon)
+            _narrow_set_toward(locations_set, location)
         else:
             suspects_set = getattr(new_state, "possible_suspects", None)
             weapons_set = getattr(new_state, "possible_weapons", None)
             locations_set = getattr(new_state, "possible_locations", None)
 
-            if isinstance(suspects_set, set) and suspect in suspects_set and len(suspects_set) > 1:
-                suspects_set.discard(suspect)
-            if isinstance(weapons_set, set) and weapon in weapons_set and len(weapons_set) > 1:
-                weapons_set.discard(weapon)
-            if isinstance(locations_set, set) and location in locations_set and len(locations_set) > 1:
-                locations_set.discard(location)
+            _narrow_set_toward(suspects_set, suspect)
+            _narrow_set_toward(weapons_set, weapon)
+            _narrow_set_toward(locations_set, location)
 
         return new_state
 
@@ -191,9 +184,6 @@ class GameState:
             - tuple/list length 3 or suggestion-like object: suggestion
             - dict: {"type": "move", "value": ...} or {"type": "suggestion", "value": ...}
         """
-        if self is None:
-            raise ValueError("Invalid state")
-
         if isinstance(action, dict):
             action_type = action.get("type")
             value = action.get("value")
@@ -206,9 +196,10 @@ class GameState:
         if isinstance(action, str):
             return self.simulate_move(action)
 
-        if (
-            (isinstance(action, (tuple, list)) and len(action) == 3)
-            or (hasattr(action, "suspect") and hasattr(action, "weapon") and hasattr(action, "location"))
+        if (isinstance(action, (tuple, list)) and len(action) == 3) or (
+            hasattr(action, "suspect")
+            and hasattr(action, "weapon")
+            and hasattr(action, "location")
         ):
             return self.simulate_suggestion(action)
 
@@ -276,15 +267,23 @@ class GameState:
         """
         if current_index is None:
             current_index = self.players.index(player)
+        elif self.players:
+            current_index = int(current_index) % len(self.players)
+
+        if suggestion is None:
+            return (None, None)
 
         if verbose:
             logger.info("%s suggests: %s", player.name, suggestion)
         revealer, card = reveal_clue(suggestion, self.players, current_index)
 
+        self._apply_bayesian_notebook_updates(
+            suggestion, card, suggesting_player=player
+        )
+
         if card is not None:
             if verbose and revealer is not None:
                 logger.info("%s revealed a card", revealer.name)
-            player.notebook.eliminate(card.name)
 
             if player.is_ai and hasattr(player.ai_agent, "update_from_clue"):
                 player.ai_agent.update_from_clue(card)
@@ -296,7 +295,57 @@ class GameState:
 
         return (revealer, card)
 
-    def get_chance_outcomes(self, suggestion: Any | None = None) -> list[tuple[float, "GameState"]]:
+    def _apply_bayesian_notebook_updates(
+        self,
+        suggestion: Any,
+        card: Any | None,
+        suggesting_player: Any | None = None,
+    ) -> None:
+        """Apply Bayesian notebook updates after a suggestion.
+
+        Reveal information is PRIVATE in Cluedo — only the suggesting player
+        learns which specific card was shown.  No-reveal information is PUBLIC
+        — all players can update their probability distributions.
+        """
+        if suggestion is None:
+            return
+
+        if card is not None and not hasattr(card, "name"):
+            raise ValueError("Invalid card object")
+
+        suspect = getattr(suggestion, "suspect", None)
+        weapon = getattr(suggestion, "weapon", None)
+        location = getattr(suggestion, "location", None)
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (suspect, weapon, location)
+        ):
+            return
+
+        for player in self.players:
+            if not getattr(player, "is_ai", False):
+                continue
+
+            if not hasattr(player, "notebook"):
+                raise ValueError("Player notebook not initialized")
+
+            notebook = player.notebook
+            if card is not None:
+                # Only the suggesting player learns which card was revealed.
+                if suggesting_player is not None and player is not suggesting_player:
+                    continue
+                update_reveal = getattr(notebook, "update_reveal", None)
+                if callable(update_reveal):
+                    update_reveal(card.name)
+            else:
+                # No-reveal is public: all players update accordingly.
+                update_no_reveal = getattr(notebook, "update_no_reveal", None)
+                if callable(update_no_reveal):
+                    update_no_reveal(suspect, weapon, location)
+
+    def get_chance_outcomes(
+        self, suggestion: Any | None = None
+    ) -> list[tuple[float, "GameState"]]:
         """Return probabilistic outcomes after a suggestion.
 
         This method models two simplified chance outcomes for expectiminimax:
@@ -323,7 +372,9 @@ class GameState:
             ValueError: If suggestion is None or malformed.
         """
         if suggestion is None:
-            possible_suspects, possible_weapons, possible_locations = self._get_possible_sets(self)
+            possible_suspects, possible_weapons, possible_locations = (
+                self._get_possible_sets(self)
+            )
 
             if not possible_suspects:
                 possible_suspects = set(self.suspects)
@@ -333,7 +384,11 @@ class GameState:
                 possible_locations = set(self.locations)
 
             current_player = self.current_player
-            fallback_location = getattr(current_player, "position", None) if current_player is not None else None
+            fallback_location = (
+                getattr(current_player, "position", None)
+                if current_player is not None
+                else None
+            )
             if not isinstance(fallback_location, str) or not fallback_location.strip():
                 fallback_location = sorted(possible_locations)[0]
 
@@ -345,7 +400,9 @@ class GameState:
 
         suspect, weapon, location = self._unpack_suggestion(suggestion)
 
-        possible_suspects, possible_weapons, _possible_locations = self._get_possible_sets(self)
+        possible_suspects, possible_weapons, _possible_locations = (
+            self._get_possible_sets(self)
+        )
         num_possible = len(possible_suspects) + len(possible_weapons)
 
         if num_possible == 0:
@@ -360,12 +417,22 @@ class GameState:
         state_reveal = self.clone()
         reveal_notebook = self._get_current_notebook(state_reveal)
         if reveal_notebook is not None and hasattr(reveal_notebook, "eliminate"):
+            update_reveal = getattr(reveal_notebook, "update_reveal", None)
             if suspect in getattr(reveal_notebook, "possible_suspects", set()):
-                reveal_notebook.eliminate(suspect)
+                if callable(update_reveal):
+                    update_reveal(suspect)
+                else:
+                    reveal_notebook.eliminate(suspect)
             elif weapon in getattr(reveal_notebook, "possible_weapons", set()):
-                reveal_notebook.eliminate(weapon)
+                if callable(update_reveal):
+                    update_reveal(weapon)
+                else:
+                    reveal_notebook.eliminate(weapon)
             elif location in getattr(reveal_notebook, "possible_locations", set()):
-                reveal_notebook.eliminate(location)
+                if callable(update_reveal):
+                    update_reveal(location)
+                else:
+                    reveal_notebook.eliminate(location)
         else:
             known_cards = getattr(state_reveal, "known_cards", None)
             if isinstance(known_cards, set):
@@ -377,16 +444,20 @@ class GameState:
         state_no_reveal = self.clone()
         no_reveal_notebook = self._get_current_notebook(state_no_reveal)
         if no_reveal_notebook is not None:
-            suspects_set = getattr(no_reveal_notebook, "possible_suspects", None)
-            weapons_set = getattr(no_reveal_notebook, "possible_weapons", None)
-            locations_set = getattr(no_reveal_notebook, "possible_locations", None)
+            update_no_reveal = getattr(no_reveal_notebook, "update_no_reveal", None)
+            if callable(update_no_reveal):
+                update_no_reveal(suspect, weapon, location)
+            else:
+                suspects_set = getattr(no_reveal_notebook, "possible_suspects", None)
+                weapons_set = getattr(no_reveal_notebook, "possible_weapons", None)
+                locations_set = getattr(no_reveal_notebook, "possible_locations", None)
 
-            if isinstance(suspects_set, set) and suspect in suspects_set:
-                suspects_set.intersection_update({suspect})
-            if isinstance(weapons_set, set) and weapon in weapons_set:
-                weapons_set.intersection_update({weapon})
-            if isinstance(locations_set, set) and location in locations_set:
-                locations_set.intersection_update({location})
+                if isinstance(suspects_set, set) and suspect in suspects_set:
+                    suspects_set.intersection_update({suspect})
+                if isinstance(weapons_set, set) and weapon in weapons_set:
+                    weapons_set.intersection_update({weapon})
+                if isinstance(locations_set, set) and location in locations_set:
+                    locations_set.intersection_update({location})
         else:
             suspects_set = getattr(state_no_reveal, "possible_suspects", None)
             weapons_set = getattr(state_no_reveal, "possible_weapons", None)
@@ -401,7 +472,11 @@ class GameState:
 
     def _unpack_suggestion(self, suggestion):
         """Normalize Suggestion object or tuple/list into three strings."""
-        if hasattr(suggestion, "suspect") and hasattr(suggestion, "weapon") and hasattr(suggestion, "location"):
+        if (
+            hasattr(suggestion, "suspect")
+            and hasattr(suggestion, "weapon")
+            and hasattr(suggestion, "location")
+        ):
             suspect = suggestion.suspect
             weapon = suggestion.weapon
             location = suggestion.location
@@ -410,7 +485,9 @@ class GameState:
         else:
             raise ValueError("Invalid suggestion")
 
-        if not all(isinstance(v, str) and v.strip() for v in (suspect, weapon, location)):
+        if not all(
+            isinstance(v, str) and v.strip() for v in (suspect, weapon, location)
+        ):
             raise ValueError("Invalid suggestion")
 
         return suspect.strip(), weapon.strip(), location.strip()
@@ -419,7 +496,11 @@ class GameState:
         """Return current player's notebook from a state copy, if present."""
         players = getattr(state_obj, "players", None)
         current_turn = getattr(state_obj, "current_turn", None)
-        if not isinstance(players, list) or not players or not isinstance(current_turn, int):
+        if (
+            not isinstance(players, list)
+            or not players
+            or not isinstance(current_turn, int)
+        ):
             return None
 
         player = players[current_turn % len(players)]
@@ -521,6 +602,9 @@ class GameState:
             self.check_end_conditions()
             return None
 
+        # Keep turn index in table range. get_current_player() already wraps,
+        # but downstream helpers (e.g., reveal_clue) require bounded indices.
+        self.current_turn %= total
         player = self.get_current_player()
         result = {
             "dice": None,
@@ -543,7 +627,9 @@ class GameState:
             if player.position is None:
                 valid_moves = self.board.get_all_locations()
             else:
-                valid_moves = self.board.get_valid_moves(player.position, dice_roll.total)
+                valid_moves = self.board.get_valid_moves(
+                    player.position, dice_roll.total
+                )
                 passage_dest = self.board.get_passage_destination(player.position)
                 if passage_dest and passage_dest not in valid_moves:
                     valid_moves = valid_moves + [passage_dest]
@@ -552,7 +638,9 @@ class GameState:
             if move in valid_moves:
                 player.move(move)
             elif move is not None:
-                logger.warning("AI returned invalid move '%s' in run_turn; ignoring", move)
+                logger.warning(
+                    "AI returned invalid move '%s' in run_turn; ignoring", move
+                )
 
             self.current_location = player.position
             result["move"] = player.position
@@ -571,11 +659,17 @@ class GameState:
                 weapon = fallback_weapon
 
             suggestion = player.make_suggestion(suspect, weapon, player.position)
+            if suggestion is None:
+                return result
             result["suggestion"] = suggestion
 
-            revealer, card = reveal_clue(suggestion, self.players, self.current_turn)
+            revealer, card = reveal_clue(
+                suggestion, self.players, self.current_turn % len(self.players)
+            )
+            self._apply_bayesian_notebook_updates(
+                suggestion, card, suggesting_player=player
+            )
             if card is not None:
-                player.notebook.eliminate(card.name)
                 result["revealer"] = revealer.name if revealer is not None else None
                 result["revealed_card"] = card.name
 
@@ -584,9 +678,44 @@ class GameState:
             if player.is_ai and not card and hasattr(ai_agent, "handle_no_reveal"):
                 ai_agent.handle_no_reveal(suggestion)
 
-            should_accuse = ai_agent.decide_accusation(self)
+            should_accuse = False
+            accusation = None
+            decision = ai_agent.decide_accusation(self)
+            if isinstance(decision, bool):
+                should_accuse = decision
+            elif decision is not None:
+                should_accuse = True
+                accusation = decision
+
             if should_accuse:
-                accusation = player.make_accusation(suspect, weapon, player.position)
+                if accusation is None:
+                    solved = None
+                    if hasattr(player, "notebook") and hasattr(
+                        player.notebook, "get_solution"
+                    ):
+                        solved = player.notebook.get_solution()
+                    if solved is not None:
+                        accusation = player.make_accusation(
+                            solved[0], solved[1], solved[2]
+                        )
+                    elif hasattr(player, "notebook") and hasattr(
+                        player.notebook, "most_likely"
+                    ):
+                        try:
+                            best_s, best_w, best_l = player.notebook.most_likely()
+                            accusation = player.make_accusation(best_s, best_w, best_l)
+                        except Exception:
+                            accusation = player.make_accusation(
+                                suspect, weapon, player.position
+                            )
+                    else:
+                        accusation = player.make_accusation(
+                            suspect, weapon, player.position
+                        )
+                elif isinstance(accusation, tuple) and len(accusation) == 3:
+                    accusation = player.make_accusation(
+                        accusation[0], accusation[1], accusation[2]
+                    )
                 result["accusation"] = accusation
                 self.resolve_accusation(player, accusation)
 
@@ -688,12 +817,17 @@ class GameState:
             if player.is_ai:
                 if getattr(player, "ai_agent", None) is None:
                     logger.error("AI player %s has no ai_agent assigned", player.name)
-                    raise ValueError(f"AI player {player.name} has no ai_agent assigned")
+                    raise ValueError(
+                        f"AI player {player.name} has no ai_agent assigned"
+                    )
                 move = player.ai_agent.choose_move(self, valid_moves)
                 # Safety fallback: if AI returns an invalid move, recover with
                 # a random legal move to keep the game progressing.
                 if valid_moves and move not in valid_moves:
-                    logger.warning("AI returned invalid move '%s'; selecting random legal move", move)
+                    logger.warning(
+                        "AI returned invalid move '%s'; selecting random legal move",
+                        move,
+                    )
                     move = safe_random_choice(valid_moves)
             elif human_move_selector is not None:
                 move = human_move_selector(player, valid_moves, self)
@@ -702,9 +836,8 @@ class GameState:
 
             if move in valid_moves:
                 player.move(move)
-
-            if move is not None:
-                assert move in valid_moves, "Invalid move selected"
+            elif move is not None:
+                logger.warning("Move '%s' not in valid_moves; skipping movement", move)
 
             self.current_location = player.position
             if verbose:
@@ -716,7 +849,9 @@ class GameState:
                 if suspect not in self.suspects:
                     fallback_suspect = safe_random_choice(self.suspects)
                     if fallback_suspect is None:
-                        raise ValueError("No suspects available for fallback suggestion")
+                        raise ValueError(
+                            "No suspects available for fallback suggestion"
+                        )
                     suspect = fallback_suspect
                 if weapon not in self.weapons:
                     fallback_weapon = safe_random_choice(self.weapons)
@@ -736,10 +871,12 @@ class GameState:
 
             # 4) Clue revelation.
             revealer, card = reveal_clue(suggestion, self.players, current_index)
+            self._apply_bayesian_notebook_updates(
+                suggestion, card, suggesting_player=player
+            )
 
             # 5) Notebook update.
             if card:
-                player.notebook.eliminate(card.name)
                 if verbose and revealer is not None:
                     logger.info("%s revealed a card", revealer.name)
             elif verbose:
@@ -748,7 +885,11 @@ class GameState:
             # 6) AI knowledge update.
             if player.is_ai and card and hasattr(player.ai_agent, "update_from_clue"):
                 player.ai_agent.update_from_clue(card)
-            if player.is_ai and not card and hasattr(player.ai_agent, "handle_no_reveal"):
+            if (
+                player.is_ai
+                and not card
+                and hasattr(player.ai_agent, "handle_no_reveal")
+            ):
                 player.ai_agent.handle_no_reveal(suggestion)
 
             # 7) Optional accusation phase.
@@ -780,28 +921,38 @@ class GameState:
 
             if should_accuse:
                 if accusation is None:
+                    # Prefer a fully-certain solution; fall back to highest-
+                    # probability candidates; last resort: current suggestion.
                     solved = None
-                    if hasattr(player, "notebook") and hasattr(player.notebook, "get_solution"):
+                    if hasattr(player, "notebook") and hasattr(
+                        player.notebook, "get_solution"
+                    ):
                         solved = player.notebook.get_solution()
 
                     if solved is not None:
-                        accusation = player.make_accusation(solved[0], solved[1], solved[2])
+                        accusation = player.make_accusation(
+                            solved[0], solved[1], solved[2]
+                        )
+                    elif hasattr(player, "notebook") and hasattr(
+                        player.notebook, "most_likely"
+                    ):
+                        try:
+                            best_s, best_w, best_l = player.notebook.most_likely()
+                            accusation = player.make_accusation(best_s, best_w, best_l)
+                        except Exception:
+                            accusation = player.make_accusation(
+                                suspect, weapon, player.position
+                            )
                     else:
-                        accusation = player.make_accusation(suspect, weapon, player.position)
+                        accusation = player.make_accusation(
+                            suspect, weapon, player.position
+                        )
                 elif isinstance(accusation, tuple) and len(accusation) == 3:
                     accusation = player.make_accusation(
                         accusation[0], accusation[1], accusation[2]
                     )
 
-                if check_accusation(accusation, self.solution):
-                    if verbose:
-                        logger.info("%s wins", player.name)
-                    self.winner = player
-                    self.game_over = True
-                else:
-                    if verbose:
-                        logger.warning("%s eliminated", player.name)
-                    player.active = False
+                self.resolve_accusation(player, accusation)
 
             if verbose and player.is_ai:
                 logger.info("Accusation Decision: %s", should_accuse)
@@ -811,3 +962,194 @@ class GameState:
             turns_played += 1
 
         return self.winner
+
+    # ── Serialization ──────────────────────────────────────────────────────────
+
+    def to_dict(self) -> dict:
+        """Serialize the game state to a JSON-compatible dictionary.
+
+        The hidden solution is NOT included.  Pass ``_solution`` separately
+        when the full state must survive a round-trip through the API.
+        """
+        players_data = []
+        for player in self.players:
+            # Unwrap InstrumentedAI or any thin wrapper that exposes ``_agent``.
+            ai_type = None
+            if player.is_ai and player.ai_agent is not None:
+                core = getattr(player.ai_agent, "_agent", player.ai_agent)
+                ai_type = type(core).__name__
+
+            notebook_data = None
+            nb = getattr(player, "notebook", None)
+            if nb is not None:
+                notebook_data = {
+                    "suspects": dict(nb.suspects),
+                    "weapons": dict(nb.weapons),
+                    "locations": dict(nb.locations),
+                    "possible_suspects": sorted(nb.possible_suspects),
+                    "possible_weapons": sorted(nb.possible_weapons),
+                    "possible_locations": sorted(nb.possible_locations),
+                    "known_cards": sorted(nb.known_cards),
+                }
+
+            players_data.append(
+                {
+                    "name": player.name,
+                    "is_ai": player.is_ai,
+                    "ai_type": ai_type,
+                    "position": player.position,
+                    "active": player.active,
+                    "cards": [c.name for c in player.cards],
+                    "notebook": notebook_data,
+                }
+            )
+
+        dice_data = None
+        if self.last_dice_roll is not None:
+            dice_data = {
+                "die1": self.last_dice_roll.die1,
+                "die2": self.last_dice_roll.die2,
+                "total": self.last_dice_roll.total,
+            }
+
+        return {
+            "players": players_data,
+            "current_turn": self.current_turn,
+            "game_over": self.game_over,
+            "winner": self.winner.name if self.winner is not None else None,
+            "suspects": list(self.suspects),
+            "weapons": list(self.weapons),
+            "locations": list(self.locations),
+            "asset_manifest": get_asset_manifest(),
+            "current_location": self.current_location,
+            "last_dice_roll": dice_data,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict, ai_registry: dict | None = None) -> "GameState":
+        """Reconstruct a GameState from a dictionary produced by ``to_dict()``.
+
+        The caller must supply ``_solution`` inside *data* (or as a top-level
+        key) so that accusation resolution works correctly.  AI agents are
+        re-created fresh from *ai_registry*; their search trees are transient
+        and are not preserved across serialization boundaries.  The persisted
+        Bayesian notebook probabilities on each player carry all accumulated
+        game knowledge.
+
+        Args:
+            data:        Dict from ``to_dict()`` plus a ``"_solution"`` key.
+            ai_registry: Mapping of AI-type name → class.  When *None* or
+                         when an ``ai_type`` is not found, the player is
+                         created as a non-agent AI player (no decisions).
+
+        Returns:
+            GameState: Ready for ``run_turn()`` without calling ``setup_game()``.
+
+        Raises:
+            ValueError: If required fields are absent or malformed.
+            TypeError:  If *data* is not a dict.
+        """
+        from engine.cards import Card
+        from engine.dice import DiceRoll
+        from models.player import AIPlayer, Player
+
+        if not isinstance(data, dict):
+            raise TypeError("data must be a dict")
+
+        state = cls()
+        state.current_turn = int(data.get("current_turn", 0))
+        state.game_over = bool(data.get("game_over", False))
+        state.current_location = data.get("current_location")
+        state.solution = data.get("_solution")
+
+        dr = data.get("last_dice_roll")
+        if isinstance(dr, dict):
+            state.last_dice_roll = DiceRoll(
+                die1=int(dr["die1"]),
+                die2=int(dr["die2"]),
+                total=int(dr["total"]),
+            )
+
+        # Build card-name → category map from the canonical game lists so we
+        # can reconstruct Card objects without re-importing cards.py here.
+        card_category: dict[str, str] = {}
+        for s in state.suspects:
+            card_category[s] = "suspect"
+        for w in state.weapons:
+            card_category[w] = "weapon"
+        for loc in state.locations:
+            card_category[loc] = "location"
+
+        registry = ai_registry or {}
+
+        for p_data in data.get("players", []):
+            name = p_data.get("name")
+            if not isinstance(name, str) or not name.strip():
+                raise ValueError("Each player entry must have a non-empty 'name'")
+
+            is_ai = bool(p_data.get("is_ai", False))
+            ai_type = p_data.get("ai_type")
+
+            if is_ai and ai_type and ai_type in registry:
+                agent = registry[ai_type]()
+                player: Player = AIPlayer(name, agent)
+            else:
+                player = Player(name, is_ai=is_ai)
+
+            player.position = p_data.get("position")
+            player.active = bool(p_data.get("active", True))
+
+            # Restore dealt cards directly — do NOT call add_card() because it
+            # triggers notebook.eliminate() which would corrupt the restored
+            # probability distributions we are about to overwrite below.
+            for card_name in p_data.get("cards", []):
+                category = card_category.get(card_name, "unknown")
+                player.cards.append(Card(card_name, category))
+
+            # Restore Bayesian notebook state.
+            nb_data = p_data.get("notebook")
+            if nb_data is not None and player.notebook is not None:
+                nb = player.notebook
+                if "suspects" in nb_data:
+                    nb.suspects = {k: float(v) for k, v in nb_data["suspects"].items()}
+                if "weapons" in nb_data:
+                    nb.weapons = {k: float(v) for k, v in nb_data["weapons"].items()}
+                if "locations" in nb_data:
+                    nb.locations = {
+                        k: float(v) for k, v in nb_data["locations"].items()
+                    }
+                if "possible_suspects" in nb_data:
+                    nb.possible_suspects = set(nb_data["possible_suspects"])
+                if "possible_weapons" in nb_data:
+                    nb.possible_weapons = set(nb_data["possible_weapons"])
+                if "possible_locations" in nb_data:
+                    nb.possible_locations = set(nb_data["possible_locations"])
+                if "known_cards" in nb_data:
+                    nb.known_cards = set(nb_data["known_cards"])
+
+            state.players.append(player)
+
+        # Resolve winner reference by player name.
+        winner_name = data.get("winner")
+        if winner_name:
+            for p in state.players:
+                if p.name == winner_name:
+                    state.winner = p
+                    break
+
+        return state
+
+
+def _narrow_set_toward(possible_set, preferred: str) -> None:
+    """Remove one non-preferred alternative from possible_set in-place.
+
+    Used by simulate_suggestion to narrow toward the suggested cards without
+    fully eliminating any candidate — the simulation stays conservative.
+    """
+    if not isinstance(possible_set, set) or len(possible_set) <= 1:
+        return
+    if preferred not in possible_set:
+        return
+    removable = sorted(v for v in possible_set if v != preferred)
+    if removable:
+        possible_set.discard(removable[0])

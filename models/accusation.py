@@ -10,6 +10,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from models.validation import validate_card_field
+
 
 class Accusation:
     """Value object for a player's final accusation.
@@ -32,21 +34,9 @@ class Accusation:
             TypeError: If any field is not a string.
             ValueError: If any field is empty after trimming.
         """
-        self.suspect = self._validate_field("suspect", suspect)
-        self.weapon = self._validate_field("weapon", weapon)
-        self.location = self._validate_field("location", location)
-
-    @staticmethod
-    def _validate_field(field_name: str, value: str) -> str:
-        """Validate and normalize accusation field values."""
-        if not isinstance(value, str):
-            raise TypeError(f"{field_name} must be a string")
-
-        normalized = value.strip()
-        if not normalized:
-            raise ValueError(f"{field_name} cannot be empty")
-
-        return normalized
+        self.suspect = validate_card_field("suspect", suspect)
+        self.weapon = validate_card_field("weapon", weapon)
+        self.location = validate_card_field("location", location)
 
     def __repr__(self) -> str:
         """Return a readable debug representation."""
@@ -55,6 +45,8 @@ class Accusation:
             f"Weapon={self.weapon}, "
             f"Location={self.location})"
         )
+
+    __str__ = __repr__
 
 
 def check_accusation(accusation: Any, solution: Mapping[str, str]) -> bool:

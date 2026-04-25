@@ -396,8 +396,12 @@ class StrategicEvaluationMixin:
         return None
 
     def _entropy(self, n: int) -> float:
-        """Return entropy-like uncertainty term for positive cardinalities."""
-        return (-float(n) * log(float(n))) if n > 0 else 0.0
+        """Return Shannon entropy of a uniform distribution over n elements.
+
+        H(uniform(n)) = log(n).  Higher n → higher entropy → more uncertain.
+        Returns 0.0 for n <= 1 (no uncertainty when at most one option).
+        """
+        return log(float(n)) if n > 1 else 0.0
 
     def _resolve_possibility_space(self, state: Any) -> tuple[set[str], set[str], set[str]]:
         """Resolve suspect/weapon/location candidate sets from supported states."""
@@ -630,57 +634,30 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
                     best = suggestion
 
         if best is None:
-            fallback_suspect = safe_random_choice(suspects)
-            fallback_weapon = safe_random_choice(weapons)
-            if fallback_suspect is None or fallback_weapon is None:
-                raise ValueError("Invalid state: empty suggestion space")
-            return (fallback_suspect, fallback_weapon, location)
+            notebook = getattr(search_state, "notebook", None)
+            most_likely = getattr(notebook, "most_likely", None)
+            if callable(most_likely):
+                try:
+                    likely_suspect, likely_weapon, _likely_location = most_likely()
+                    if likely_suspect in suspects and likely_weapon in weapons:
+                        return (likely_suspect, likely_weapon, location)
+                except Exception:
+                    pass
+
+            return (suspects[0], weapons[0], location)
 
         return best
 
     def decide_accusation(self, state: Any) -> bool:
-        """Decide whether to make a final accusation on this turn.
-
-        Decision policy (pure, non-mutating):
-        1. Reject invalid/empty possibility states.
-        2. Accuse only when each category is exactly solved (1 candidate).
-        3. If still uncertain (up to 2 candidates per category), keep playing.
-
-        Returns:
-            bool: True to accuse now, False to continue gathering information.
-        """
+        """Decide whether to accuse using notebook probability confidence."""
         if state is None:
             raise ValueError("Invalid state provided")
 
         search_state = self._coerce_state(state)
-
-        suspects = search_state.possible_suspects
-        weapons = search_state.possible_weapons
-        locations = search_state.possible_locations
-
-        if getattr(self, "debug", False):
-            logger.debug("Accusation Decision Check: %s %s %s", suspects, weapons, locations)
-
-        if not suspects or not weapons or not locations:
-            return False
-
-        solved = (
-            len(suspects) == 1
-            and len(weapons) == 1
-            and len(locations) == 1
-        )
-        if solved:
-            return True
-
-        # Conservative guardrail: avoid premature all-in plays while
-        # probability/risk-aware policies are not yet enabled.
-        uncertainty_threshold = 2
-        if (
-            len(suspects) <= uncertainty_threshold
-            and len(weapons) <= uncertainty_threshold
-            and len(locations) <= uncertainty_threshold
-        ):
-            return False
+        notebook = getattr(search_state, "notebook", None)
+        confidence_check = getattr(notebook, "confident_accusation", None)
+        if callable(confidence_check):
+            return bool(confidence_check())
 
         return False
 
@@ -702,12 +679,25 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
         return coerced
 
     def update_from_clue(self, card) -> None:
-        """Consume revealed-card evidence by eliminating it from notebook."""
+        """Consume revealed-card evidence by eliminating it from notebook.
+
+        _apply_bayesian_notebook_updates already calls eliminate() for the
+        suggesting player before this method is invoked.  The guard inside
+        eliminate() (prob != 0 check) prevents a crash, but we skip the call
+        entirely when the card is already known to avoid wasted work.
+        """
         if card is None or self._last_notebook is None:
             return
 
         name = getattr(card, "name", None)
-        if isinstance(name, str) and name.strip() and hasattr(self._last_notebook, "eliminate"):
+        if not (isinstance(name, str) and name.strip()):
+            return
+
+        known = getattr(self._last_notebook, "known_cards", None)
+        if isinstance(known, set) and name in known:
+            return  # already eliminated by _apply_bayesian_notebook_updates
+
+        if hasattr(self._last_notebook, "eliminate"):
             self._last_notebook.eliminate(name)
 
     def handle_no_reveal(self, suggestion) -> None:
@@ -723,6 +713,16 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
         suspect = getattr(suggestion, "suspect", None)
         weapon = getattr(suggestion, "weapon", None)
         location = getattr(suggestion, "location", None)
+
+        update_no_reveal = getattr(self._last_notebook, "update_no_reveal", None)
+        if (
+            callable(update_no_reveal)
+            and isinstance(suspect, str)
+            and isinstance(weapon, str)
+            and isinstance(location, str)
+        ):
+            update_no_reveal(suspect, weapon, location)
+            return
 
         suspect_set = getattr(self._last_notebook, "possible_suspects", None)
         weapon_set = getattr(self._last_notebook, "possible_weapons", None)
@@ -811,8 +811,8 @@ if __name__ == "__main__":
     engine_state.add_player(opponent)
     engine_state.setup_game()
 
-    player.move("Library")
-    opponent.move("Academic Building")
+    player.move("Auditorium")
+    opponent.move("Student Welfare Center")
 
     valid_moves = engine_state.board.get_valid_moves(player.position, steps=6)
     move = ai.choose_move(engine_state, valid_moves)
