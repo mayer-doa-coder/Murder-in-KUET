@@ -10,6 +10,7 @@ from typing import Any
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.minimax_ai import MinimaxAI
 from ai.monte_carlo_ai import MonteCarloAI
+from ai.mcts_ai import MctsAI
 from ai.negamax_ai import NegamaxAI
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from engine.game_state import GameState
@@ -118,6 +119,7 @@ def _create_metrics() -> dict[str, dict[str, float]]:
         "ExpectiminimaxAI": _blank_metrics(),
         "NegamaxAI": _blank_metrics(),
         "MonteCarloAI": _blank_metrics(),
+        "MctsAI": _blank_metrics(),
     }
 
 
@@ -136,6 +138,13 @@ def _create_comparison_players(
         (
             "AI Player 4",
             MonteCarloAI(simulations=AI_CONFIG.get("MONTE_CARLO_SIMULATIONS")),
+        ),
+        (
+            "AI Player 5",
+            MctsAI(
+                iterations=AI_CONFIG.get("MCTS_ITERATIONS"),
+                exploration_constant=AI_CONFIG.get("MCTS_EXPLORATION_CONSTANT"),
+            ),
         ),
     ]
 
@@ -292,7 +301,7 @@ def _run_ai_performance_comparison() -> None:
     game_runtime_seconds = 0.0
 
     logger.info("=" * 68)
-    logger.info(" Murder in KUET - Minimax vs Expectiminimax vs Negamax vs MonteCarlo Metrics")
+    logger.info(" Murder in KUET - Minimax vs Expectiminimax vs Negamax vs MonteCarlo vs MCTS Metrics")
     logger.info("=" * 68)
 
     for i in range(num_games):

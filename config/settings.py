@@ -8,7 +8,7 @@ from __future__ import annotations
 
 
 GAME_CONFIG = {
-    "MAX_PLAYERS": 4,  # raised to include MonteCarloAI in every comparison run
+    "MAX_PLAYERS": 5,  # raised to include MctsAI in every comparison run
     "AI_DEPTH": 2,
     "SIMULATION_RUNS": 10,
     "MAX_TURNS": 250,

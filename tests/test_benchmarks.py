@@ -19,6 +19,7 @@ import pytest
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.minimax_ai import MinimaxAI
 from ai.monte_carlo_ai import MonteCarloAI
+from ai.mcts_ai import MctsAI
 from ai.negamax_ai import NegamaxAI
 from engine.game_state import GameState
 from models.player import AIPlayer
@@ -81,6 +82,11 @@ def _mc(sims: int = 4) -> MonteCarloAI:
     return agent
 
 
+def _mcts(iterations: int = 20) -> MctsAI:
+    """Return a fast MctsAI suitable for benchmark games."""
+    return MctsAI(iterations=iterations)
+
+
 # ---------------------------------------------------------------------------
 # Stability: all four agents must complete games without crashing
 # ---------------------------------------------------------------------------
@@ -114,14 +120,21 @@ class TestStability:
             winner = state.run_game(max_turns=MAX_TURNS, verbose=False)
             assert winner is None or hasattr(winner, "name")
 
-    def test_all_four_together_completes(self):
-        """Four-player game with all AI types — the main production scenario."""
+    def test_mcts_completes(self):
+        for i in range(N_GAMES):
+            state = _build_head_to_head(_mcts(), MinimaxAI(depth=2), BASE_SEED + i)
+            winner = state.run_game(max_turns=MAX_TURNS, verbose=False)
+            assert winner is None or hasattr(winner, "name")
+
+    def test_all_five_together_completes(self):
+        """Five-player game with all AI types — the main production scenario."""
         random.seed(BASE_SEED)
         state = GameState()
         state.add_player(AIPlayer("Minimax", MinimaxAI(depth=2)))
         state.add_player(AIPlayer("Expecti", ExpectiminimaxAI(depth=2)))
         state.add_player(AIPlayer("Negamax", NegamaxAI(depth=2)))
         state.add_player(AIPlayer("MC", _mc(sims=3)))
+        state.add_player(AIPlayer("MCTS", _mcts(iterations=20)))
         state.setup_game()
         for p in state.players:
             p.move("Library")
@@ -301,6 +314,7 @@ def test_print_comparison_summary(capsys):
         ("ExpectiminimaxAI", ExpectiminimaxAI(depth=2)),
         ("NegamaxAI",        NegamaxAI(depth=2)),
         ("MonteCarloAI",     _mc(sims=4)),
+        ("MctsAI",           _mcts(iterations=20)),
     ]
     opponent = MinimaxAI(depth=2)
 

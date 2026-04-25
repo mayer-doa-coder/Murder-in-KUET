@@ -141,6 +141,7 @@ class SimulationRunner:
             "ExpectiminimaxAI": self._blank_agent_metrics(),
             "NegamaxAI": self._blank_agent_metrics(),
             "MonteCarloAI": self._blank_agent_metrics(),
+            "MctsAI": self._blank_agent_metrics(),
         }
 
     def _extract_metrics(self, metrics_or_result: Dict[str, Any]) -> Dict[str, Dict[str, float]]:

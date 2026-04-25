@@ -218,20 +218,20 @@ class Visualizer:
             "best_accuracy_ai": best_accuracy_ai,
         }
 
-        print("\n===== AI INSIGHTS =====")
-        print(f"Best AI (Win Rate): {best_ai}")
-        print(f"Fastest AI: {fastest_ai}")
-        print(f"Most Efficient AI (Fewest Moves): {most_efficient_ai}")
-        print(f"Most Accurate AI: {best_accuracy_ai}")
+        logging.info("===== AI INSIGHTS =====")
+        logging.info("Best AI (Win Rate): %s", best_ai)
+        logging.info("Fastest AI: %s", fastest_ai)
+        logging.info("Most Efficient AI (Fewest Moves): %s", most_efficient_ai)
+        logging.info("Most Accurate AI: %s", best_accuracy_ai)
 
         return insights
 
     def show_dashboard(self) -> None:
-        """Display AI performance metrics in a clean CLI format."""
+        """Display AI performance metrics in a clean log format."""
         if not self.metrics:
             raise ValueError("Metrics data is empty")
 
-        print("\n===== AI PERFORMANCE DASHBOARD =====")
+        logging.info("===== AI PERFORMANCE DASHBOARD =====")
 
         for ai_name, data in self.metrics.items():
             wins = float(data.get("wins", 0) or 0)
@@ -242,30 +242,27 @@ class Visualizer:
             avg_moves = total_moves / max(wins, 1.0)
             avg_time = total_time / max(decisions, 1.0)
 
-            print(f"\n{ai_name}")
-            print(f"Wins: {int(wins)}")
-            print(f"Avg Moves: {avg_moves:.2f}")
-            print(f"Avg Decision Time: {avg_time:.5f}s")
+            logging.info("%s | Wins: %d | Avg Moves: %.2f | Avg Decision Time: %.5fs",
+                         ai_name, int(wins), avg_moves, avg_time)
 
         sorted_ai = self.get_ranking()
 
-        print("\n--- Ranking ---")
+        logging.info("--- Ranking ---")
         for index, ai_name in enumerate(sorted_ai, 1):
-            print(f"{index}. {ai_name}")
+            logging.info("%d. %s", index, ai_name)
 
-        print("\n----------------------------------")
+        logging.info("----------------------------------")
 
     def show_table(self) -> pd.DataFrame:
-        """Display comparative metrics table in CLI and return dataframe."""
+        """Display comparative metrics table and return dataframe."""
         if not self.metrics:
             raise ValueError("Metrics data is empty")
 
         table = self._build_metrics_table()
-        print("\n=== Metrics Table ===")
         if table.empty:
-            print("No metrics available")
+            logging.info("Metrics Table: No metrics available")
         else:
-            print(table.to_string(index=False))
+            logging.info("=== Metrics Table ===\n%s", table.to_string(index=False))
 
         return table
 

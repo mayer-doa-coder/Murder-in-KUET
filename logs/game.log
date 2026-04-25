@@ -93178,3 +93178,8 @@
 2026-04-18 17:29:25,513 - INFO - __main__ - No-Winner Games: 9
 2026-04-18 17:29:25,513 - INFO - __main__ - Average Game Runtime: 20.9940 sec
 2026-04-18 17:29:25,513 - INFO - __main__ - ====================================================================
+2026-04-23 21:24:43,539 - INFO - main - Game finished. Winner: MonteCarloAI
+2026-04-23 21:45:08,616 - INFO - main - Game finished. Winner: MonteCarloAI
+2026-04-23 21:45:12,898 - INFO - main - Game finished. Winner: MonteCarloAI
+2026-04-23 21:45:18,216 - INFO - main - Game finished. Winner: MonteCarloAI
+2026-04-23 21:45:21,992 - INFO - main - Game finished. Winner: MonteCarloAI

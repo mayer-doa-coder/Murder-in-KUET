@@ -121,6 +121,8 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
             return float(expected_value)
 
         # node_type == "min"
+        # After the opponent's move, it is our turn again (max).
+        # Correct cycle: max → chance → min → max → chance → min → ...
         min_eval = inf
         moves = self._get_possible_moves(state)
 
@@ -133,7 +135,7 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
             if new_state is None:
                 continue
             progressed = True
-            eval_score = self.expectiminimax(new_state, depth - 1, "chance")
+            eval_score = self.expectiminimax(new_state, depth - 1, "max")
             min_eval = min(min_eval, eval_score)
 
         if not progressed:
@@ -174,12 +176,27 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
         prob_reveal = 1.0 / num_remaining
         prob_no_reveal = 1.0 - prob_reveal
 
-        # Reveal branch: eliminate the most likely suspect as a proxy for
-        # "a card was shown", narrowing the solution space.
+        # Reveal branch: eliminate the highest-probability suspect as a proxy
+        # for "a card was shown", narrowing the solution space.
         state_reveal = deepcopy(state)
-        r_suspects = getattr(state_reveal, "possible_suspects", None)
-        if isinstance(r_suspects, set) and len(r_suspects) > 1:
-            r_suspects.discard(sorted(r_suspects)[0])
+        notebook = self._get_current_notebook(state_reveal)
+        eliminated = False
+        if notebook is not None:
+            s_probs = getattr(notebook, "suspects", {})
+            r_suspects = getattr(notebook, "possible_suspects", None)
+            if isinstance(r_suspects, set) and len(r_suspects) > 1 and s_probs:
+                best_s = max(r_suspects, key=lambda s: s_probs.get(s, 0.0))
+                update_reveal = getattr(notebook, "update_reveal", None)
+                if callable(update_reveal):
+                    try:
+                        update_reveal(best_s)
+                        eliminated = True
+                    except Exception:
+                        pass
+        if not eliminated:
+            r_suspects = getattr(state_reveal, "possible_suspects", None)
+            if isinstance(r_suspects, set) and len(r_suspects) > 1:
+                r_suspects.discard(next(iter(r_suspects)))
 
         # No-reveal branch: keep the state as-is (no elimination needed;
         # probability boost is handled by the notebook at the engine level).

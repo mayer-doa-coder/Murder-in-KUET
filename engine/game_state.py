@@ -787,9 +787,8 @@ class GameState:
 
             if move in valid_moves:
                 player.move(move)
-
-            if move is not None:
-                assert move in valid_moves, "Invalid move selected"
+            elif move is not None:
+                logger.warning("Move '%s' not in valid_moves; skipping movement", move)
 
             self.current_location = player.position
             if verbose:
@@ -904,6 +903,177 @@ class GameState:
             turns_played += 1
 
         return self.winner
+
+    # ── Serialization ──────────────────────────────────────────────────────────
+
+    def to_dict(self) -> dict:
+        """Serialize the game state to a JSON-compatible dictionary.
+
+        The hidden solution is NOT included.  Pass ``_solution`` separately
+        when the full state must survive a round-trip through the API.
+        """
+        players_data = []
+        for player in self.players:
+            # Unwrap InstrumentedAI or any thin wrapper that exposes ``_agent``.
+            ai_type = None
+            if player.is_ai and player.ai_agent is not None:
+                core = getattr(player.ai_agent, "_agent", player.ai_agent)
+                ai_type = type(core).__name__
+
+            notebook_data = None
+            nb = getattr(player, "notebook", None)
+            if nb is not None:
+                notebook_data = {
+                    "suspects": dict(nb.suspects),
+                    "weapons": dict(nb.weapons),
+                    "locations": dict(nb.locations),
+                    "possible_suspects": sorted(nb.possible_suspects),
+                    "possible_weapons": sorted(nb.possible_weapons),
+                    "possible_locations": sorted(nb.possible_locations),
+                    "known_cards": sorted(nb.known_cards),
+                }
+
+            players_data.append({
+                "name": player.name,
+                "is_ai": player.is_ai,
+                "ai_type": ai_type,
+                "position": player.position,
+                "active": player.active,
+                "cards": [c.name for c in player.cards],
+                "notebook": notebook_data,
+            })
+
+        dice_data = None
+        if self.last_dice_roll is not None:
+            dice_data = {
+                "die1": self.last_dice_roll.die1,
+                "die2": self.last_dice_roll.die2,
+                "total": self.last_dice_roll.total,
+            }
+
+        return {
+            "players": players_data,
+            "current_turn": self.current_turn,
+            "game_over": self.game_over,
+            "winner": self.winner.name if self.winner is not None else None,
+            "suspects": list(self.suspects),
+            "weapons": list(self.weapons),
+            "locations": list(self.locations),
+            "current_location": self.current_location,
+            "last_dice_roll": dice_data,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict, ai_registry: dict | None = None) -> "GameState":
+        """Reconstruct a GameState from a dictionary produced by ``to_dict()``.
+
+        The caller must supply ``_solution`` inside *data* (or as a top-level
+        key) so that accusation resolution works correctly.  AI agents are
+        re-created fresh from *ai_registry*; their search trees are transient
+        and are not preserved across serialization boundaries.  The persisted
+        Bayesian notebook probabilities on each player carry all accumulated
+        game knowledge.
+
+        Args:
+            data:        Dict from ``to_dict()`` plus a ``"_solution"`` key.
+            ai_registry: Mapping of AI-type name → class.  When *None* or
+                         when an ``ai_type`` is not found, the player is
+                         created as a non-agent AI player (no decisions).
+
+        Returns:
+            GameState: Ready for ``run_turn()`` without calling ``setup_game()``.
+
+        Raises:
+            ValueError: If required fields are absent or malformed.
+            TypeError:  If *data* is not a dict.
+        """
+        from engine.cards import Card
+        from engine.dice import DiceRoll
+        from models.player import AIPlayer, Player
+
+        if not isinstance(data, dict):
+            raise TypeError("data must be a dict")
+
+        state = cls()
+        state.current_turn = int(data.get("current_turn", 0))
+        state.game_over = bool(data.get("game_over", False))
+        state.current_location = data.get("current_location")
+        state.solution = data.get("_solution")
+
+        dr = data.get("last_dice_roll")
+        if isinstance(dr, dict):
+            state.last_dice_roll = DiceRoll(
+                die1=int(dr["die1"]),
+                die2=int(dr["die2"]),
+                total=int(dr["total"]),
+            )
+
+        # Build card-name → category map from the canonical game lists so we
+        # can reconstruct Card objects without re-importing cards.py here.
+        card_category: dict[str, str] = {}
+        for s in state.suspects:
+            card_category[s] = "suspect"
+        for w in state.weapons:
+            card_category[w] = "weapon"
+        for loc in state.locations:
+            card_category[loc] = "location"
+
+        registry = ai_registry or {}
+
+        for p_data in data.get("players", []):
+            name = p_data.get("name")
+            if not isinstance(name, str) or not name.strip():
+                raise ValueError("Each player entry must have a non-empty 'name'")
+
+            is_ai = bool(p_data.get("is_ai", False))
+            ai_type = p_data.get("ai_type")
+
+            if is_ai and ai_type and ai_type in registry:
+                agent = registry[ai_type]()
+                player: Player = AIPlayer(name, agent)
+            else:
+                player = Player(name, is_ai=is_ai)
+
+            player.position = p_data.get("position")
+            player.active = bool(p_data.get("active", True))
+
+            # Restore dealt cards directly — do NOT call add_card() because it
+            # triggers notebook.eliminate() which would corrupt the restored
+            # probability distributions we are about to overwrite below.
+            for card_name in p_data.get("cards", []):
+                category = card_category.get(card_name, "unknown")
+                player.cards.append(Card(card_name, category))
+
+            # Restore Bayesian notebook state.
+            nb_data = p_data.get("notebook")
+            if nb_data is not None and player.notebook is not None:
+                nb = player.notebook
+                if "suspects" in nb_data:
+                    nb.suspects = {k: float(v) for k, v in nb_data["suspects"].items()}
+                if "weapons" in nb_data:
+                    nb.weapons = {k: float(v) for k, v in nb_data["weapons"].items()}
+                if "locations" in nb_data:
+                    nb.locations = {k: float(v) for k, v in nb_data["locations"].items()}
+                if "possible_suspects" in nb_data:
+                    nb.possible_suspects = set(nb_data["possible_suspects"])
+                if "possible_weapons" in nb_data:
+                    nb.possible_weapons = set(nb_data["possible_weapons"])
+                if "possible_locations" in nb_data:
+                    nb.possible_locations = set(nb_data["possible_locations"])
+                if "known_cards" in nb_data:
+                    nb.known_cards = set(nb_data["known_cards"])
+
+            state.players.append(player)
+
+        # Resolve winner reference by player name.
+        winner_name = data.get("winner")
+        if winner_name:
+            for p in state.players:
+                if p.name == winner_name:
+                    state.winner = p
+                    break
+
+        return state
 
 
 def _narrow_set_toward(possible_set, preferred: str) -> None:
