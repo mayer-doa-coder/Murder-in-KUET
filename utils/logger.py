@@ -5,8 +5,10 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-
-LOG_FILE_PATH = Path("logs") / "game.log"
+# Resolve the project root (two levels up from utils/) so logs always land
+# in the project's own logs/ directory regardless of the working directory.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+LOG_FILE_PATH = _PROJECT_ROOT / "logs" / "game.log"
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 
 

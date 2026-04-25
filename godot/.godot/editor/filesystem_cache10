@@ -1,0 +1,57 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1777134367
+AI_VS_AI_GUIDELINE.md::TextFile::-1::1777134063::0::1::::<><><>0<>0<><>::
+README.md::TextFile::-1::1777036837::0::1::::<><><>0<>0<><>::
+::res://assets/::1777134542
+board.png::CompressedTexture2D::7455006629510662388::1777036254::1777134781::1::::<><><>0<>0<>f78ee851d579e920f770262e99f33e67<>res://.godot/imported/board.png-e85965e742429a2317ea878bbbe6fb80.ctex::
+::res://assets/Room/::1777134490
+Amar Ekushey Hall.png::CompressedTexture2D::3397363373207684601::1777036254::1777134781::1::::<><><>0<>0<>c9af2dcc7e195086aa518590f430876f<>res://.godot/imported/Amar Ekushey Hall.png-ce569f5ef39de04b7b51db795e46c6ff.ctex::
+Auditorium.png::CompressedTexture2D::5913257708330434827::1777036254::1777134781::1::::<><><>0<>0<>e8cc00e5e6ffbc9368f9ce2d858e77fe<>res://.godot/imported/Auditorium.png-cf5ed8710171fb1ea8041e8c47f88b5f.ctex::
+Begum Rokeya Hall.png::CompressedTexture2D::8071576492794569492::1777036254::1777134781::1::::<><><>0<>0<>ec9fa86f50ed0cba4772083c47ab7f25<>res://.godot/imported/Begum Rokeya Hall.png-70c1d1777cb42022cd162c6d181da14c.ctex::
+Cafeteria.png::CompressedTexture2D::6081036554187560896::1777036254::1777134781::1::::<><><>0<>0<>4f2f6948ea4331d20eb55852dbaa0e48<>res://.godot/imported/Cafeteria.png-7c603928228ee44d21fc83def3c0d98c.ctex::
+Central Field.png::CompressedTexture2D::3102758767855301157::1777036254::1777134781::1::::<><><>0<>0<>932ef935ae16148b52dd3cc0f7b2c166<>res://.godot/imported/Central Field.png-532a4943113736a2d28015c229715ac5.ctex::
+IT Park.png::CompressedTexture2D::670128150412103376::1777036254::1777134781::1::::<><><>0<>0<>91d78444cf90dde5d0d3a5ccede40249<>res://.godot/imported/IT Park.png-00ac792a9f8c6dfea4f3ea913fadc093.ctex::
+Lotus Pond.png::CompressedTexture2D::6754873475797548759::1777036254::1777134781::1::::<><><>0<>0<>d90ec6bd16163f6e36fe9d47a5e4f786<>res://.godot/imported/Lotus Pond.png-ca8904b75ddd6ac6cf1a8ed452cac985.ctex::
+Pocket Gate.png::CompressedTexture2D::6617135237189365885::1777036254::1777134781::1::::<><><>0<>0<>fb0c37452c9b58f0872bafb3ae561d8f<>res://.godot/imported/Pocket Gate.png-667ea6098d328a847eb5625dd54db477.ctex::
+Student Welfare Center.png::CompressedTexture2D::5284396649172631541::1777036254::1777134781::1::::<><><>0<>0<>060286a14d1267e1011c7f192fbb397a<>res://.godot/imported/Student Welfare Center.png-9e75779c01f817794e727b126438f0a1.ctex::
+::res://assets/Suspect/::1777134498
+Chef.png::CompressedTexture2D::5663655459705622465::1777036254::1777134781::1::::<><><>0<>0<>ac0668aa9c08897e0c2a1d51538a0707<>res://.godot/imported/Chef.png-be97777fe6da923adc66218552bb59c4.ctex::
+Hallboy.png::CompressedTexture2D::7778633373385581878::1777036254::1777134781::1::::<><><>0<>0<>f85aa9130f8d27e5c0a6dbf1f1e59064<>res://.godot/imported/Hallboy.png-5336e49cdda3bdc63e202c5507f81f45.ctex::
+Security Guard.png::CompressedTexture2D::7539092490343002707::1777036254::1777134781::1::::<><><>0<>0<>8be597aabdb99d6d337779353c933a37<>res://.godot/imported/Security Guard.png-beaaa122aac44617013f341358fd8544.ctex::
+Shopkeeper.png::CompressedTexture2D::8189189023409705161::1777036254::1777134781::1::::<><><>0<>0<>f485d5cdac33981893eefea0130adad3<>res://.godot/imported/Shopkeeper.png-17052dfc633a6cef93136ba08aef701f.ctex::
+Student Boy.png::CompressedTexture2D::7223519004638834125::1777036254::1777134781::1::::<><><>0<>0<>e9dd924c250ad446cdadcb089e12b72d<>res://.godot/imported/Student Boy.png-bd74f1a9d0c7f47cd1267afea8b951c7.ctex::
+Student Girl.png::CompressedTexture2D::6438183069509394439::1777036254::1777134781::1::::<><><>0<>0<>9cb985636b55ad2112c8f815a318cea5<>res://.godot/imported/Student Girl.png-8f10369822519588e7a5c632611eadb2.ctex::
+::res://assets/Weapon/::1777134531
+Anti Cutter.png::CompressedTexture2D::3128288530851576431::1777036254::1777134781::1::::<><><>0<>0<>f8d472dc9962f2609c74a2937863f8a8<>res://.godot/imported/Anti Cutter.png-2bd96438326f3b39fcafa5e46db3b9f4.ctex::
+Knife.png::CompressedTexture2D::2739162674196150613::1777036254::1777134781::1::::<><><>0<>0<>bf04f75de99e023f09953d0338727891<>res://.godot/imported/Knife.png-b7dde48eaa4e4529d3b4781b1688d8a7.ctex::
+Laptop Charger.png::CompressedTexture2D::3500915487838546120::1777036254::1777134781::1::::<><><>0<>0<>c8c080845e9e50030c36f0b13c9ea2a8<>res://.godot/imported/Laptop Charger.png-34831c7bc838c214d848447619f11f88.ctex::
+Revolver.png::CompressedTexture2D::2862078710689612209::1777036254::1777134781::1::::<><><>0<>0<>797af099a2effeeaa7862aa3ab61bcde<>res://.godot/imported/Revolver.png-e25e8cf95355ac03db6ab02d4134d9b0.ctex::
+Rope.png::CompressedTexture2D::8215883556472124838::1777036254::1777134781::1::::<><><>0<>0<>8a9ae964265defd962010d06722d2b82<>res://.godot/imported/Rope.png-aba29fd33d0ef9d7fcf91328b0f6dd75.ctex::
+Sleeping Pills.png::CompressedTexture2D::1876662578277583285::1777036254::1777134781::1::::<><><>0<>0<>262d0025fe16c4be530202c335330ba6<>res://.godot/imported/Sleeping Pills.png-d5d4ecdd807e2ac215f419881a6ebd20.ctex::
+::res://data/::1777036932
+board_layout.json::JSON::-1::1777036746::0::1::::<><><>0<>0<><>::
+card_aliases.json::JSON::-1::1777036746::0::1::::<><><>0<>0<><>::
+signals.md::TextFile::-1::1777036932::0::1::::<><><>0<>0<><>::
+::res://scenes/::1777036922
+CardPanel.tscn::PackedScene::-1::1777036897::0::1::::<><><>0<>0<><>::res://scripts/ui/CardPanel.gd
+Cutscene.tscn::PackedScene::-1::1777036922::0::1::::<><><>0<>0<><>::res://scripts/ui/Cutscene.gd
+EndGame.tscn::PackedScene::-1::1777036922::0::1::::<><><>0<>0<><>::res://scripts/ui/EndGame.gd
+GameBoard.tscn::PackedScene::-1::1777134720::0::1::::<><><>0<>0<><>::res://scripts/game/GameBoard.gd<>res://scenes/HUD.tscn
+HUD.tscn::PackedScene::-1::1777036897::0::1::::<><><>0<>0<><>::res://scripts/ui/HUD.gd
+MainMenu.tscn::PackedScene::-1::1777036870::0::1::::<><><>0<>0<><>::res://scripts/ui/MainMenu.gd
+ModeSelect.tscn::PackedScene::-1::1777036870::0::1::::<><><>0<>0<><>::res://scripts/ui/ModeSelect.gd
+::res://scripts/::1777036730
+::res://scripts/autoload/::1777134368
+ApiClient.gd::GDScript::7861059242708525039::1777134625::0::1::::<>Node<><>0<>0<><>::
+AssetDB.gd::GDScript::3924783425858593936::1777036772::0::1::::<>Node<><>0<>0<><>::
+GameSession.gd::GDScript::7203381902458999030::1777036772::0::1::::<>Node<><>0<>0<><>::
+::res://scripts/game/::1777134368
+GameBoard.gd::GDScript::839143187878801779::1777134726::0::1::::<>Node2D<><>0<>0<><>::
+TurnController.gd::GDScript::5502367181176538999::1777036837::0::1::::<>Node<><>0<>0<><>::
+::res://scripts/ui/::1777134368
+CardPanel.gd::GDScript::1821781934941366679::1777134655::0::1::::<>Control<><>0<>0<><>::
+Cutscene.gd::GDScript::2782451654125548646::1777036922::0::1::::<>Control<><>0<>0<><>::
+EndGame.gd::GDScript::8804111863887978794::1777036809::0::1::::<>Control<><>0<>0<><>::
+HUD.gd::GDScript::7448114561950671088::1777134642::0::1::::<>Control<><>0<>0<><>::
+MainMenu.gd::GDScript::8489395548692391235::1777036796::0::1::::<>Control<><>0<>0<><>::
+ModeSelect.gd::GDScript::7628091245622696589::1777134638::0::1::::<>Control<><>0<>0<><>::

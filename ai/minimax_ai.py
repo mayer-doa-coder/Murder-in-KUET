@@ -811,8 +811,8 @@ if __name__ == "__main__":
     engine_state.add_player(opponent)
     engine_state.setup_game()
 
-    player.move("Library")
-    opponent.move("Academic Building")
+    player.move("Auditorium")
+    opponent.move("Student Welfare Center")
 
     valid_moves = engine_state.board.get_valid_moves(player.position, steps=6)
     move = ai.choose_move(engine_state, valid_moves)

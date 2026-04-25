@@ -2,10 +2,11 @@
 server.py - API Server Module
 
 Purpose: Provides REST API endpoints for the game.
-This module handles web-based gameplay, HTTP requests, and multiplayer functionality.
+Re-exports the Flask application from services.api so that both
+`from api.server import app` and `from services.api import app`
+resolve to the same application object.
 """
 
-# TODO: set up Flask app
-# TODO: POST /game/start  - start a new game
-# TODO: GET  /game/status - return current game state
-# TODO: POST /game/action - submit a player action
+from services.api import app  # noqa: F401  re-export
+
+__all__ = ["app"]

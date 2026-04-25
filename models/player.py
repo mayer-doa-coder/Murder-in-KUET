@@ -5,21 +5,20 @@ Purpose: Defines player objects and manages player-specific data.
 This module handles player attributes and lightweight player interfaces.
 """
 
-from models.suggestion import Suggestion
-from models.accusation import Accusation
-from engine.cards import suspects, weapons, locations
 from ai.notebook import Notebook
+from engine.cards import locations, suspects, weapons
+from models.accusation import Accusation
+from models.suggestion import Suggestion
 
 
 class Player:
-
     def __init__(self, name: str, is_ai: bool = False):
         self.name = name
         self.is_ai = is_ai
         self.ai_agent = None
-        self.cards = []       # cards dealt to this player
+        self.cards = []  # cards dealt to this player
         self.position = None  # current location on the KUET board
-        self.active = True    # set to False on a wrong accusation
+        self.active = True  # set to False on a wrong accusation
         self.notebook = Notebook(suspects, weapons, locations)
 
     def add_card(self, card):
@@ -119,10 +118,12 @@ class Player:
             weapon = suggestion["weapon"]
             location = suggestion["location"]
 
-        for card in self.cards:
-            if card.name in (suspect, weapon, location):
-                return card
-        return None
+        from utils.helpers import safe_random_choice
+
+        matching = [
+            card for card in self.cards if card.name in (suspect, weapon, location)
+        ]
+        return safe_random_choice(matching)
 
     def take_turn(self, state):
         """Return the AI agent for the game loop to execute decisions.

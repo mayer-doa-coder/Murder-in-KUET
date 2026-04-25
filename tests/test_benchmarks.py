@@ -46,7 +46,7 @@ def _build_head_to_head(agent_a, agent_b, seed: int) -> GameState:
     state.add_player(AIPlayer("B", agent_b))
     state.setup_game()
     for p in state.players:
-        p.move("Library")
+        p.move("Auditorium")
     return state
 
 
@@ -137,7 +137,7 @@ class TestStability:
         state.add_player(AIPlayer("MCTS", _mcts(iterations=20)))
         state.setup_game()
         for p in state.players:
-            p.move("Library")
+            p.move("Auditorium")
         winner = state.run_game(max_turns=MAX_TURNS, verbose=False)
         assert winner is None or hasattr(winner, "name")
 
@@ -165,7 +165,7 @@ class TestBehaviouralDifference:
             s.add_player(AIPlayer("C", mc))
             s.setup_game()
             for p in s.players:
-                p.move("Library")
+                p.move("Auditorium")
             valid = s.get_possible_moves()
             if len(valid) < 2:
                 continue
@@ -191,7 +191,7 @@ class TestBehaviouralDifference:
         state.add_player(AIPlayer("MM", mm))
         state.setup_game()
         for p in state.players:
-            p.move("Library")
+            p.move("Auditorium")
 
         # With uniform priors, MC should NOT accuse.
         mc_decision = mc.decide_accusation(state)
@@ -236,7 +236,7 @@ def _mc_vs_minimax_state():
     state.add_player(AIPlayer("MM", mm))
     state.setup_game()
     for p in state.players:
-        p.move("Library")
+        p.move("Auditorium")
     return state, mc, mm
 
 
@@ -250,7 +250,7 @@ class TestDecisionTiming:
     def test_mc_decision_time_is_positive(self):
         """MC should spend measurable time on decisions (not instant)."""
         state, mc, _ = _mc_vs_minimax_state()
-        valid = state.get_possible_moves() or ["Library"]
+        valid = state.get_possible_moves() or ["Auditorium"]
         t0 = time.perf_counter()
         mc.choose_move(state, valid)
         elapsed = time.perf_counter() - t0
@@ -258,7 +258,7 @@ class TestDecisionTiming:
 
     def test_minimax_decision_time_is_positive(self):
         state, _, mm = _mc_vs_minimax_state()
-        valid = state.get_possible_moves() or ["Library"]
+        valid = state.get_possible_moves() or ["Auditorium"]
         t0 = time.perf_counter()
         mm.choose_move(state, valid)
         elapsed = time.perf_counter() - t0
@@ -271,7 +271,7 @@ class TestDecisionTiming:
         state.add_player(AIPlayer("B", MinimaxAI(depth=2)))
         state.setup_game()
         for p in state.players:
-            p.move("Library")
+            p.move("Auditorium")
 
         # Force 10+ valid moves by putting player at a well-connected location.
         valid = state.get_possible_moves()
@@ -333,3 +333,4 @@ def test_print_comparison_summary(capsys):
                 f"{r['win_rate']:>7.1%}  {r['avg_game_time']:>8.3f}s"
             )
         print("=" * 60)
+

@@ -18,32 +18,32 @@ class Card:
 
 
 suspects = [
-    "Hashem Sir",
-    "Opi Sir",
-    "Tawhid",
-    "Shejan",
-    "Hasina",
-    "Trump",
+    "Chef",
+    "Hallboy",
+    "Security Guard",
+    "Shopkeeper",
+    "Student Girl",
+    "Student Boy",
 ]
 
 weapons = [
     "Knife",
-    "Poison",
-    "Wrench",
+    "Sleeping Pills",
+    "Revolver",
     "Laptop Charger",
     "Anti Cutter",
-    "Pipe",
+    "Rope",
 ]
 
 locations = [
-    "Library",
-    "Academic Building",
+    "Auditorium",
+    "Student Welfare Center",
     "Amar Ekushey Hall",
     "Cafeteria",
     "Central Field",
     "IT Park",
-    "Rokeya Hall",
-    "VC Room",
+    "Begum Rokeya Hall",
+    "Lotus Pond",
     "Pocket Gate",
 ]
 

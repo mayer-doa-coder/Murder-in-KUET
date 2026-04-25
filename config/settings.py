@@ -6,10 +6,9 @@ throughout the gameplay and AI orchestration code.
 
 from __future__ import annotations
 
-
 GAME_CONFIG = {
     "MAX_PLAYERS": 5,  # raised to include MctsAI in every comparison run
-    "AI_DEPTH": 2,
+    "AI_DEPTH": 2,  # Legacy fallback depth; prefer AI_CONFIG keys per agent type
     "SIMULATION_RUNS": 10,
     "MAX_TURNS": 250,
     "BASE_RANDOM_SEED": 2026,

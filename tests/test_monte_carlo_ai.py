@@ -17,8 +17,8 @@ from models.player import AIPlayer
 # ---------------------------------------------------------------------------
 
 SUSPECTS = ["Rahim", "Karim", "Jalil", "Bashir", "Fatima", "Sumaiya"]
-WEAPONS = ["Knife", "Pipe", "Rope", "Wrench", "Revolver", "Candlestick"]
-LOCATIONS = ["Library", "Lab", "Cafeteria", "Gym", "Office", "Auditorium"]
+WEAPONS = ["Knife", "Rope", "Rope", "Revolver", "Revolver", "Candlestick"]
+LOCATIONS = ["Auditorium", "Lab", "Cafeteria", "Gym", "Office", "Auditorium"]
 
 
 def _build_two_player_state(simulations: int = 3) -> tuple[GameState, AIPlayer, MonteCarloAI]:
@@ -33,7 +33,7 @@ def _build_two_player_state(simulations: int = 3) -> tuple[GameState, AIPlayer, 
     state.add_player(player)
     state.add_player(opponent)
     state.setup_game()
-    player.move("Library")
+    player.move("Auditorium")
     return state, player, agent
 
 
@@ -263,7 +263,7 @@ class TestIntegration:
             state.add_player(AIPlayer(f"Player {i}", MonteCarloAI(simulations=2)))
         state.setup_game()
         for p in state.players:
-            p.move("Library")
+            p.move("Auditorium")
 
         winner = state.run_game(max_turns=30, verbose=False)
         # Winner is a player or None (turn cap); either is valid — no exception = pass.
@@ -432,8 +432,8 @@ class TestEarlyStopping:
         state, _, _ = _build_two_player_state()
         agent = MonteCarloAI(simulations=1)
         agent.early_stop_enabled = True
-        result = agent.choose_move(state, ["Library"])
-        assert result == "Library"
+        result = agent.choose_move(state, ["Auditorium"])
+        assert result == "Auditorium"
 
 
 class TestEvaluateMoveSigsOverride:
@@ -442,11 +442,12 @@ class TestEvaluateMoveSigsOverride:
     def test_sims_override_does_not_mutate_self(self):
         state, _, agent = _build_two_player_state(simulations=8)
         original = agent.simulations
-        agent.evaluate_move(state, "Library", sims=2)
+        agent.evaluate_move(state, "Auditorium", sims=2)
         assert agent.simulations == original
 
     def test_none_sims_falls_back_to_default(self):
         """Passing sims=None should behave identically to omitting it."""
         state, _, agent = _build_two_player_state(simulations=2)
-        r1 = agent.evaluate_move(state, "Library", sims=None)
+        r1 = agent.evaluate_move(state, "Auditorium", sims=None)
         assert 0.0 <= r1 <= 1.0
+

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from analytics.visualizer import Visualizer
-from main import run_single_game
+from services.game_runner import run_single_game
 
 
 def _run_single_game_from_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -53,13 +53,15 @@ class SimulationRunner:
             for i in range(num_games)
         ]
 
-    def _aggregate_results(self, results: List[Dict[str, Any]], num_games: int) -> Dict[str, Any]:
+    def _aggregate_results(
+        self, results: List[Dict[str, Any]], num_games: int
+    ) -> Dict[str, Any]:
         """Aggregate per-game outputs into AI-level metrics and summary."""
         metrics = self._create_metrics()
 
         for result in results:
             winner = result.get("winner")
-            moves = int(result.get("moves", 0) or 0)
+            moves = int(result.get("total_moves", result.get("moves", 0)) or 0)
             logging.info("Winner: %s, Moves: %s", winner, moves)
 
             per_game_metrics = result.get("metrics", {})
@@ -68,32 +70,64 @@ class SimulationRunner:
                     if ai_name not in metrics or not isinstance(data, dict):
                         continue
                     metrics[ai_name]["wins"] += float(data.get("wins", 0) or 0)
-                    metrics[ai_name]["moves"] += float(data.get("total_moves", data.get("moves", 0)) or 0)
-                    metrics[ai_name]["decision_time"] += float(data.get("decision_time", 0.0) or 0.0)
-                    metrics[ai_name]["decisions"] += float(data.get("decisions", 0) or 0)
-                    metrics[ai_name]["correct_accusations"] += float(data.get("correct_accusations", 0) or 0)
-                    metrics[ai_name]["wrong_accusations"] += float(data.get("wrong_accusations", 0) or 0)
-                    metrics[ai_name]["total_turns"] += float(data.get("total_turns", 0) or 0)
-                    metrics[ai_name]["suggestion_success"] += float(data.get("suggestion_success", 0) or 0)
-                    metrics[ai_name]["suggestion_total"] += float(data.get("suggestion_total", 0) or 0)
+                    metrics[ai_name]["games_played"] += float(
+                        data.get("games_played", 1) or 1
+                    )
+                    metrics[ai_name]["total_moves"] += float(
+                        data.get("total_moves", data.get("moves", 0)) or 0
+                    )
+                    metrics[ai_name]["decision_time"] += float(
+                        data.get("decision_time", 0.0) or 0.0
+                    )
+                    metrics[ai_name]["decisions"] += float(
+                        data.get("decisions", 0) or 0
+                    )
+                    metrics[ai_name]["correct_accusations"] += float(
+                        data.get("correct_accusations", 0) or 0
+                    )
+                    metrics[ai_name]["wrong_accusations"] += float(
+                        data.get("wrong_accusations", 0) or 0
+                    )
+                    metrics[ai_name]["total_turns"] += float(
+                        data.get("total_turns", 0) or 0
+                    )
+                    metrics[ai_name]["suggestion_success"] += float(
+                        data.get("suggestion_success", 0) or 0
+                    )
+                    metrics[ai_name]["suggestion_total"] += float(
+                        data.get("suggestion_total", 0) or 0
+                    )
             else:
                 # Fallback if per-AI breakdown is absent.
                 if winner in metrics:
                     metrics[winner]["wins"] += 1
-                    metrics[winner]["moves"] += moves
-                    metrics[winner]["decision_time"] += float(result.get("decision_time", 0.0) or 0.0)
-                    metrics[winner]["decisions"] += float(result.get("decisions", 0) or 0)
+                    metrics[winner]["games_played"] += 1
+                    metrics[winner]["total_moves"] += moves
+                    metrics[winner]["decision_time"] += float(
+                        result.get("decision_time", 0.0) or 0.0
+                    )
+                    metrics[winner]["decisions"] += float(
+                        result.get("decisions", 0) or 0
+                    )
                     metrics[winner]["total_turns"] += float(result.get("turns", 0) or 0)
-                    metrics[winner]["correct_accusations"] += float(result.get("correct_accusations", 0) or 0)
-                    metrics[winner]["wrong_accusations"] += float(result.get("wrong_accusations", 0) or 0)
-                    metrics[winner]["suggestion_success"] += float(result.get("suggestion_success", 0) or 0)
-                    metrics[winner]["suggestion_total"] += float(result.get("suggestion_total", 0) or 0)
+                    metrics[winner]["correct_accusations"] += float(
+                        result.get("correct_accusations", 0) or 0
+                    )
+                    metrics[winner]["wrong_accusations"] += float(
+                        result.get("wrong_accusations", 0) or 0
+                    )
+                    metrics[winner]["suggestion_success"] += float(
+                        result.get("suggestion_success", 0) or 0
+                    )
+                    metrics[winner]["suggestion_total"] += float(
+                        result.get("suggestion_total", 0) or 0
+                    )
 
         summary: Dict[str, Dict[str, float]] = {}
         completed_games = len(results)
         for ai_name, data in metrics.items():
             wins = float(data["wins"])
-            moves = float(data["moves"])
+            total_moves = float(data["total_moves"])
             total_time = float(data["decision_time"])
             decisions = float(data["decisions"])
             correct_accusations = float(data["correct_accusations"])
@@ -101,15 +135,20 @@ class SimulationRunner:
             total_turns = float(data["total_turns"])
             suggestion_success = float(data["suggestion_success"])
             suggestion_total = float(data["suggestion_total"])
+            games_played = float(data["games_played"])
             accusation_total = correct_accusations + wrong_accusations
 
             summary[ai_name] = {
-                "win_rate": (wins / max(completed_games, 1)) * 100.0,
-                "move_efficiency": moves / max(wins, 1.0),
+                "win_rate": (wins / max(games_played, 1)) * 100.0,
+                "move_efficiency": total_moves / max(wins, 1.0),
                 "avg_decision_time": total_time / max(decisions, 1.0),
                 "avg_turns_to_win": total_turns / max(wins, 1.0),
-                "accusation_accuracy": (correct_accusations / max(accusation_total, 1.0)) * 100.0,
-                "suggestion_efficiency": suggestion_success / max(suggestion_total, 1.0),
+                "accusation_accuracy": (
+                    correct_accusations / max(accusation_total, 1.0)
+                )
+                * 100.0,
+                "suggestion_efficiency": suggestion_success
+                / max(suggestion_total, 1.0),
             }
 
         return {
@@ -124,7 +163,8 @@ class SimulationRunner:
         """Return a zeroed metrics bucket for one AI agent."""
         return {
             "wins": 0,
-            "moves": 0,
+            "games_played": 0,
+            "total_moves": 0,
             "decision_time": 0.0,
             "decisions": 0,
             "correct_accusations": 0,
@@ -144,9 +184,15 @@ class SimulationRunner:
             "MctsAI": self._blank_agent_metrics(),
         }
 
-    def _extract_metrics(self, metrics_or_result: Dict[str, Any]) -> Dict[str, Dict[str, float]]:
+    def _extract_metrics(
+        self, metrics_or_result: Dict[str, Any]
+    ) -> Dict[str, Dict[str, float]]:
         """Return AI metrics dict from either raw metrics or full run output."""
-        nested = metrics_or_result.get("metrics") if isinstance(metrics_or_result, dict) else None
+        nested = (
+            metrics_or_result.get("metrics")
+            if isinstance(metrics_or_result, dict)
+            else None
+        )
         if isinstance(nested, dict):
             return nested
         if isinstance(metrics_or_result, dict):
@@ -154,17 +200,7 @@ class SimulationRunner:
         raise TypeError("metrics_or_result must be a dictionary")
 
     def run(self, num_games: int) -> Dict[str, Any]:
-        """Run multiple game simulations and collect aggregated metrics.
-
-        Args:
-            num_games: Number of games to execute.
-
-        Returns:
-            Dict[str, Any]: Per-game results and aggregated AI metrics.
-
-        Raises:
-            ValueError: If num_games is not greater than 0.
-        """
+        """Run multiple game simulations and collect aggregated metrics."""
         if num_games <= 0:
             raise ValueError("num_games must be greater than 0")
 
@@ -173,13 +209,11 @@ class SimulationRunner:
 
         for i, payload in enumerate(payloads):
             logging.info("Running game %s", i + 1)
-
             try:
                 result = _run_single_game_from_payload(payload)
             except Exception as exc:
                 logging.error("Game %s failed: %s", i + 1, exc)
                 continue
-
             results.append(result)
         return self._aggregate_results(results, num_games)
 
@@ -189,7 +223,8 @@ class SimulationRunner:
             raise ValueError("num_games must be greater than 0")
 
         payloads = self._build_game_payloads(num_games)
-        with Pool() as pool:
+        cpu_count = 4  # Reasonable default; avoids spawning excessive processes
+        with Pool(processes=cpu_count) as pool:
             results = pool.map(_run_single_game_from_payload, payloads)
 
         return self._aggregate_results(results, num_games)
@@ -203,7 +238,7 @@ class SimulationRunner:
 
         for ai_name, data in metric_rows.items():
             wins = float(data.get("wins", 0))
-            moves = float(data.get("moves", 0))
+            total_moves = float(data.get("total_moves", 0))
             total_time = float(data.get("decision_time", 0.0))
             decisions = float(data.get("decisions", 0))
             total_turns = float(data.get("total_turns", 0))
@@ -213,7 +248,7 @@ class SimulationRunner:
             suggestion_total = float(data.get("suggestion_total", 0))
 
             win_rate = wins / num_games
-            avg_moves = moves / max(wins, 1.0)
+            avg_moves = total_moves / max(wins, 1.0)
             avg_time = total_time / max(decisions, 1.0)
             avg_turns = total_turns / max(wins, 1.0)
             accusation_accuracy = correct_acc / max(correct_acc + wrong_acc, 1.0)
@@ -227,15 +262,19 @@ class SimulationRunner:
             print(f"Accusation Accuracy: {accusation_accuracy:.2f}")
             print(f"Suggestion Efficiency: {suggestion_efficiency:.2f}")
 
-    def save_to_json(self, metrics: Dict[str, Any], file_path: str = "logs/simulation.json") -> None:
+    def save_to_json(
+        self, metrics: Dict[str, Any], file_path: str = "logs/simulation.json"
+    ) -> None:
         """Save aggregated metrics to JSON."""
         target = Path(file_path)
         target.parent.mkdir(parents=True, exist_ok=True)
         with target.open("w", encoding="utf-8") as handle:
             json.dump(metrics, handle, indent=4)
 
-    def save_to_csv(self, metrics: Dict[str, Any], file_path: str = "logs/simulation.csv") -> None:
-        """Save aggregated metrics to CSV for graphing/reporting."""
+    def save_to_csv(
+        self, metrics: Dict[str, Any], file_path: str = "logs/simulation.csv"
+    ) -> None:
+        """Save aggregated metrics to CSV — unified schema matching Visualizer.export_csv."""
         target = Path(file_path)
         target.parent.mkdir(parents=True, exist_ok=True)
         metric_rows = self._extract_metrics(metrics)
@@ -246,9 +285,12 @@ class SimulationRunner:
                 [
                     "AI",
                     "Wins",
+                    "Games Played",
+                    "Total Moves",
+                    "Decision Time",
+                    "Decisions",
                     "Avg Moves",
-                    "Avg Time",
-                    "Avg Turns To Win",
+                    "Avg Decision Time",
                     "Accusation Accuracy",
                     "Suggestion Efficiency",
                 ]
@@ -256,23 +298,30 @@ class SimulationRunner:
 
             for ai_name, data in metric_rows.items():
                 wins = float(data.get("wins", 0))
-                avg_moves = float(data.get("moves", 0)) / max(wins, 1.0)
-                avg_time = float(data.get("decision_time", 0.0)) / max(float(data.get("decisions", 0)), 1.0)
-                avg_turns = float(data.get("total_turns", 0)) / max(wins, 1.0)
+                games_played = float(data.get("games_played", 0))
+                total_moves = float(data.get("total_moves", 0))
+                decision_time = float(data.get("decision_time", 0.0))
+                decisions = float(data.get("decisions", 0))
                 correct_acc = float(data.get("correct_accusations", 0))
                 wrong_acc = float(data.get("wrong_accusations", 0))
-                accusation_accuracy = correct_acc / max(correct_acc + wrong_acc, 1.0)
                 suggestion_success = float(data.get("suggestion_success", 0))
                 suggestion_total = float(data.get("suggestion_total", 0))
+
+                avg_moves = total_moves / max(wins, 1.0)
+                avg_time = decision_time / max(decisions, 1.0)
+                accusation_accuracy = correct_acc / max(correct_acc + wrong_acc, 1.0)
                 suggestion_efficiency = suggestion_success / max(suggestion_total, 1.0)
 
                 writer.writerow(
                     [
                         ai_name,
                         int(wins),
+                        int(games_played),
+                        round(total_moves, 0),
+                        round(decision_time, 6),
+                        int(decisions),
                         round(avg_moves, 2),
                         round(avg_time, 5),
-                        round(avg_turns, 2),
                         round(accusation_accuracy, 4),
                         round(suggestion_efficiency, 4),
                     ]

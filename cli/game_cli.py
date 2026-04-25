@@ -9,14 +9,13 @@ turn; AI players resolve their turn automatically and print a summary.
 
 import logging
 
-from engine.game_state import GameState
-from models.player import Player, AIPlayer
-from engine.dice import roll_dice
-from engine.cards import suspects, weapons
-from ai.random_ai import RandomAI
 from ai.board_utils import get_possible_moves
+from ai.random_ai import RandomAI
+from engine.cards import suspects, weapons
+from engine.dice import roll_dice
+from engine.game_state import GameState
+from models.player import AIPlayer, Player
 from utils.logger import setup_logger
-
 
 logger = logging.getLogger(__name__)
 
@@ -55,13 +54,13 @@ class GameCLI:
 
         # Register players
         human = Player("Detective Hasib", is_ai=False)
-        ai    = AIPlayer("AI Rahim", RandomAI())
+        ai = AIPlayer("AI Rahim", RandomAI())
         self.game_state.add_player(human)
         self.game_state.add_player(ai)
         self.game_state.setup_game()
 
         # Starting positions — place at opposite ends of the KUET campus
-        human.move("Library")
+        human.move("Auditorium")
         ai.move("Pocket Gate")
 
         logger.info("Players registered:")
@@ -84,9 +83,9 @@ class GameCLI:
                     self._run_human_turn(player)
                 logger.info("")
 
-            logger.info("%s", self.SEPARATOR)
-            logger.info("Board test complete.")
-            logger.info("%s", self.SEPARATOR)
+        logger.info("%s", self.SEPARATOR)
+        logger.info("Board test complete.")
+        logger.info("%s", self.SEPARATOR)
 
     # ------------------------------------------------------------------
     # Turn helpers
@@ -99,7 +98,9 @@ class GameCLI:
 
         dice = roll_dice()
         self.game_state.last_dice_roll = dice
-        logger.info("    You rolled       : %s + %s = %s", dice.die1, dice.die2, dice.total)
+        logger.info(
+            "    You rolled       : %s + %s = %s", dice.die1, dice.die2, dice.total
+        )
 
         # Corridor weights + secret passages determine reachability this turn.
         valid_moves = get_possible_moves(
@@ -111,17 +112,18 @@ class GameCLI:
             # is a free teleport rather than a dice-limited corridor move.
             passage = self.game_state.board.get_passage_destination(player.position)
             labels = [
-                f"{m} [secret passage]" if m == passage else m
-                for m in valid_moves
+                f"{m} [secret passage]" if m == passage else m for m in valid_moves
             ]
             logger.info("    Reachable rooms  : %s", ", ".join(labels))
             logger.info("    (Press Enter to stay at %s)", player.position)
         else:
-            logger.warning("    Dice too low to exit any corridor - staying at %s.", player.position)
+            logger.warning(
+                "    Dice too low to exit any corridor - staying at %s.",
+                player.position,
+            )
 
         chosen = (
-            self.get_player_input(valid_moves, player.position)
-            if valid_moves else None
+            self.get_player_input(valid_moves, player.position) if valid_moves else None
         )
 
         if chosen is None:
@@ -164,7 +166,9 @@ class GameCLI:
         self.game_state.last_dice_roll = d
         logger.info("    Rolled           : %s + %s = %s", d.die1, d.die2, d.total)
 
-        valid_moves = get_possible_moves(self.game_state.board, ai_player, steps=d.total)
+        valid_moves = get_possible_moves(
+            self.game_state.board, ai_player, steps=d.total
+        )
         move = ai_agent.choose_move(self.game_state, valid_moves)
         if move is not None and move in valid_moves:
             ai_player.try_move(move, valid_moves)
@@ -260,7 +264,9 @@ class GameCLI:
             if value:
                 return value
 
-            logger.warning("Invalid choice. Expected one of: %s", ", ".join(allowed_values))
+            logger.warning(
+                "Invalid choice. Expected one of: %s", ", ".join(allowed_values)
+            )
 
     def _collect_human_suggestion(self, player):
         """Collect and validate a human player's suggestion from CLI input."""
@@ -280,4 +286,3 @@ class GameCLI:
 if __name__ == "__main__":
     setup_logger()
     GameCLI().start()
-

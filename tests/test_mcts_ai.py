@@ -27,7 +27,7 @@ def _build_state(n_players: int = 2, iterations: int = 4) -> tuple[GameState, Mc
         state.add_player(AIPlayer(f"P{i}", ai))
     state.setup_game()
     for p in state.players:
-        p.move("Library")
+        p.move("Auditorium")
     return state, agent
 
 
@@ -103,9 +103,9 @@ class TestMCTSNode:
     def test_add_child_creates_child(self):
         node = _fresh_node()
         state, _ = _build_state()
-        child = node.add_child("Library", state)
+        child = node.add_child("Auditorium", state)
         assert child in node.children
-        assert child.move == "Library"
+        assert child.move == "Auditorium"
         assert child.parent is node
 
     def test_add_child_removes_from_untried(self):
@@ -118,7 +118,7 @@ class TestMCTSNode:
     def test_most_visited_child_returns_most_visited(self):
         node = _fresh_node()
         state, _ = _build_state()
-        c1 = node.add_child("Library", state)
+        c1 = node.add_child("Auditorium", state)
         c2 = node.add_child("Lab", state)
         c1.visits = 5
         c2.visits = 10
@@ -187,7 +187,7 @@ class TestUCTValue:
     def test_best_child_selects_highest_uct(self):
         node = _fresh_node()
         state, _ = _build_state()
-        c1 = node.add_child("Library", state)
+        c1 = node.add_child("Auditorium", state)
         c2 = node.add_child("Lab", state)
         node.visits = 10
         c1.visits = 2
@@ -221,7 +221,7 @@ class TestMCTSPhases:
         state, agent = _build_state(iterations=1)
         root = MCTSNode(state=state)
         child_state = agent._clone_state(state)
-        child = root.add_child("Library", child_state)
+        child = root.add_child("Auditorium", child_state)
         root.untried_moves.clear()  # force fully-expanded
         root.visits = 10
         child.visits = 1
@@ -276,7 +276,7 @@ class TestMCTSPhases:
         state, agent = _build_state(iterations=1)
         root = MCTSNode(state=state)
         child_state = agent._clone_state(state)
-        child = root.add_child("Library", child_state)
+        child = root.add_child("Auditorium", child_state)
         grandchild_state = agent._clone_state(child_state)
         grandchild = child.add_child("Lab", grandchild_state)
 
@@ -375,8 +375,8 @@ class TestMctsAIInterface:
 
     def test_choose_move_single_move(self):
         state, agent = _build_state(iterations=3)
-        result = agent.choose_move(state, ["Library"])
-        assert result == "Library"
+        result = agent.choose_move(state, ["Auditorium"])
+        assert result == "Auditorium"
 
     def test_choose_move_does_not_mutate_state(self):
         state, agent = _build_state(iterations=4)
@@ -493,7 +493,7 @@ class TestIntegration:
             state.add_player(AIPlayer(f"P{i}", MctsAI(iterations=5)))
         state.setup_game()
         for p in state.players:
-            p.move("Library")
+            p.move("Auditorium")
         winner = state.run_game(max_turns=30, verbose=False)
         assert winner is None or hasattr(winner, "name")
 
@@ -506,7 +506,7 @@ class TestIntegration:
         state.add_player(AIPlayer("MM", MinimaxAI(depth=2)))
         state.setup_game()
         for p in state.players:
-            p.move("Library")
+            p.move("Auditorium")
         winner = state.run_game(max_turns=30, verbose=False)
         assert winner is None or hasattr(winner, "name")
 
@@ -520,7 +520,7 @@ class TestIntegration:
             state.add_player(AIPlayer("Opp", MctsAI(iterations=1)))
             state.setup_game()
             for p in state.players:
-                p.move("Library")
+                p.move("Auditorium")
             state.run_game(max_turns=20, verbose=False)
             # If _last_notebook leaked from the previous game, subsequent calls
             # would either crash or produce wrong decisions.  No exception = pass.
@@ -538,3 +538,4 @@ class TestIntegration:
         root_large = large._run_mcts(state2, 0)
 
         assert root_large.visits > root_small.visits
+

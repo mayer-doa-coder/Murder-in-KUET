@@ -91,7 +91,10 @@ class BayesianNotebook:
         for key in category:
             category[key] = category[key] / total
 
-        assert abs(sum(category.values()) - 1.0) < 1e-6
+        if abs(sum(category.values()) - 1.0) >= 1e-6:
+            raise ValueError(
+                f"Normalization failed: probabilities sum to {sum(category.values()):.8f}"
+            )
 
     def eliminate(self, card: str) -> None:
         """Eliminate a card by setting its probability to 0 and normalizing."""
@@ -188,7 +191,10 @@ class BayesianNotebook:
             self.suspects[suspect_name] *= float(boost)
         if weapon_name not in self.known_cards and self.weapons[weapon_name] > 0.0:
             self.weapons[weapon_name] *= float(boost)
-        if location_name not in self.known_cards and self.locations[location_name] > 0.0:
+        if (
+            location_name not in self.known_cards
+            and self.locations[location_name] > 0.0
+        ):
             self.locations[location_name] *= float(boost)
 
         self.normalize(self.suspects)
@@ -284,4 +290,3 @@ class BayesianNotebook:
 
 # Backward-compatible alias used by current player/game wiring.
 Notebook = BayesianNotebook
-

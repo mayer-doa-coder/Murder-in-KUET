@@ -51,7 +51,9 @@ class BaseAI:
             state (Any): Current game-state snapshot.
 
         Returns:
-            bool: True to accuse now, False to continue gathering evidence.
+            bool | tuple[str, str, str]: False to skip accusation; True to accuse
+            using the notebook's best guess; or a (suspect, weapon, location) tuple
+            with an explicit accusation when the agent is certain of the solution.
         """
         raise NotImplementedError
 

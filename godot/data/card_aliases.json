@@ -1,0 +1,29 @@
+{
+  "suspects": {
+    "Chef": "Chef",
+    "Hallboy": "Hallboy",
+    "Security Guard": "Security Guard",
+    "Shopkeeper": "Shopkeeper",
+    "Student Girl": "Student Girl",
+    "Student Boy": "Student Boy"
+  },
+  "weapons": {
+    "Knife": "Knife",
+    "Laptop Charger": "Laptop Charger",
+    "Anti Cutter": "Anti Cutter",
+    "Sleeping Pills": "Sleeping Pills",
+    "Rope": "Rope",
+    "Revolver": "Revolver"
+  },
+  "locations": {
+    "Amar Ekushey Hall": "Amar Ekushey Hall",
+    "Cafeteria": "Cafeteria",
+    "Central Field": "Central Field",
+    "IT Park": "IT Park",
+    "Pocket Gate": "Pocket Gate",
+    "Begum Rokeya Hall": "Begum Rokeya Hall",
+    "Student Welfare Center": "Student Welfare Center",
+    "Lotus Pond": "Lotus Pond",
+    "Auditorium": "Auditorium"
+  }
+}

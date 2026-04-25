@@ -8,8 +8,14 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
+
+
+def _is_interactive_backend() -> bool:
+    """Return True when matplotlib is running with an interactive (display) backend."""
+    return matplotlib.get_backend().lower() not in ("agg", "pdf", "svg", "ps", "cairo")
 
 
 class Visualizer:
@@ -45,19 +51,22 @@ class Visualizer:
 
         for ai_name, data in self.metrics.items():
             wins = float(data.get("wins", 0) or 0)
-            moves = float(data.get("moves", data.get("total_moves", 0)) or 0)
+            total_moves = float(data.get("total_moves", data.get("moves", 0)) or 0)
             decision_time = float(data.get("decision_time", 0) or 0)
             decisions = float(data.get("decisions", 0) or 0)
+            games_played = float(data.get("games_played", 0) or 0)
 
             rows.append(
                 {
                     "AI": ai_name,
                     "wins": int(wins),
-                    "moves": moves,
+                    "games_played": int(games_played),
+                    "total_moves": total_moves,
                     "decision_time": decision_time,
                     "decisions": int(decisions),
-                    "avg_moves": moves / max(wins, 1.0),
+                    "avg_moves": total_moves / max(wins, 1.0),
                     "avg_decision_time": decision_time / max(decisions, 1.0),
+                    "win_rate_pct": (wins / max(games_played, 1.0)) * 100.0,
                 }
             )
 
@@ -80,7 +89,10 @@ class Visualizer:
                 raise ValueError("each AI metrics entry must be a dictionary")
 
     def prepare_win_rate_data(self) -> dict[str, float]:
-        """Prepare normalized win-rate values per AI for future plotting.
+        """Prepare win-rate percentage values per AI for future plotting.
+
+        Uses pre-computed win_rate if present; otherwise computes
+        wins / games_played * 100.
 
         Returns:
             dict[str, float]: Mapping of AI name to win-rate percentage.
@@ -94,36 +106,53 @@ class Visualizer:
 
             wins = float(ai_metrics.get("wins", 0.0) or 0.0)
             games_played = float(ai_metrics.get("games_played", 0.0) or 0.0)
-            prepared[ai_name] = (wins / games_played * 100.0) if games_played > 0 else 0.0
+            prepared[ai_name] = (
+                (wins / games_played * 100.0) if games_played > 0 else 0.0
+            )
 
         return prepared
 
     def plot_win_rate(self) -> None:
-        """Plot a bar chart comparing win rates of all AI agents."""
+        """Plot a bar chart comparing win rates of all AI agents.
+
+        Win rate = wins / games_played * 100.  Falls back to wins / total_wins
+        when games_played is unavailable (older metric snapshots).
+        """
         if not self.metrics:
             raise ValueError("Metrics data is empty")
 
         names: list[str] = []
         win_rates: list[float] = []
 
-        total_games = sum(float(data.get("wins", 0) or 0) for data in self.metrics.values())
+        total_games = sum(
+            float(data.get("games_played", 0) or 0) for data in self.metrics.values()
+        )
+        # Fallback: use total wins as denominator when games_played is absent
+        if total_games == 0:
+            total_games = sum(
+                float(data.get("wins", 0) or 0) for data in self.metrics.values()
+            )
         if total_games == 0:
             raise ValueError("No games recorded. Cannot compute win rate.")
 
         for ai_name, data in self.metrics.items():
             wins = float(data.get("wins", 0) or 0)
+            gp = float(data.get("games_played", 0) or 0)
+            # Per-agent win rate: use games_played when available
+            rate = (wins / gp * 100.0) if gp > 0 else (wins / total_games * 100.0)
             names.append(ai_name)
-            win_rates.append(wins / total_games)
+            win_rates.append(rate)
 
         plt.figure(figsize=(9, 5))
         plt.bar(names, win_rates, color="#3a7ca5")
         plt.title("Win Rate Comparison")
         plt.xlabel("AI Agents")
-        plt.ylabel("Win Rate")
+        plt.ylabel("Win Rate (%)")
         plt.xticks(rotation=15)
         plt.tight_layout()
         plt.savefig(self._ensure_logs_dir() / "win_rate.png", dpi=150)
-        plt.show()
+        if _is_interactive_backend():
+            plt.show()
         plt.close()
 
     def plot_decision_time(self) -> None:
@@ -150,7 +179,8 @@ class Visualizer:
         plt.xticks(rotation=15)
         plt.tight_layout()
         plt.savefig(self._ensure_logs_dir() / "decision_time.png", dpi=150)
-        plt.show()
+        if _is_interactive_backend():
+            plt.show()
         plt.close()
 
     def plot_moves(self) -> None:
@@ -162,7 +192,7 @@ class Visualizer:
         moves: list[float] = []
 
         for ai_name, data in self.metrics.items():
-            total_moves = float(data.get("moves", data.get("total_moves", 0)) or 0)
+            total_moves = float(data.get("total_moves", data.get("moves", 0)) or 0)
             wins = float(data.get("wins", 0) or 0)
             avg_moves = total_moves / max(wins, 1.0)
 
@@ -177,7 +207,8 @@ class Visualizer:
         plt.xticks(rotation=15)
         plt.tight_layout()
         plt.savefig(self._ensure_logs_dir() / "moves.png", dpi=150)
-        plt.show()
+        if _is_interactive_backend():
+            plt.show()
         plt.close()
 
     def generate_insights(self) -> dict[str, str]:
@@ -201,14 +232,26 @@ class Visualizer:
         most_efficient_ai = min(
             self.metrics,
             key=lambda ai: (
-                float(self.metrics[ai].get("moves", self.metrics[ai].get("total_moves", 0)) or 0)
+                float(
+                    self.metrics[ai].get(
+                        "total_moves", self.metrics[ai].get("moves", 0)
+                    )
+                    or 0
+                )
                 / max(float(self.metrics[ai].get("wins", 0) or 0), 1.0)
             ),
         )
 
         best_accuracy_ai = max(
             self.metrics,
-            key=lambda ai: float(self.metrics[ai].get("correct_accusations", 0) or 0),
+            key=lambda ai: (
+                float(self.metrics[ai].get("correct_accusations", 0) or 0)
+                / max(
+                    float(self.metrics[ai].get("correct_accusations", 0) or 0)
+                    + float(self.metrics[ai].get("wrong_accusations", 0) or 0),
+                    1.0,
+                )
+            ),
         )
 
         insights = {
@@ -235,15 +278,23 @@ class Visualizer:
 
         for ai_name, data in self.metrics.items():
             wins = float(data.get("wins", 0) or 0)
-            total_moves = float(data.get("moves", data.get("total_moves", 0)) or 0)
+            games_played = float(data.get("games_played", 0) or 0)
+            total_moves = float(data.get("total_moves", data.get("moves", 0)) or 0)
             total_time = float(data.get("decision_time", 0) or 0)
             decisions = float(data.get("decisions", 0) or 0)
 
+            win_rate = (wins / games_played * 100.0) if games_played > 0 else 0.0
             avg_moves = total_moves / max(wins, 1.0)
             avg_time = total_time / max(decisions, 1.0)
 
-            logging.info("%s | Wins: %d | Avg Moves: %.2f | Avg Decision Time: %.5fs",
-                         ai_name, int(wins), avg_moves, avg_time)
+            logging.info(
+                "%s | Wins: %d | Win Rate: %.1f%% | Avg Moves: %.2f | Avg Decision Time: %.5fs",
+                ai_name,
+                int(wins),
+                win_rate,
+                avg_moves,
+                avg_time,
+            )
 
         sorted_ai = self.get_ranking()
 
@@ -267,7 +318,7 @@ class Visualizer:
         return table
 
     def export_csv(self, file_path: str = "logs/metrics.csv") -> Path:
-        """Export key metrics into a CSV file and return target path."""
+        """Export key metrics into a CSV file — unified schema with SimulationRunner."""
         if not self.metrics:
             raise ValueError("Metrics data is empty")
 
@@ -276,30 +327,39 @@ class Visualizer:
 
         with target.open("w", newline="", encoding="utf-8") as handle:
             writer = csv.writer(handle)
-            writer.writerow([
-                "AI",
-                "Wins",
-                "Moves",
-                "Decision Time",
-                "Decisions",
-                "Avg Moves",
-                "Avg Decision Time",
-            ])
+            writer.writerow(
+                [
+                    "AI",
+                    "Wins",
+                    "Games Played",
+                    "Total Moves",
+                    "Decision Time",
+                    "Decisions",
+                    "Avg Moves",
+                    "Avg Decision Time",
+                    "Win Rate %",
+                ]
+            )
 
             for ai_name, data in self.metrics.items():
                 wins = float(data.get("wins", 0) or 0)
-                moves = float(data.get("moves", data.get("total_moves", 0)) or 0)
+                games_played = float(data.get("games_played", 0) or 0)
+                total_moves = float(data.get("total_moves", data.get("moves", 0)) or 0)
                 decision_time = float(data.get("decision_time", 0) or 0)
                 decisions = float(data.get("decisions", 0) or 0)
+                win_rate = (wins / games_played * 100.0) if games_played > 0 else 0.0
+
                 writer.writerow(
                     [
                         ai_name,
                         int(wins),
-                        round(moves, 4),
+                        int(games_played),
+                        round(total_moves, 0),
                         round(decision_time, 6),
                         int(decisions),
-                        round(moves / max(wins, 1.0), 4),
+                        round(total_moves / max(wins, 1.0), 2),
                         round(decision_time / max(decisions, 1.0), 6),
+                        round(win_rate, 2),
                     ]
                 )
 
