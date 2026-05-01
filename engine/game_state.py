@@ -9,7 +9,6 @@ import logging
 from copy import deepcopy
 from typing import Any
 
-from engine.asset_mapping import get_asset_manifest
 from engine.board import Board
 from engine.cards import create_deck, locations, suspects, weapons
 from engine.clue_reveal import reveal_clue
@@ -1020,7 +1019,6 @@ class GameState:
             "suspects": list(self.suspects),
             "weapons": list(self.weapons),
             "locations": list(self.locations),
-            "asset_manifest": get_asset_manifest(),
             "current_location": self.current_location,
             "last_dice_roll": dice_data,
         }

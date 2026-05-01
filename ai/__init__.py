@@ -2,7 +2,6 @@
 
 from ai.base_ai import BaseAI
 from ai.expectiminimax_ai import ExpectiminimaxAI
-from ai.knowledge_base import KnowledgeBase
 from ai.mcts_ai import MctsAI, MCTSNode
 from ai.minimax_ai import MinimaxAI
 from ai.monte_carlo_ai import MonteCarloAI
@@ -23,5 +22,4 @@ __all__ = [
     "MCTSNode",
     "BayesianNotebook",
     "Notebook",
-    "KnowledgeBase",
 ]

@@ -1,9 +1,0 @@
-res://scripts/autoload/ApiClient.gd
-res://scripts/game/GameBoard.gd
-res://scripts/ui/CardPanel.gd
-res://scripts/ui/HUD.gd
-res://scripts/ui/ModeSelect.gd
-res://scripts/ui/Cutscene.gd
-res://scripts/autoload/AssetDB.gd
-res://scripts/autoload/GameSession.gd
-res://scripts/ui/EndGame.gd

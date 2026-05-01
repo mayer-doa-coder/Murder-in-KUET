@@ -153,10 +153,7 @@ class AIPlayer(Player):
         self.ai_agent = ai_agent
 
     def add_card(self, card):
-        """Add a card to hand and register it with any legacy knowledge base."""
-        super().add_card(card)  # Player.add_card already eliminates from notebook
-        if hasattr(self.ai_agent, "knowledge_base"):
-            self.ai_agent.knowledge_base.add_own_card(card.name)
+        super().add_card(card)
 
     def decide_accusation(self, game_state):
         """Ask the agent whether to make a final accusation this turn."""
