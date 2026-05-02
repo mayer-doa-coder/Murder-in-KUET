@@ -13,6 +13,23 @@ export type Screen =
   | 'cardShuffle'
   | 'playerCardsMenu'
   | 'playerCardView'
+  | 'gameBoard'
+
+// ── Board types ───────────────────────────────────────────────────────────────
+export type CellType = 'hallway' | 'room' | 'void' | 'start' | 'door'
+
+export interface Cell {
+  type: CellType
+  roomId: string | null
+}
+
+export interface BoardPlayer {
+  id: string
+  name: string
+  icon: string
+  accentColor: string
+  position: [number, number]  // [col, row]
+}
 
 // ── Setup-phase types ─────────────────────────────────────────────────────────
 export interface Character {

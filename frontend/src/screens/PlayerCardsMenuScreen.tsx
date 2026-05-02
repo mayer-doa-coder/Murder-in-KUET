@@ -7,6 +7,7 @@ interface PlayerCardsMenuScreenProps {
   players: PlayerSetup[]
   deal: GameDeal
   onViewPlayer: (playerIndex: number) => void
+  onStart?: () => void
 }
 
 const BG_POSITIONS = Array.from({ length: 24 }, (_, i) => ({
@@ -16,7 +17,7 @@ const BG_POSITIONS = Array.from({ length: 24 }, (_, i) => ({
   rotate: (i % 2 === 0 ? 1 : -1) * ((i * 11) % 14 + 3),
 }))
 
-export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer }: PlayerCardsMenuScreenProps) {
+export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onStart }: PlayerCardsMenuScreenProps) {
   const [selected, setSelected] = useState(0)
 
   const handleConfirm = useCallback(() => {
@@ -28,10 +29,11 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer }: P
       if (e.key === 'ArrowUp')   setSelected(s => Math.max(0, s - 1))
       if (e.key === 'ArrowDown') setSelected(s => Math.min(players.length - 1, s + 1))
       if (e.key === 'Enter' || e.key === ' ') handleConfirm()
+      if ((e.key === 's' || e.key === 'S') && onStart) onStart()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [handleConfirm, players.length])
+  }, [handleConfirm, players.length, onStart])
 
   return (
     <div
@@ -220,20 +222,35 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer }: P
           margin: '24px 0 20px',
         }} />
 
-        {/* Press START hint */}
-        <motion.div
-          className="font-pixel text-center"
-          style={{ fontSize: '7px', color: '#4a3010', letterSpacing: '2px', lineHeight: 2 }}
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.6, repeat: Infinity }}
-          initial={{ opacity: 0 }}
-        >
-          PRESS  START  TO  PLAY
-        </motion.div>
+        {/* START GAME button */}
+        {onStart && (
+          <motion.div
+            className="flex items-center justify-center gap-3 cursor-pointer px-3 py-4 mt-2"
+            style={{
+              background: '#1a0000',
+              border: '2px solid #660000',
+              boxShadow: '4px 4px 0 #0d0000',
+            }}
+            onClick={onStart}
+            whileHover={{ background: '#280000', borderColor: '#aa0000', boxShadow: '4px 4px 0 #1a0000, 0 0 16px #880000' }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.4 }}
+          >
+            <motion.span
+              className="font-pixel"
+              style={{ fontSize: '9px', color: '#cc2222', letterSpacing: '3px' }}
+              animate={{ color: ['#cc2222', '#ff4444', '#cc2222'] }}
+              transition={{ duration: 1.4, repeat: Infinity }}
+            >
+              ▶ START GAME
+            </motion.span>
+          </motion.div>
+        )}
 
         {/* Key hints */}
         <div className="font-pixel text-center mt-3" style={{ fontSize: '5px', color: '#2a1a00', letterSpacing: '1px' }}>
-          ↑ ↓  SELECT  &nbsp;|&nbsp;  ENTER  VIEW
+          ↑ ↓  SELECT  &nbsp;|&nbsp;  ENTER  VIEW  &nbsp;|&nbsp;  [S]  START
         </div>
       </motion.div>
 

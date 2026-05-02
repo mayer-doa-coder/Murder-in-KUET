@@ -10,6 +10,7 @@ import ConfirmationScreen from './screens/ConfirmationScreen'
 import CardShuffleScreen from './screens/CardShuffleScreen'
 import PlayerCardsMenuScreen from './screens/PlayerCardsMenuScreen'
 import PlayerCardViewScreen from './screens/PlayerCardViewScreen'
+import GameBoardScreen from './screens/GameBoardScreen'
 import type { Difficulty, PlayerType, Screen, Character, PlayerSetup, GameDeal } from './types'
 
 const PLAYER_COUNT = 3
@@ -121,6 +122,10 @@ export default function App() {
   }, [])
 
   // ── restart ───────────────────────────────────────────────────────────────
+  const handleStartGame = useCallback(() => {
+    setScreen('gameBoard')
+  }, [])
+
   const handleRestart = useCallback(() => {
     resetSetup()
     setDifficulty(null)
@@ -210,6 +215,7 @@ export default function App() {
               players={players}
               deal={deal}
               onViewPlayer={handleViewPlayer}
+              onStart={handleStartGame}
             />
           </motion.div>
         )}
@@ -222,6 +228,17 @@ export default function App() {
               players={players}
               deal={deal}
               onBack={handleCardViewBack}
+            />
+          </motion.div>
+        )}
+
+        {screen === 'gameBoard' && deal && (
+          <motion.div key="gameBoard" className="absolute inset-0"
+            variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
+            <GameBoardScreen
+              players={players}
+              deal={deal}
+              onExit={() => setScreen('playerCardsMenu')}
             />
           </motion.div>
         )}
