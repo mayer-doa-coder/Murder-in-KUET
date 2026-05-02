@@ -180,7 +180,7 @@ class SimulationRunner:
             "MinimaxAI": self._blank_agent_metrics(),
             "ExpectiminimaxAI": self._blank_agent_metrics(),
             "NegamaxAI": self._blank_agent_metrics(),
-            "MonteCarloAI": self._blank_agent_metrics(),
+            "RuleBasedAI": self._blank_agent_metrics(),
             "MctsAI": self._blank_agent_metrics(),
         }
 

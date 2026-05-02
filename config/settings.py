@@ -16,29 +16,10 @@ GAME_CONFIG = {
 
 AI_CONFIG = {
     "MINIMAX_DEPTH": 2,
+    "MINIMAX_MAX_TREE_SUSPECT_CANDIDATES": 3,
+    "MINIMAX_MAX_TREE_WEAPON_CANDIDATES": 3,
     "EXPECTIMINIMAX_DEPTH": 2,
     "NEGAMAX_DEPTH": 2,
-    # Monte Carlo move-evaluation budget (rollouts per move candidate).
-    "MONTE_CARLO_SIMULATIONS": 30,
-    # Monte Carlo suggestion-evaluation budget (rollouts per suspect+weapon pair).
-    # Kept lower than MONTE_CARLO_SIMULATIONS to limit per-turn cost.
-    "MONTE_CARLO_SUGGESTION_SIMS": 5,
-    # Maximum number of suspect+weapon pairs to evaluate per make_suggestion call.
-    # Pairs are ranked by notebook probability so only the best are evaluated.
-    "MONTE_CARLO_MAX_SUGGESTION_PAIRS": 9,
-    # Minimum combined probability confidence required to make a final accusation.
-    # Range [0, 1]. Lower → more aggressive; higher → more conservative.
-    "MONTE_CARLO_ACCUSATION_THRESHOLD": 0.70,
-    # Early stopping: skip remaining moves once a candidate exceeds this win-ratio.
-    # Set to 1.0 (or False below) to disable.  Range (0, 1].
-    "MONTE_CARLO_EARLY_STOP_THRESHOLD": 0.9,
-    # Toggle early stopping on/off without changing the threshold.
-    "MONTE_CARLO_EARLY_STOP_ENABLED": True,
-    # Adaptive simulation count: scale sims down when the move branching factor
-    # is high so total rollout work stays bounded.
-    "MONTE_CARLO_ADAPTIVE_SIMS_ENABLED": True,
-    # Hard lower bound on simulations regardless of adaptive scaling.
-    "MONTE_CARLO_MIN_SIMULATIONS": 5,
     # MCTS: iterations per choose_move call (tree depth × breadth budget).
     "MCTS_ITERATIONS": 50,
     # UCT exploration constant.  sqrt(2) ≈ 1.4142 is the theoretically

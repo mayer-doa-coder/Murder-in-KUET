@@ -4,7 +4,6 @@ from ai.base_ai import BaseAI
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.mcts_ai import MctsAI, MCTSNode
 from ai.minimax_ai import MinimaxAI
-from ai.monte_carlo_ai import MonteCarloAI
 from ai.negamax_ai import NegamaxAI
 from ai.notebook import BayesianNotebook, Notebook
 from ai.random_ai import RandomAI
@@ -17,7 +16,6 @@ __all__ = [
     "MinimaxAI",
     "NegamaxAI",
     "ExpectiminimaxAI",
-    "MonteCarloAI",
     "MctsAI",
     "MCTSNode",
     "BayesianNotebook",

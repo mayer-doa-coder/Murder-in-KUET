@@ -26,7 +26,7 @@ ai/              # All AI agent implementations + shared utilities
 config/          # Tunable configuration constants
 services/        # Flask REST API, game runner, simulation orchestration
 cli/             # Interactive terminal interface
-tests/           # 103 pytest tests
+tests/           # 75 pytest tests
 main.py          # Benchmark entry point
 ```
 
@@ -39,7 +39,7 @@ main.py          # Benchmark entry point
 | `engine/clue_reveal.py` | Suggestion resolution: find revealer, return revealed card |
 | `engine/cards.py` | Deck construction (suspects, weapons, locations) |
 | `engine/dice.py` | Dice roll mechanics |
-| `models/player.py` | Player and AIPlayer data containers and action methods |
+| `models/player.py` | Player, AIPlayer, HumanPlayer data containers and action methods |
 | `models/suggestion.py` | Immutable Suggestion value object |
 | `models/accusation.py` | Accusation + correctness check |
 | `ai/board_utils.py` | Pathfinding helpers, move enumeration, location scoring |
@@ -48,13 +48,12 @@ main.py          # Benchmark entry point
 | `ai/minimax_ai.py` | Minimax with determinization + StrategicEvaluationMixin |
 | `ai/negamax_ai.py` | Negamax + alpha-beta skeleton |
 | `ai/expectiminimax_ai.py` | Expectiminimax with explicit chance nodes |
-| `ai/monte_carlo_ai.py` | Pure Monte Carlo rollout evaluation |
 | `ai/mcts_ai.py` | Full MCTS with UCT selection, expansion, simulation, backprop |
 | `ai/ismcts_ai.py` | Information-Set MCTS (per-iteration determinization) |
 | `ai/random_ai.py` | Uniform random baseline |
 | `ai/rule_based_ai.py` | Notebook-probability heuristic AI |
 | `config/settings.py` | `GAME_CONFIG` and `AI_CONFIG` dicts; accessor functions |
-| `services/api.py` | Flask REST API (session + stateless modes) |
+| `services/api.py` | Flask REST API (session + stateless modes; AI + human turns) |
 | `services/game_runner.py` | Single game execution with metrics collection |
 | `services/simulation_runner.py` | Multi-game benchmark orchestration |
 
@@ -115,6 +114,29 @@ main.py          # Benchmark entry point
   - `is_solved() -> bool` — exactly 1 candidate remains in each category
   - `confident_accusation() -> bool` — all three max probabilities exceed threshold
 
+### Player Types (`models/player.py`)
+
+Three concrete player classes, all sharing the same `Player` base:
+
+| Class | Created by | Decision source |
+|---|---|---|
+| `HumanPlayer(name)` | Frontend / CLI | External input via callbacks or API |
+| `AIPlayer(name, agent)` | Game runner / API | `ai_agent.*` methods |
+| `Player(name, is_ai=False)` | Legacy / tests | Base class; behaves as human |
+
+Every player has `is_ai: bool` and `is_human: bool` (complement of `is_ai`).
+Both `run_turn()` and `run_game()` accept optional human-input callbacks:
+- `human_move_selector(player, valid_moves, state) → str | None`
+- `human_suggestion_selector(player, state) → (suspect, weapon)`
+- `human_accusation_selector(player, state) → None | bool | (s, w, l)`
+
+When callbacks are `None`, human turns fall back to random valid choices (useful for tests).
+
+`GameState.execute_human_turn(dice_roll, move, suspect, weapon, accuse, accusation_triple)`
+executes a human turn using explicit inputs — designed for the REST API.
+
+`GameState.get_human_turn_context()` pre-rolls dice and returns `{player_name, dice, valid_moves, suspects, weapons, current_position}` for display to the human.
+
 ### BaseAI Interface (`ai/base_ai.py`)
 
 All agents implement this contract:
@@ -159,13 +181,6 @@ class BaseAI:
 - **Purpose**: Equivalent reformulation of Minimax using sign-flip negation at each level.
 - **Decision style**: Alpha-beta pruning; all nodes maximize the current player's negated child value. Cuts branches when `alpha >= beta`.
 - **Where used**: Registered as `NegamaxAI`; depth matches `NEGAMAX_DEPTH`.
-
-### Monte Carlo (`ai/monte_carlo_ai.py`)
-
-- **Purpose**: Estimate move/suggestion value purely by win ratio across independent random rollouts (no tree).
-- **Decision style**: For each candidate move, clone state, apply move + random suggestion, run N rollouts from that state, return win ratio. Pick highest ratio.
-- **Optimizations**: Adaptive simulation budget (fewer rollouts when many candidates), early stopping when a move exceeds `MONTE_CARLO_EARLY_STOP_THRESHOLD`.
-- **Where used**: Registered as `MonteCarloAI`; configured by `MONTE_CARLO_*` settings.
 
 ### MCTS (`ai/mcts_ai.py`)
 
@@ -256,6 +271,48 @@ GameState.run_turn()
  11. next_turn() → skip inactive players, wrap around
 ```
 
+### Game Modes
+
+| Mode | Player mix | How turns resolve |
+|---|---|---|
+| AI vs AI | All `AIPlayer` | Fully automatic; `run_turn()` or `run_game()` with no callbacks |
+| Human vs AI | Mix of `HumanPlayer` + `AIPlayer` | AI turns: automatic; human turns: callback or API |
+| Human vs Human | All `HumanPlayer` | Every turn requires external input via callback or API |
+
+#### API Turn Flow (session mode)
+
+```
+Frontend                              Server
+  |                                     |
+  |-- POST /turn {session_id} --------> |
+  |                                     |  current player is AI?
+  |                                     |    yes → run_turn() → return result
+  |<-- {move, suggestion, ...} ---------|
+  |                                     |  current player is human?
+  |                                     |    yes → get_human_turn_context()
+  |<-- {requires_human_input: true,     |         (rolls dice, stores in session)
+  |     valid_moves, suspects, ...} ----|
+  |                                     |
+  | [Human picks move, suspect, weapon] |
+  |                                     |
+  |-- POST /human/turn                  |
+  |   {session_id, move,                |
+  |    suspect, weapon, accuse} ------> |
+  |                                     |  execute_human_turn(dice, move, ...)
+  |<-- {move, suggestion, revealed,     |  → apply suggestion → notebook update
+  |     accusation, ...} ---------------|  → accuse if requested
+```
+
+### API Endpoints
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/game/start` | POST | Create session; supports `is_human: true` per player |
+| `/turn` | POST | Execute next turn (auto-detects AI vs human) |
+| `/human/turn` | POST | Submit human choices after `/turn` requests input |
+| `/game/state` | GET | Read current session state |
+| `/health` | GET | Liveness probe |
+
 ### AI Decision Flow (search-based agents)
 
 ```
@@ -299,14 +356,13 @@ On no-reveal:
 | `engine/game_state.py` | Central game state, turn loop, suggestion processing |
 | `engine/board.py` | KUET campus graph; pathfinding and move reachability |
 | `engine/clue_reveal.py` | Resolves suggestions against player hands |
-| `models/player.py` | Player data and action methods; AIPlayer subclass |
+| `models/player.py` | Player data and action methods; AIPlayer and HumanPlayer subclasses |
 | `ai/notebook.py` | BayesianNotebook — shared belief state for all agents |
 | `ai/base_ai.py` | Abstract BaseAI interface |
 | `ai/board_utils.py` | Pathfinding wrappers and location scoring for AI use |
 | `ai/minimax_ai.py` | Minimax + StrategicEvaluationMixin + determinization |
 | `ai/expectiminimax_ai.py` | Expectiminimax with chance nodes |
 | `ai/negamax_ai.py` | Negamax + alpha-beta pruning |
-| `ai/monte_carlo_ai.py` | Monte Carlo rollout evaluation |
 | `ai/mcts_ai.py` | Full MCTS with MCTSNode tree and UCT |
 | `ai/ismcts_ai.py` | Information-Set MCTS (per-iteration determinization) |
 | `config/settings.py` | All tunable constants; `get_config()` / `get_ai_config()` |
@@ -335,9 +391,6 @@ On no-reveal:
 | `MINIMAX_MAX_TREE_WEAPON_CANDIDATES` | 3 | Candidate pruning in recursive search |
 | `EXPECTIMINIMAX_DEPTH` | 2 | Chance node recursion depth |
 | `NEGAMAX_DEPTH` | 2 | Alpha-beta search depth |
-| `MONTE_CARLO_SIMULATIONS` | 30 | Rollouts per move |
-| `MONTE_CARLO_SUGGESTION_SIMS` | 5 | Rollouts per suggestion pair |
-| `MONTE_CARLO_MAX_SUGGESTION_PAIRS` | 9 | Max pairs evaluated |
 | `MCTS_ITERATIONS` | 50 | Tree iterations per move decision |
 | `MCTS_ROLLOUT_DEPTH` | 50 | Steps per MCTS playout |
 | `ISMCTS_ITERATIONS` | 50 | Tree iterations per move decision |
@@ -373,6 +426,6 @@ On no-reveal:
 - **MCTS backpropagation**: No sign-flip at opponent nodes (treated as cooperative/racing rather than zero-sum). This is intentional but departs from standard MCTS theory.
 - **Suggestion location**: Agents always suggest in their current room; no separate optimization of which room to move to in order to make a better suggestion.
 - **Card reveal privacy**: When an opponent reveals a card during another player's suggestion, AI agents do not model which specific card was shown (only the suggesting player learns).
-- **Determinization scope**: Only Minimax and IS-MCTS use determinization. Monte Carlo and MCTS rely on rollouts with real card sets but do not explicitly enumerate worlds.
+- **Determinization scope**: Only Minimax and IS-MCTS use determinization. MCTS relies on rollouts with real card sets but does not explicitly enumerate worlds.
 - **No bluffing**: No agent models deceptive suggestion strategies to mislead opponents.
 - **Single Bayesian update**: The notebook uses a simple multiplicative boost for no-reveals, not a full likelihood-ratio update over hand-size distributions.

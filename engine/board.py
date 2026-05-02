@@ -5,6 +5,7 @@ Purpose: Manages the game board representing KUET campus locations.
 This module handles the map layout, room connections, and player movement.
 """
 
+import heapq
 import networkx as nx
 
 
@@ -81,13 +82,66 @@ class Board:
         return list(self.graph.nodes)
 
     def get_valid_moves(self, start, steps=1):
-        """Return directly adjacent rooms reachable within the dice budget."""
-        valid = []
-        for neighbor in self.graph.neighbors(start):
-            corridor_length = self.graph[start][neighbor].get("weight", 1)
-            if corridor_length <= steps:
-                valid.append(neighbor)
-        return valid
+        """Return all rooms reachable from start within the step budget.
+
+        Uses Dijkstra's algorithm so multi-hop paths are correctly accounted
+        for: a room is reachable if the *shortest-path cost* (sum of corridor
+        weights along the cheapest route) does not exceed `steps`.
+
+        This matches real Cluedo movement where a player may traverse multiple
+        corridors in one turn as long as the total square count stays within
+        the dice total, stopping only when they choose to enter a room.
+
+        Args:
+            start (str): Current room name.
+            steps (int): Dice-total movement budget (default 1).
+
+        Returns:
+            list[str]: Room names reachable within the step budget (excludes
+                       the starting room itself).
+        """
+        if start not in self.graph:
+            return []
+
+        dist = {start: 0}
+        heap = [(0, start)]
+        reachable = []
+
+        while heap:
+            cost, node = heapq.heappop(heap)
+            if cost > dist.get(node, float("inf")):
+                continue
+            if node != start:
+                reachable.append(node)
+            for neighbor in self.graph.neighbors(node):
+                edge_cost = self.graph[node][neighbor].get("weight", 1)
+                new_cost = cost + edge_cost
+                if new_cost <= steps and new_cost < dist.get(neighbor, float("inf")):
+                    dist[neighbor] = new_cost
+                    heapq.heappush(heap, (new_cost, neighbor))
+
+        return reachable
+
+    def get_shortest_path_cost(self, start: str, end: str) -> int:
+        """Return the minimum total corridor cost between two rooms.
+
+        Useful for AI agents that want to estimate how many turns it will
+        take to reach a target room given a typical dice roll.
+
+        Args:
+            start (str): Origin room name.
+            end (str): Destination room name.
+
+        Returns:
+            int: Minimum total step cost, or 0 if start == end,
+                 or a large sentinel (999) if no path exists.
+        """
+        if start == end:
+            return 0
+        try:
+            return nx.shortest_path_length(self.graph, start, end, weight="weight")
+        except (nx.NetworkXNoPath, nx.NodeNotFound):
+            return 999
 
     def get_passage_destination(self, location):
         """Return the secret-passage exit for the given room, or None."""

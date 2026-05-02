@@ -30,7 +30,7 @@ class NegamaxAI(StrategicEvaluationMixin, BaseAI):
             )
         if depth < 1:
             raise ValueError("depth must be >= 1")
-        self.depth = depth
+        self.depth = min(depth, 3)
 
     def negamax(self, state: Any, depth: int, alpha: float, beta: float) -> float:
         """Evaluate a state via Negamax with alpha-beta pruning.

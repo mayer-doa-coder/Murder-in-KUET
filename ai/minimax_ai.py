@@ -499,13 +499,30 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
         """Delegate to the centralized strategic evaluation pipeline."""
         return super().evaluate(state)
 
-    def minimax(self, state: GameState, depth: int, maximizing: bool) -> float:
-        """Evaluate a state via recursive minimax search.
+    def minimax(
+        self,
+        state: GameState,
+        depth: int,
+        maximizing: bool,
+        alpha: float = -inf,
+        beta: float = inf,
+    ) -> float:
+        """Evaluate a state via recursive minimax with alpha-beta pruning.
+
+        Alpha-beta pruning eliminates subtrees that cannot influence the final
+        decision: a β-cutoff stops the maximizer when it finds a value ≥ beta
+        (the minimizer would never allow this), and an α-cutoff stops the
+        minimizer when it finds a value ≤ alpha.
+
+        Move ordering is applied before the loop so the best candidates are
+        evaluated first, maximising the frequency of early cutoffs.
 
         Args:
             state (GameState): Search state to evaluate.
             depth (int): Remaining depth budget. Must be >= 0.
             maximizing (bool): True for maximizing node, False for minimizing.
+            alpha (float): Lower bound — maximizer's best guaranteed score.
+            beta (float): Upper bound — minimizer's best guaranteed score.
 
         Returns:
             float: Utility estimate for the input state.
@@ -526,32 +543,66 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
         if not moves:
             return self.evaluate(state)
 
+        # Sort moves so the most promising ones are tried first, producing
+        # earlier alpha-beta cutoffs and reducing the effective branching factor.
+        ordered = self._order_moves(state, moves, maximizing)
+
         if maximizing:
             max_eval = -inf
             progressed = False
-            for move in moves:
+            for move in ordered:
                 new_state = _simulate_state(state, move)
                 if new_state is None:
                     continue
                 progressed = True
-                eval_score = self.minimax(new_state, depth - 1, False)
-                max_eval = max(max_eval, eval_score)
+                score = self.minimax(new_state, depth - 1, False, alpha, beta)
+                if score > max_eval:
+                    max_eval = score
+                alpha = max(alpha, max_eval)
+                if alpha >= beta:
+                    break  # β-cutoff: minimizer will never choose this branch
             if not progressed:
                 return self.evaluate(state)
             return float(max_eval)
 
         min_eval = inf
         progressed = False
-        for move in moves:
+        for move in ordered:
             new_state = _simulate_state(state, move)
             if new_state is None:
                 continue
             progressed = True
-            eval_score = self.minimax(new_state, depth - 1, True)
-            min_eval = min(min_eval, eval_score)
+            score = self.minimax(new_state, depth - 1, True, alpha, beta)
+            if score < min_eval:
+                min_eval = score
+            beta = min(beta, min_eval)
+            if alpha >= beta:
+                break  # α-cutoff: maximizer already has a better option
         if not progressed:
             return self.evaluate(state)
         return float(min_eval)
+
+    def _order_moves(
+        self, state: GameState, moves: list[str], maximizing: bool = True
+    ) -> list[str]:
+        """Sort moves by shallow heuristic evaluation for better cutoffs.
+
+        Evaluates each successor state at depth 0 and orders moves so the
+        most promising candidates are tried first.  For the maximizer, higher-
+        scoring moves come first; for the minimizer, lower-scoring moves first.
+        On a small board (≤ 9 nodes) the overhead is negligible.
+        """
+        if len(moves) <= 1:
+            return moves
+
+        scored: list[tuple[float, str]] = []
+        for move in moves:
+            new_state = _simulate_state(state, move)
+            score = self.evaluate(new_state) if new_state is not None else 0.0
+            scored.append((score, move))
+
+        scored.sort(key=lambda x: x[0], reverse=maximizing)
+        return [m for _, m in scored]
 
     def choose_move(self, state: Any, valid_moves: Sequence[str]) -> str | None:
         """Select the best move by scoring each candidate with minimax.
@@ -572,18 +623,24 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
 
         search_state = self._coerce_state(state, valid_moves)
 
+        # Order root moves so the highest-scoring branch is explored first.
+        # This tightens the alpha lower bound early, improving cutoff frequency.
+        ordered = self._order_moves(search_state, list(valid_moves), maximizing=True)
+
         best_move: str | None = None
         best_score = -inf
+        alpha = -inf  # running lower bound — updated as better moves are found
 
-        for move in valid_moves:
+        for move in ordered:
             new_state = _simulate_state(search_state, move)
             if new_state is None:
                 continue
 
-            score = self.minimax(new_state, self.depth, False)
+            score = self.minimax(new_state, self.depth, False, alpha, inf)
             if score > best_score:
                 best_score = score
                 best_move = move
+                alpha = max(alpha, best_score)  # tighten for subsequent moves
 
         if best_move is None:
             best_move = safe_random_choice(valid_moves)
@@ -617,24 +674,39 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
             else:
                 raise ValueError("Invalid state: missing current location")
 
+        # Rank suspect+weapon pairs by Bayesian notebook probability so we
+        # evaluate the most likely candidates first (earlier cutoffs + better fallback).
+        notebook = getattr(search_state, "notebook", None)
+        s_probs = getattr(notebook, "suspects", {}) if notebook else {}
+        w_probs = getattr(notebook, "weapons", {}) if notebook else {}
+
+        max_s = get_positive_int(AI_CONFIG, "MINIMAX_MAX_TREE_SUSPECT_CANDIDATES", 3)
+        max_w = get_positive_int(AI_CONFIG, "MINIMAX_MAX_TREE_WEAPON_CANDIDATES", 3)
+
+        ranked_pairs = sorted(
+            [(s, w) for s in suspects for w in weapons],
+            key=lambda sw: s_probs.get(sw[0], 0.0) + w_probs.get(sw[1], 0.0),
+            reverse=True,
+        )[: max_s * max_w]
+
         best: tuple[str, str, str] | None = None
         best_score = -inf
+        alpha = -inf  # tighten across suggestion candidates
 
-        for suspect in suspects:
-            for weapon in weapons:
-                suggestion = (suspect, weapon, location)
-                try:
-                    new_state = search_state.simulate_suggestion(suggestion)
-                except Exception:
-                    continue
+        for suspect, weapon in ranked_pairs:
+            suggestion = (suspect, weapon, location)
+            try:
+                new_state = search_state.simulate_suggestion(suggestion)
+            except Exception:
+                continue
 
-                score = self.minimax(new_state, self.depth, False)
-                if score > best_score:
-                    best_score = score
-                    best = suggestion
+            score = self.minimax(new_state, self.depth, False, alpha, inf)
+            if score > best_score:
+                best_score = score
+                best = suggestion
+                alpha = max(alpha, best_score)
 
         if best is None:
-            notebook = getattr(search_state, "notebook", None)
             most_likely = getattr(notebook, "most_likely", None)
             if callable(most_likely):
                 try:

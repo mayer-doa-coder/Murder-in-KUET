@@ -1,21 +1,25 @@
 """
-api.py - Flask API bridge between the Python AI engine and the Godot frontend.
+api.py - Flask REST API for Murder in KUET.
 
 Exposes:
-    POST /game/start   — create a new session with configured AI players
-    POST /turn         — execute one AI turn (session mode or stateless mode)
-    GET  /game/state   — inspect current state for a running session
-    GET  /health       — liveness probe
+    POST /game/start    — create a new session (AI + human players supported)
+    POST /turn          — execute one turn; detects AI vs human automatically
+    POST /human/turn    — submit human player's choices to advance their turn
+    GET  /game/state    — inspect current state for a running session
+    GET  /health        — liveness probe
 
 Session mode (recommended):
-    Godot calls /game/start once, stores the returned session_id, then calls
-    /turn with that session_id for each turn.  The server holds the live
-    GameState in memory between calls.
+    The client calls /game/start once, stores the returned session_id, then
+    calls /turn for each turn.  The server holds the live GameState in memory.
 
-Stateless mode (portable):
-    Godot passes the full serialized state in every /turn call along with
-    the hidden _solution.  The server reconstructs, processes, and returns
-    the updated state.  No session_id is needed.
+    AI turn:  /turn executes immediately and returns the result.
+    Human turn: /turn rolls dice, returns ``requires_human_input: true`` with
+                valid_moves and card options.  The frontend presents choices to
+                the player and then calls /human/turn with their selections.
+
+Stateless mode (portable, AI-only):
+    The client passes the full serialized state in every /turn call along with
+    the hidden _solution.  No session_id is needed.
 """
 
 import logging
@@ -27,12 +31,12 @@ from flask import Flask, jsonify, request
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.mcts_ai import MctsAI
 from ai.minimax_ai import MinimaxAI
-from ai.monte_carlo_ai import MonteCarloAI
 from ai.negamax_ai import NegamaxAI
 from ai.random_ai import RandomAI
 from ai.rule_based_ai import RuleBasedAI
+from engine.dice import roll_dice
 from engine.game_state import GameState
-from models.player import AIPlayer
+from models.player import AIPlayer, HumanPlayer
 
 # ── AI registry ───────────────────────────────────────────────────────────────
 # Maps the string name Godot sends to the concrete AI class.  Extend this dict
@@ -42,7 +46,6 @@ AI_REGISTRY: dict[str, type] = {
     "MinimaxAI": MinimaxAI,
     "ExpectiminimaxAI": ExpectiminimaxAI,
     "NegamaxAI": NegamaxAI,
-    "MonteCarloAI": MonteCarloAI,
     "MctsAI": MctsAI,
     "RandomAI": RandomAI,
     "RuleBasedAI": RuleBasedAI,
@@ -173,7 +176,11 @@ def _validate_json_body() -> tuple[dict | None, Any]:
 
 
 def _validate_player_configs(players_cfg: Any) -> str | None:
-    """Return an error message string if the player config list is invalid."""
+    """Return an error message string if the player config list is invalid.
+
+    Each entry must have a non-empty ``name``.  AI players need a valid
+    ``ai_type``; human players set ``is_human: true`` and omit ``ai_type``.
+    """
     if not isinstance(players_cfg, list):
         return "players must be a JSON array"
     if len(players_cfg) < _MIN_PLAYERS:
@@ -185,6 +192,9 @@ def _validate_player_configs(players_cfg: Any) -> str | None:
             return f"players[{i}] must be a JSON object"
         if not isinstance(cfg.get("name"), str) or not cfg["name"].strip():
             return f"players[{i}].name must be a non-empty string"
+        is_human = bool(cfg.get("is_human", False))
+        if is_human:
+            continue  # human players do not need an ai_type
         ai_type = cfg.get("ai_type", "RandomAI")
         if ai_type not in AI_REGISTRY:
             valid = sorted(AI_REGISTRY)
@@ -216,14 +226,14 @@ def health():
 
 @app.route("/game/start", methods=["POST"])
 def game_start():
-    """Create a new game session with the specified AI players.
+    """Create a new game session with any mix of AI and human players.
 
     Request body (JSON):
     {
         "players": [
-            {"name": "Alice", "ai_type": "MinimaxAI"},
-            {"name": "Bob",   "ai_type": "MctsAI"},
-            {"name": "Carol", "ai_type": "MonteCarloAI"}
+            {"name": "Alice",  "ai_type": "MinimaxAI"},
+            {"name": "Bob",    "ai_type": "MctsAI"},
+            {"name": "Charlie","is_human": true}
         ]
     }
 
@@ -247,20 +257,26 @@ def game_start():
 
     state = GameState()
     for cfg in players_cfg:
-        ai_type = cfg.get("ai_type", "RandomAI")
-        agent = AI_REGISTRY[ai_type]()
-        player = AIPlayer(cfg["name"].strip(), agent)
+        name = cfg["name"].strip()
+        if bool(cfg.get("is_human", False)):
+            player = HumanPlayer(name)
+        else:
+            ai_type = cfg.get("ai_type", "RandomAI")
+            agent = AI_REGISTRY[ai_type]()
+            player = AIPlayer(name, agent)
         state.add_player(player)
 
     state.setup_game()
 
     session_id = str(uuid.uuid4())
-    _sessions[session_id] = {"state": state}
+    _sessions[session_id] = {"state": state, "pending_human": None}
 
+    human_count = sum(1 for p in state.players if not p.is_ai)
     logger.info(
-        "Session created: %s | players=%s",
+        "Session created: %s | players=%s | human_players=%d",
         session_id,
         [p.name for p in state.players],
+        human_count,
     )
 
     return jsonify({"session_id": session_id, "state": state.to_dict()}), 200
@@ -268,41 +284,15 @@ def game_start():
 
 @app.route("/turn", methods=["POST"])
 def turn():
-    """Execute one AI turn.
+    """Execute one turn, handling AI and human players automatically.
 
-    Supports two modes determined by the request body:
+    Session mode: {"session_id": "<uuid>"}
+      - AI turn: executes and returns full result.
+      - Human turn: rolls dice, stores context, returns requires_human_input:true.
+        Follow up with POST /human/turn to submit human choices.
 
-    ── Session mode ────────────────────────────────────────────────────────────
-    The server holds the live GameState.  Godot supplies only the session_id.
-
-    Request body:
-    {
-        "session_id": "<uuid>"
-    }
-
-    ── Stateless mode ──────────────────────────────────────────────────────────
-    Godot sends the full serialized state each request.  The server
-    reconstructs the state, processes the turn, and returns the updated state.
-
-    Request body:
-    {
-        "state": { ...GameState.to_dict() output... },
-        "_solution": {
-            "suspect":  "<name>",
-            "weapon":   "<name>",
-            "location": "<name>"
-        }
-    }
-
-    ── Response (both modes, 200) ───────────────────────────────────────────────
-    {
-        "move":       "<location>" | null,
-        "suggestion": ["<suspect>", "<weapon>", "<location>"] | null,
-        "accusation": {"suspect": "...", "weapon": "...", "location": "..."} | null,
-        "game_over":  false,
-        "winner":     null | "<player name>",
-        "state":      { ...GameState.to_dict()... }
-    }
+    Stateless mode (AI-only):
+      {"state": {...}, "_solution": {"suspect":"...","weapon":"...","location":"..."}}
 
     Error responses: 400 (bad input), 404 (session not found), 500 (engine fault).
     """
@@ -312,7 +302,7 @@ def turn():
 
     logger.info("POST /turn — keys=%s", sorted(body.keys()))
 
-    # ── Session mode ──────────────────────────────────────────────────────────
+    # Session mode
     if "session_id" in body:
         session_id = body["session_id"]
         if not isinstance(session_id, str) or not session_id.strip():
@@ -337,6 +327,38 @@ def turn():
                 "state": state.to_dict(),
             }), 200
 
+        current_player = state.get_current_player()
+
+        # Human turn: prepare context, store it, ask the frontend for input.
+        if current_player is not None and not current_player.is_ai:
+            context = state.get_human_turn_context()
+            if not context:
+                return jsonify({"error": "Could not prepare human turn context"}), 500
+
+            session["pending_human"] = {
+                "dice": context["dice"],
+                "valid_moves": context["valid_moves"],
+            }
+            logger.info(
+                "Human turn — session=%s player=%s dice=%d valid_moves=%s",
+                session_id,
+                context["player_name"],
+                context["dice"].total,
+                context["valid_moves"],
+            )
+            return jsonify({
+                "requires_human_input": True,
+                "player": context["player_name"],
+                "dice": _serialize_dice(context["dice"]),
+                "valid_moves": context["valid_moves"],
+                "suspects": context["suspects"],
+                "weapons": context["weapons"],
+                "game_over": False,
+                "winner": None,
+                "state": state.to_dict(),
+            }), 200
+
+        # AI turn: execute normally.
         try:
             response = process_turn(state)
         except Exception as exc:
@@ -389,6 +411,136 @@ def turn():
     response["game_over"] = state.game_over
     response["winner"] = state.winner.name if state.winner else None
     return jsonify(response), 200
+
+
+@app.route("/human/turn", methods=["POST"])
+def human_turn():
+    """Submit a human player's choices to execute their pending turn.
+
+    Must be called after /turn returned requires_human_input: true.
+
+    Request body:
+    {
+        "session_id": "<uuid>",
+        "move":    "<room_name>",     # null to stay in current room
+        "suspect": "<suspect_name>",
+        "weapon":  "<weapon_name>",
+        "accuse":  false,             # true to make a final accusation
+        "accusation": {               # required only when accuse is true
+            "suspect":  "<name>",
+            "weapon":   "<name>",
+            "location": "<name>"
+        }
+    }
+
+    Response (200):
+    {
+        "move":          "<location>" | null,
+        "suggestion":    ["<suspect>", "<weapon>", "<location>"] | null,
+        "revealer":      "<player_name>" | null,
+        "revealed_card": "<card_name>" | null,
+        "accusation":    {"suspect":"...","weapon":"...","location":"..."} | null,
+        "dice":          {"die1": 3, "die2": 4, "total": 7},
+        "game_over":     false,
+        "winner":        null | "<player_name>",
+        "state":         { ... }
+    }
+
+    Error responses: 400 (bad input / invalid move), 404 (session not found).
+    """
+    body, err = _validate_json_body()
+    if err:
+        return err
+
+    session_id = body.get("session_id", "")
+    if not isinstance(session_id, str) or not session_id.strip():
+        return jsonify({"error": "session_id must be a non-empty string"}), 400
+
+    session = _sessions.get(session_id.strip())
+    if session is None:
+        return jsonify({"error": f"Session '{session_id}' not found"}), 404
+
+    state: GameState = session["state"]
+
+    if state.game_over:
+        winner_name = state.winner.name if state.winner else None
+        return jsonify({
+            "game_over": True,
+            "winner": winner_name,
+            "state": state.to_dict(),
+        }), 200
+
+    current_player = state.get_current_player()
+    if current_player is None or current_player.is_ai:
+        return jsonify({"error": "Current player is AI — use /turn instead"}), 400
+
+    pending = session.get("pending_human")
+    if pending is None:
+        return jsonify({"error": "No pending human turn. Call /turn first to roll dice."}), 400
+
+    move = body.get("move")
+    suspect = body.get("suspect")
+    weapon = body.get("weapon")
+    accuse = bool(body.get("accuse", False))
+
+    accusation_triple: tuple[str, str, str] | None = None
+    if accuse:
+        acc_data = body.get("accusation")
+        if isinstance(acc_data, dict):
+            s = acc_data.get("suspect", "")
+            w = acc_data.get("weapon", "")
+            loc = acc_data.get("location", "")
+            if all(isinstance(x, str) and x.strip() for x in (s, w, loc)):
+                accusation_triple = (s, w, loc)
+
+    valid_moves: list[str] = pending["valid_moves"]
+    if move is not None and move not in valid_moves:
+        return jsonify({
+            "error": f"Move '{move}' is not reachable this turn. Valid: {valid_moves}"
+        }), 400
+
+    if suspect is not None and suspect not in state.suspects:
+        return jsonify({"error": f"'{suspect}' is not a valid suspect"}), 400
+    if weapon is not None and weapon not in state.weapons:
+        return jsonify({"error": f"'{weapon}' is not a valid weapon"}), 400
+
+    dice_roll = pending["dice"]
+    session["pending_human"] = None
+
+    logger.info(
+        "Human turn input — session=%s player=%s move=%s suspect=%s weapon=%s accuse=%s",
+        session_id,
+        current_player.name,
+        move,
+        suspect,
+        weapon,
+        accuse,
+    )
+
+    try:
+        result = state.execute_human_turn(
+            dice_roll=dice_roll,
+            move=move,
+            suspect=suspect,
+            weapon=weapon,
+            accuse=accuse,
+            accusation_triple=accusation_triple,
+        )
+    except Exception as exc:
+        logger.exception("Human turn execution failed for session %s", session_id)
+        return jsonify({"error": f"Turn execution failed: {exc}"}), 500
+
+    return jsonify({
+        "move": result.get("move"),
+        "suggestion": _serialize_suggestion(result.get("suggestion")),
+        "revealer": result.get("revealer"),
+        "revealed_card": result.get("revealed_card"),
+        "accusation": _serialize_accusation(result.get("accusation")),
+        "dice": _serialize_dice(result.get("dice")),
+        "game_over": state.game_over,
+        "winner": state.winner.name if state.winner else None,
+        "state": state.to_dict(),
+    }), 200
 
 
 @app.route("/game/state", methods=["GET"])

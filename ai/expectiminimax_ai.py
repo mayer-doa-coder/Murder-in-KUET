@@ -41,18 +41,34 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
             raise ValueError("depth must be >= 1")
         self.depth = depth
 
-    def expectiminimax(self, state: Any, depth: int, node_type: str) -> float:
-        """Evaluate a game state via recursive expectiminimax.
+    def expectiminimax(
+        self,
+        state: Any,
+        depth: int,
+        node_type: str,
+        alpha: float = -inf,
+        beta: float = inf,
+    ) -> float:
+        """Evaluate a game state via recursive expectiminimax with alpha-beta.
 
         Node semantics:
-            - "max": this AI selects the action with maximum utility.
-            - "min": opponent selects the action with minimum utility.
+            - "max":    this AI selects the action with maximum utility.
+                        Alpha-beta pruning applied: β-cutoff when value ≥ beta.
+            - "min":    opponent selects the action with minimum utility.
+                        Alpha-beta pruning applied: α-cutoff when value ≤ alpha.
             - "chance": expected utility over probabilistic outcomes.
+                        Bounds cannot be hard-pruned; full expected value computed.
+
+        Alpha-beta bounds are threaded through max and min nodes only.  Chance
+        nodes propagate the bounds to their children but cannot themselves be
+        pruned without knowledge of all branch probabilities upfront.
 
         Args:
             state (Any): Search state snapshot.
             depth (int): Remaining recursion depth (must be >= 0).
             node_type (str): One of "max", "min", or "chance".
+            alpha (float): Lower bound — maximizer's best guaranteed score.
+            beta (float): Upper bound — minimizer's best guaranteed score.
 
         Returns:
             float: Utility estimate for the given state at this node.
@@ -86,8 +102,12 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
                 if new_state is None:
                     continue
                 progressed = True
-                eval_score = self.expectiminimax(new_state, depth - 1, "chance")
-                max_eval = max(max_eval, eval_score)
+                eval_score = self.expectiminimax(new_state, depth - 1, "chance", alpha, beta)
+                if eval_score > max_eval:
+                    max_eval = eval_score
+                alpha = max(alpha, max_eval)
+                if alpha >= beta:
+                    break  # β-cutoff
 
             if not progressed:
                 return self.evaluate(state)
@@ -115,7 +135,7 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
             for prob, next_state in outcomes:
                 effective_prob = (prob / total_prob) if normalize else prob
                 expected_value += effective_prob * self.expectiminimax(
-                    next_state, depth - 1, "min"
+                    next_state, depth - 1, "min", alpha, beta
                 )
 
             return float(expected_value)
@@ -135,8 +155,12 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
             if new_state is None:
                 continue
             progressed = True
-            eval_score = self.expectiminimax(new_state, depth - 1, "max")
-            min_eval = min(min_eval, eval_score)
+            eval_score = self.expectiminimax(new_state, depth - 1, "max", alpha, beta)
+            if eval_score < min_eval:
+                min_eval = eval_score
+            beta = min(beta, min_eval)
+            if alpha >= beta:
+                break  # α-cutoff
 
         if not progressed:
             return self.evaluate(state)
@@ -402,19 +426,21 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
 
         best_move: str | None = None
         best_score = -inf
+        alpha = -inf
 
         for move in valid_moves:
             new_state = self._simulate_state(state, move)
             if new_state is None:
                 continue
 
-            score = self.expectiminimax(new_state, self.depth, "chance")
+            score = self.expectiminimax(new_state, self.depth, "chance", alpha, inf)
             if getattr(self, "debug", False):
                 logger.debug("Evaluating Move: %s, Score: %s", move, score)
 
             if score > best_score:
                 best_score = score
                 best_move = move
+                alpha = max(alpha, best_score)
 
         if best_move is None:
             best_move = safe_random_choice(valid_moves)

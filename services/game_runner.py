@@ -14,8 +14,8 @@ from typing import Any
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.mcts_ai import MctsAI
 from ai.minimax_ai import MinimaxAI
-from ai.monte_carlo_ai import MonteCarloAI
 from ai.negamax_ai import NegamaxAI
+from ai.rule_based_ai import RuleBasedAI
 from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
 from engine.game_state import GameState
 from models.player import AIPlayer
@@ -98,7 +98,7 @@ def _create_metrics() -> dict[str, dict[str, float]]:
         "MinimaxAI": _blank_metrics(),
         "ExpectiminimaxAI": _blank_metrics(),
         "NegamaxAI": _blank_metrics(),
-        "MonteCarloAI": _blank_metrics(),
+        "RuleBasedAI": _blank_metrics(),
         "MctsAI": _blank_metrics(),
     }
 
@@ -115,10 +115,7 @@ def _create_comparison_players(
             ExpectiminimaxAI(depth=AI_CONFIG.get("EXPECTIMINIMAX_DEPTH")),
         ),
         ("AI Player 3", NegamaxAI(depth=AI_CONFIG.get("NEGAMAX_DEPTH"))),
-        (
-            "AI Player 4",
-            MonteCarloAI(simulations=AI_CONFIG.get("MONTE_CARLO_SIMULATIONS")),
-        ),
+        ("AI Player 4", RuleBasedAI()),
         (
             "AI Player 5",
             MctsAI(

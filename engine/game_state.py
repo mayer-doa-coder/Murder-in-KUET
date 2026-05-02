@@ -322,13 +322,11 @@ class GameState:
             return
 
         for player in self.players:
-            if not getattr(player, "is_ai", False):
+            notebook = getattr(player, "notebook", None)
+            if notebook is None:
+                if getattr(player, "is_ai", False):
+                    raise ValueError("AI player notebook not initialized")
                 continue
-
-            if not hasattr(player, "notebook"):
-                raise ValueError("Player notebook not initialized")
-
-            notebook = player.notebook
             if card is not None:
                 # Only the suggesting player learns which card was revealed.
                 if suggesting_player is not None and player is not suggesting_player:
@@ -578,8 +576,21 @@ class GameState:
         self.check_end_conditions()
         return False
 
-    def run_turn(self):
+    def run_turn(
+        self,
+        human_move_selector=None,
+        human_suggestion_selector=None,
+        human_accusation_selector=None,
+    ):
         """Run one full turn while respecting active/inactive player status.
+
+        Args:
+            human_move_selector: Optional callback ``(player, valid_moves, state)``
+                returning the chosen room name or None to stay.
+            human_suggestion_selector: Optional callback ``(player, state)``
+                returning ``(suspect, weapon)``.
+            human_accusation_selector: Optional callback ``(player, state)``
+                returning None, bool, or ``(suspect, weapon, location)`` tuple.
 
         Returns:
             dict | None: Turn result for active player turns, otherwise None.
@@ -718,10 +729,262 @@ class GameState:
                 result["accusation"] = accusation
                 self.resolve_accusation(player, accusation)
 
+        else:
+            # ── Human turn ──────────────────────────────────────────────────
+            dice_roll = roll_dice()
+            self.last_dice_roll = dice_roll
+            result["dice"] = dice_roll
+
+            if player.position is None:
+                valid_moves = self.board.get_all_locations()
+            else:
+                valid_moves = self.board.get_valid_moves(
+                    player.position, dice_roll.total
+                )
+                passage_dest = self.board.get_passage_destination(player.position)
+                if passage_dest and passage_dest not in valid_moves:
+                    valid_moves = valid_moves + [passage_dest]
+
+            move = None
+            if human_move_selector is not None:
+                move = human_move_selector(player, valid_moves, self)
+            elif valid_moves:
+                move = safe_random_choice(valid_moves)
+
+            if move in valid_moves:
+                player.move(move)
+            elif move is not None:
+                logger.warning(
+                    "Human returned invalid move '%s' in run_turn; ignoring", move
+                )
+
+            self.current_location = player.position
+            result["move"] = player.position
+
+            suspect, weapon = None, None
+            if human_suggestion_selector is not None:
+                suspect, weapon = human_suggestion_selector(player, self)
+
+            if not suspect or suspect not in self.suspects:
+                suspect = safe_random_choice(self.suspects)
+            if not weapon or weapon not in self.weapons:
+                weapon = safe_random_choice(self.weapons)
+
+            suggestion = player.make_suggestion(suspect, weapon, player.position)
+            if suggestion is None:
+                if not self.game_over:
+                    self.next_turn()
+                return result
+            result["suggestion"] = suggestion
+
+            revealer, card = reveal_clue(
+                suggestion, self.players, self.current_turn % len(self.players)
+            )
+            self._apply_bayesian_notebook_updates(
+                suggestion, card, suggesting_player=player
+            )
+            if card is not None:
+                result["revealer"] = revealer.name if revealer is not None else None
+                result["revealed_card"] = card.name
+
+            decision = None
+            if human_accusation_selector is not None:
+                decision = human_accusation_selector(player, self)
+
+            should_accuse = False
+            accusation = None
+            if isinstance(decision, bool):
+                should_accuse = decision
+            elif decision is not None:
+                should_accuse = True
+                accusation = decision
+
+            if should_accuse:
+                if isinstance(accusation, tuple) and len(accusation) == 3:
+                    accusation = player.make_accusation(
+                        accusation[0], accusation[1], accusation[2]
+                    )
+                elif accusation is None:
+                    if hasattr(player, "notebook") and hasattr(
+                        player.notebook, "most_likely"
+                    ):
+                        try:
+                            best_s, best_w, best_l = player.notebook.most_likely()
+                            accusation = player.make_accusation(best_s, best_w, best_l)
+                        except Exception:
+                            accusation = player.make_accusation(
+                                suspect, weapon, player.position
+                            )
+                    else:
+                        accusation = player.make_accusation(
+                            suspect, weapon, player.position
+                        )
+                result["accusation"] = accusation
+                self.resolve_accusation(player, accusation)
+
         if not self.game_over:
             self.next_turn()
 
         return result
+
+    def execute_human_turn(
+        self,
+        dice_roll=None,
+        move: str | None = None,
+        suspect: str | None = None,
+        weapon: str | None = None,
+        accuse: bool = False,
+        accusation_triple: tuple[str, str, str] | None = None,
+    ) -> dict:
+        """Execute a human player's turn using explicit inputs from an external source.
+
+        Designed for API/UI integration: the frontend supplies the human's
+        choices after receiving the valid-move list from a prior call.
+
+        Args:
+            dice_roll: Pre-rolled DiceRoll namedtuple, or None to roll fresh.
+            move: Destination room name, or None to stay in current room.
+            suspect: Suggested suspect card name.
+            weapon: Suggested weapon card name.
+            accuse: Whether the player wants to make a final accusation.
+            accusation_triple: Explicit ``(suspect, weapon, location)`` for
+                the accusation; if *accuse* is True and this is None the
+                notebook's best-guess is used instead.
+
+        Returns:
+            dict with keys: dice, move, suggestion, revealer, revealed_card,
+            accusation (each may be None).
+
+        Raises:
+            ValueError: If the current player is an AI agent.
+        """
+        if self.game_over:
+            return {}
+
+        player = self.get_current_player()
+        if player is None or not player.active:
+            return {}
+
+        if getattr(player, "is_ai", False):
+            raise ValueError(
+                f"execute_human_turn called on AI player '{player.name}'"
+            )
+
+        if dice_roll is None:
+            dice_roll = roll_dice()
+        self.last_dice_roll = dice_roll
+
+        result: dict = {
+            "dice": dice_roll,
+            "move": None,
+            "suggestion": None,
+            "revealer": None,
+            "revealed_card": None,
+            "accusation": None,
+        }
+
+        # Movement
+        if player.position is None:
+            valid_moves = self.board.get_all_locations()
+        else:
+            valid_moves = self.board.get_valid_moves(player.position, dice_roll.total)
+            passage_dest = self.board.get_passage_destination(player.position)
+            if passage_dest and passage_dest not in valid_moves:
+                valid_moves = valid_moves + [passage_dest]
+
+        if move is not None and move in valid_moves:
+            player.move(move)
+        elif move is not None:
+            logger.warning(
+                "Human move '%s' not in valid_moves for %s; ignoring", move, player.name
+            )
+        self.current_location = player.position
+        result["move"] = player.position
+
+        # Suggestion — fall back to random valid cards if human omits
+        if not suspect or suspect not in self.suspects:
+            suspect = safe_random_choice(self.suspects)
+        if not weapon or weapon not in self.weapons:
+            weapon = safe_random_choice(self.weapons)
+
+        suggestion = player.make_suggestion(suspect, weapon, player.position)
+        if suggestion is None:
+            if not self.game_over:
+                self.next_turn()
+            return result
+        result["suggestion"] = suggestion
+
+        revealer, card = reveal_clue(
+            suggestion, self.players, self.current_turn % len(self.players)
+        )
+        self._apply_bayesian_notebook_updates(
+            suggestion, card, suggesting_player=player
+        )
+        if card is not None:
+            result["revealer"] = revealer.name if revealer is not None else None
+            result["revealed_card"] = card.name
+
+        # Accusation
+        if accuse:
+            triple = accusation_triple
+            if triple is None:
+                if hasattr(player, "notebook") and hasattr(
+                    player.notebook, "most_likely"
+                ):
+                    try:
+                        triple = player.notebook.most_likely()
+                    except Exception:
+                        triple = (suspect, weapon, player.position)
+                else:
+                    triple = (suspect, weapon, player.position)
+            accusation_obj = player.make_accusation(triple[0], triple[1], triple[2])
+            result["accusation"] = accusation_obj
+            self.resolve_accusation(player, accusation_obj)
+
+        if not self.game_over:
+            self.next_turn()
+
+        return result
+
+    def get_human_turn_context(self) -> dict:
+        """Return the information a human player needs before choosing their move.
+
+        Rolls dice for the current human turn and returns the valid moves,
+        candidate suspects/weapons, and current board positions.  The caller
+        MUST inject the returned ``dice_roll`` into ``execute_human_turn``
+        so the move is validated against the same roll.
+
+        Returns:
+            dict with keys: player_name, dice, valid_moves, suspects, weapons,
+            current_position.  Returns empty dict when game is over or the
+            current player is an AI.
+        """
+        if self.game_over:
+            return {}
+
+        player = self.get_current_player()
+        if player is None or not player.active or getattr(player, "is_ai", False):
+            return {}
+
+        dice_roll = roll_dice()
+        self.last_dice_roll = dice_roll
+
+        if player.position is None:
+            valid_moves = self.board.get_all_locations()
+        else:
+            valid_moves = self.board.get_valid_moves(player.position, dice_roll.total)
+            passage_dest = self.board.get_passage_destination(player.position)
+            if passage_dest and passage_dest not in valid_moves:
+                valid_moves = valid_moves + [passage_dest]
+
+        return {
+            "player_name": player.name,
+            "dice": dice_roll,
+            "valid_moves": valid_moves,
+            "suspects": list(self.suspects),
+            "weapons": list(self.weapons),
+            "current_position": player.position,
+        }
 
     def run_game(
         self,
@@ -995,6 +1258,7 @@ class GameState:
                 {
                     "name": player.name,
                     "is_ai": player.is_ai,
+                    "is_human": not player.is_ai,
                     "ai_type": ai_type,
                     "position": player.position,
                     "active": player.active,
@@ -1049,7 +1313,7 @@ class GameState:
         """
         from engine.cards import Card
         from engine.dice import DiceRoll
-        from models.player import AIPlayer, Player
+        from models.player import AIPlayer, HumanPlayer, Player
 
         if not isinstance(data, dict):
             raise TypeError("data must be a dict")
@@ -1091,6 +1355,8 @@ class GameState:
             if is_ai and ai_type and ai_type in registry:
                 agent = registry[ai_type]()
                 player: Player = AIPlayer(name, agent)
+            elif not is_ai:
+                player = HumanPlayer(name)
             else:
                 player = Player(name, is_ai=is_ai)
 

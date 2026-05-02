@@ -21,6 +21,11 @@ class Player:
         self.active = True  # set to False on a wrong accusation
         self.notebook = Notebook(suspects, weapons, locations)
 
+    @property
+    def is_human(self) -> bool:
+        """Return True for human-controlled players."""
+        return not self.is_ai
+
     def add_card(self, card):
         """Add a card to the player's hand and eliminate it from the notebook.
 
@@ -143,6 +148,16 @@ class Player:
 
     def __repr__(self):
         return f"Player({self.name}, AI={self.is_ai}, Active={self.active})"
+
+
+class HumanPlayer(Player):
+    """Human-controlled player. Decisions are supplied externally via callbacks or API input."""
+
+    def __init__(self, name: str):
+        super().__init__(name, is_ai=False)
+
+    def __repr__(self):
+        return f"HumanPlayer({self.name}, position={self.position})"
 
 
 class AIPlayer(Player):
