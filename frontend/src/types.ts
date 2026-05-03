@@ -2,6 +2,25 @@
 export type Difficulty  = 'easy' | 'medium' | 'hard'
 export type PlayerType  = 'human' | 'computer'
 export type CardCategory = 'suspect' | 'weapon' | 'location'
+export type GamePhase   = 'idle' | 'rolling' | 'dice' | 'moving' | 'interrogation' | 'accusation' | 'reveal_result' | 'game_over'
+
+export interface PlayerStatus {
+  eliminated: boolean
+  hasAccused:  boolean
+}
+
+export interface RevealResult {
+  type:               'interrogation' | 'accusation'
+  suspectId:          string
+  weaponId:           string
+  locationId:         string  // location card id (mapped from room id for interrogation)
+  roomName?:          string  // human-readable room name (interrogation only)
+  revealedCardId:     string | null
+  revealedByName:     string | null
+  correct?:           boolean       // accusation only
+  accusingPlayerName?: string
+  accusingPlayerIcon?: string
+}
 
 export type Screen =
   | 'intro'
@@ -21,6 +40,7 @@ export type CellType = 'hallway' | 'room' | 'void' | 'start' | 'door'
 export interface Cell {
   type: CellType
   roomId: string | null
+  isWalkable: boolean
 }
 
 export interface BoardPlayer {
@@ -28,7 +48,8 @@ export interface BoardPlayer {
   name: string
   icon: string
   accentColor: string
-  position: [number, number]  // [col, row]
+  position: [number, number]        // [col, row]; when inside a room this is the entry door cell
+  currentLocation: string | null    // roomId when fully inside a room, null when on grid
 }
 
 // ── Setup-phase types ─────────────────────────────────────────────────────────
