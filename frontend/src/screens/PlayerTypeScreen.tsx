@@ -2,44 +2,48 @@ import { motion } from 'framer-motion'
 import { useState, useEffect, useCallback } from 'react'
 import CharacterCard from '../components/CharacterCard'
 import PixelMenu from '../components/PixelMenu'
-import type { Character, PlayerType } from '../types'
+import type { Character, GameMode, PlayerType } from '../types'
 
 interface PlayerTypeScreenProps {
   playerIndex: number
   character: Character
+  gameMode: GameMode
   onSelect: (type: PlayerType) => void
   onBack: () => void
 }
 
-const MENU_ITEMS = [
-  { label: 'HUMAN',    desc: 'you play',      accentColor: '#33cc33' },
-  { label: 'COMPUTER', desc: 'AI controls',   accentColor: '#cc4400' },
+const ALL_MENU_ITEMS = [
+  { label: 'HUMAN',    desc: 'you play',      accentColor: '#33cc33', type: 'human'    as PlayerType },
+  { label: 'COMPUTER', desc: 'AI controls',   accentColor: '#cc4400', type: 'computer' as PlayerType },
 ]
 
 export default function PlayerTypeScreen({
   playerIndex,
   character,
+  gameMode,
   onSelect,
   onBack,
 }: PlayerTypeScreenProps) {
+  // In human_vs_ai, both options are available. HvH/AIvAI bypass this screen entirely.
+  const menuItems = ALL_MENU_ITEMS
   const [selected, setSelected] = useState(0)
 
   const handleConfirm = useCallback(() => {
-    onSelect(selected === 0 ? 'human' : 'computer')
-  }, [selected, onSelect])
+    onSelect(menuItems[selected].type)
+  }, [selected, onSelect, menuItems])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp')   setSelected(s => Math.max(0, s - 1))
-      if (e.key === 'ArrowDown') setSelected(s => Math.min(1, s + 1))
+      if (e.key === 'ArrowDown') setSelected(s => Math.min(menuItems.length - 1, s + 1))
       if (e.key === 'Enter')     handleConfirm()
       if (e.key === 'Escape')    onBack()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [handleConfirm, onBack])
+  }, [handleConfirm, onBack, menuItems])
 
-  const playerColors = ['#4477ff', '#33aa33', '#cc2200']
+  const playerColors = ['#4477ff', '#33aa33', '#cc2200', '#cc8800', '#cc00cc', '#00cccc']
   const playerAccent = playerColors[playerIndex] ?? '#b8860b'
 
   return (
@@ -135,7 +139,7 @@ export default function PlayerTypeScreen({
 
           {/* ── MENU ── */}
           <PixelMenu
-            items={MENU_ITEMS}
+            items={menuItems}
             selectedIndex={selected}
             onItemHover={setSelected}
             onItemClick={handleConfirm}

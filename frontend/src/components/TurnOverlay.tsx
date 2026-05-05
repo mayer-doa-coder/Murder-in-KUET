@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 
-type ActionId = 'roll' | 'interrogation' | 'accusation' | 'cards'
+type ActionId = 'roll' | 'interrogation' | 'accusation' | 'cards' | 'notes'
 
 interface MenuEntry {
   id: ActionId
@@ -10,10 +10,11 @@ interface MenuEntry {
 }
 
 const ITEMS: MenuEntry[] = [
-  { id: 'roll',          label: 'ROLL',         enabled: true  },
-  { id: 'interrogation', label: 'INTERROGATION', enabled: true  },
-  { id: 'accusation',    label: 'ACCUSATION',    enabled: true  },
-  { id: 'cards',         label: 'CARDS',         enabled: false },
+  { id: 'roll',          label: 'ROLL',         enabled: true },
+  { id: 'interrogation', label: 'INTERROGATION', enabled: true },
+  { id: 'accusation',    label: 'ACCUSATION',    enabled: true },
+  { id: 'cards',         label: 'CARDS',         enabled: true },
+  { id: 'notes',         label: 'CLUE NOTES',    enabled: true },
 ]
 
 interface Props {
@@ -150,15 +151,6 @@ export default function TurnOverlay({
               }}>
                 {item.label}
               </span>
-
-              {/* Permanently locked indicator */}
-              {!item.enabled && (
-                <span className="font-pixel" style={{
-                  fontSize: '5px', color: '#443333', marginLeft: 2,
-                }}>
-                  ──
-                </span>
-              )}
 
               {/* Runtime-disabled indicator */}
               {item.enabled && disabledActions.includes(item.id) && (

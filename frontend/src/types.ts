@@ -1,8 +1,24 @@
 // ── Basic game enums ──────────────────────────────────────────────────────────
-export type Difficulty  = 'easy' | 'medium' | 'hard'
-export type PlayerType  = 'human' | 'computer'
+export type Difficulty   = 'easy' | 'medium' | 'hard'
+export type PlayerType   = 'human' | 'computer'
 export type CardCategory = 'suspect' | 'weapon' | 'location'
-export type GamePhase   = 'idle' | 'rolling' | 'dice' | 'moving' | 'interrogation' | 'accusation' | 'reveal_result' | 'game_over'
+export type GamePhase    = 'idle' | 'rolling' | 'dice' | 'moving' | 'interrogation' | 'accusation' | 'story' | 'reveal_result' | 'game_over'
+export type GameMode     = 'human_vs_human' | 'human_vs_ai' | 'ai_vs_ai'
+export type AIAlgorithm  = 'random' | 'rule_based' | 'minimax' | 'expectiminimax' | 'negamax' | 'monte_carlo' | 'mcts'
+
+export const AI_ALGORITHM_LABELS: Record<AIAlgorithm, string> = {
+  random:         'RANDOM',
+  rule_based:     'RULE-BASED',
+  minimax:        'MINIMAX',
+  expectiminimax: 'EXPECTIMINIMAX',
+  negamax:        'NEGAMAX',
+  monte_carlo:    'MONTE CARLO',
+  mcts:           'MCTS',
+}
+
+export const ALL_ALGORITHMS: AIAlgorithm[] = [
+  'random', 'rule_based', 'minimax', 'expectiminimax', 'negamax', 'monte_carlo', 'mcts',
+]
 
 export interface PlayerStatus {
   eliminated: boolean
@@ -24,8 +40,10 @@ export interface RevealResult {
 
 export type Screen =
   | 'intro'
+  | 'gameMode'
   | 'difficulty'
   | 'playerCount'
+  | 'algorithmSelect'
   | 'characterSelect'
   | 'playerType'
   | 'confirmation'
@@ -64,8 +82,16 @@ export interface Character {
 }
 
 export interface PlayerSetup {
-  character: Character
-  type: PlayerType
+  character:    Character
+  type:         PlayerType
+  aiAlgorithm?: AIAlgorithm  // only set for computer players
+}
+
+// ── Probability Notebook ──────────────────────────────────────────────────────
+export interface ProbabilityData {
+  suspects:  Record<string, number>  // card id → 0.0–1.0
+  weapons:   Record<string, number>
+  locations: Record<string, number>
 }
 
 // ── Card system ───────────────────────────────────────────────────────────────
@@ -180,6 +206,15 @@ export const ALL_CARDS: Card[] = [
   ...WEAPONS_CARDS,
   ...LOCATIONS_CARDS,
 ]
+
+// ── Clue Notebook ─────────────────────────────────────────────────────────────
+export type NotebookBoxState = '' | 'X' | '✓'
+
+export interface NotebookData {
+  suspects:  Record<string, NotebookBoxState>
+  weapons:   Record<string, NotebookBoxState>
+  locations: Record<string, NotebookBoxState>
+}
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 export function shuffleDeck<T>(arr: T[]): T[] {

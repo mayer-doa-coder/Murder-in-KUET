@@ -30,6 +30,7 @@ interface CrimeFile {
 
 interface CardShuffleScreenProps {
   players: PlayerSetup[]
+  playerCount: number
   onComplete: (deal: GameDeal) => void
 }
 
@@ -37,20 +38,17 @@ interface CardShuffleScreenProps {
 const CW  = 78    // card width  px
 const CH  = 107   // card height px
 const CG  = 8     // gap between cards
-const CS  = CH + CG   // card step (115)
-const HDR = 50    // header height
-const GROUP_TOP = HDR + 48   // y start of card groups
+const CS  = CH + CG
+const HDR = 50
+const GROUP_TOP = HDR + 48
 
-// Group center-x fractions of viewport width
 const GROUP_CX = [0.19, 0.50, 0.81]
 
-// Case-file horizontal gap between the 3 sealed cards
 const CF_GAP = 20
 
-// ── Position helpers ──────────────────────────────────────────────────────────
+const TOTAL_DEAL_CARDS = 18
 
-// Returns the screen position of a card within its category group.
-// Suspects/Weapons: 2-col × 3-row grid; Locations: 3-col × 3-row grid.
+// ── Position helpers ──────────────────────────────────────────────────────────
 function groupCardPos(category: string, cardIdx: number, vw: number) {
   const gx = vw * GROUP_CX[category === 'suspect' ? 0 : category === 'weapon' ? 1 : 2]
 
@@ -77,8 +75,13 @@ function deckPos(vw: number, vh: number) {
   return { x: vw / 2 - CW / 2, y: vh / 2 - CH / 2 }
 }
 
-function playerPos(playerIdx: number, vw: number, vh: number) {
-  return { x: vw * GROUP_CX[playerIdx] - CW / 2, y: vh * 0.72 - CH / 2 }
+// Spread N players evenly across the screen width with margins
+function playerPos(playerIdx: number, count: number, vw: number, vh: number) {
+  const margin = 0.08
+  const cx = count === 1
+    ? 0.5
+    : margin + playerIdx * (1 - 2 * margin) / (count - 1)
+  return { x: vw * cx - CW / 2, y: vh * 0.72 - CH / 2 }
 }
 
 // ── Column header label ───────────────────────────────────────────────────────
@@ -178,12 +181,11 @@ function PressButton({ label, onClick }: { label: string; onClick: () => void })
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function CardShuffleScreen({ players, onComplete }: CardShuffleScreenProps) {
+export default function CardShuffleScreen({ players, playerCount, onComplete }: CardShuffleScreenProps) {
   const [vw, setVw] = useState(window.innerWidth)
   const [vh, setVh] = useState(window.innerHeight)
   const [phase, setPhase] = useState<ShufflePhase>('show_all')
 
-  // Dagger positions (card index within group, -1 = not started)
   const [dagSuspect,  setDagSuspect]  = useState(-1)
   const [dagWeapon,   setDagWeapon]   = useState(-1)
   const [dagLocation, setDagLocation] = useState(-1)
@@ -203,7 +205,7 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // ── Pre-compute crime file and deck (stable per mount) ────────────────────
+  // ── Pre-compute crime file and deck ───────────────────────────────────────
   const crimeFile = useMemo<CrimeFile>(() => ({
     suspect:  SUSPECTS_CARDS [Math.floor(Math.random() * SUSPECTS_CARDS.length)],
     weapon:   WEAPONS_CARDS  [Math.floor(Math.random() * WEAPONS_CARDS.length)],
@@ -215,11 +217,12 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
     return shuffleDeck(ALL_CARDS.filter(c => !crimeIds.has(c.id)))
   }, [crimeFile])
 
+  // Round-robin distribution across playerCount players
   const playerHands = useMemo<Card[][]>(() => {
-    const hands: Card[][] = [[], [], []]
-    deck.forEach((card, i) => hands[i % 3].push(card))
+    const hands: Card[][] = Array.from({ length: playerCount }, () => [])
+    deck.forEach((card, i) => hands[i % playerCount].push(card))
     return hands
-  }, [deck])
+  }, [deck, playerCount])
 
   const crimeIdx = useMemo(() => ({
     suspect:  SUSPECTS_CARDS .findIndex(c => c.id === crimeFile.suspect.id),
@@ -306,7 +309,7 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
     setDealStep(0)
     dealIntervalRef.current = setInterval(() => {
       setDealStep(prev => {
-        if (prev >= 18) {
+        if (prev >= TOTAL_DEAL_CARDS) {
           clearInterval(dealIntervalRef.current!)
           setPhase('deal_complete')
           return prev
@@ -407,7 +410,14 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
     : 'FORMING DECK...'
 
   const dk = () => deckPos(vw, vh)
-  const pp = (pi: number) => playerPos(pi, vw, vh)
+  const pp = (pi: number) => playerPos(pi, playerCount, vw, vh)
+
+  // Cards received by player pi after dealStep total cards dealt (round-robin)
+  const cardsDealtTo = (pi: number, step: number): number => {
+    const full = Math.floor(step / playerCount)
+    const rem  = step % playerCount
+    return Math.min(full + (pi < rem ? 1 : 0), playerHands[pi]?.length ?? 0)
+  }
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -564,7 +574,7 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
             </motion.div>
 
             <div className="font-pixel" style={{ fontSize: '8px', color: '#5c3d00', letterSpacing: '2px' }}>
-              18 CARDS
+              {TOTAL_DEAL_CARDS} CARDS · {playerCount} PLAYERS
             </div>
 
             {phase === 'await_shuffle' && (
@@ -621,7 +631,7 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
             {/* Deck pile at center */}
             <motion.div
               style={{ position: 'absolute', ...dk() }}
-              animate={{ opacity: dealStep >= 18 ? 0 : 1 - (dealStep / 18) * 0.6 }}
+              animate={{ opacity: dealStep >= TOTAL_DEAL_CARDS ? 0 : 1 - (dealStep / TOTAL_DEAL_CARDS) * 0.6 }}
             >
               {[2,1,0].map(o => (
                 <div key={o} style={{ position: 'absolute', top: o, left: o }}>
@@ -630,10 +640,10 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
               ))}
             </motion.div>
 
-            {/* Player labels */}
-            {[0,1,2].map(pi => {
+            {/* Dynamic player labels */}
+            {Array.from({ length: playerCount }, (_, pi) => {
               const p = pp(pi)
-              const name = players[pi]?.character.name ?? `P${pi+1}`
+              const name = players[pi]?.character.name ?? `P${pi + 1}`
               return (
                 <div key={pi}>
                   <div className="font-pixel" style={{
@@ -641,12 +651,12 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
                     left: p.x + CW / 2,
                     top: p.y - 24,
                     transform: 'translateX(-50%)',
-                    fontSize: '6px',
+                    fontSize: playerCount <= 4 ? '6px' : '5px',
                     color: '#b8860b',
-                    letterSpacing: '2px',
+                    letterSpacing: '1px',
                     whiteSpace: 'nowrap',
                   }}>
-                    PLAYER {pi + 1}
+                    P{pi + 1}
                   </div>
                   <div className="font-pixel" style={{
                     position: 'absolute',
@@ -655,20 +665,20 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
                     transform: 'translateX(-50%)',
                     fontSize: '5px',
                     color: '#5c3d00',
-                    letterSpacing: '1px',
+                    letterSpacing: '0.5px',
                     whiteSpace: 'nowrap',
                   }}>
-                    {name.slice(0, 14)}
+                    {name.slice(0, playerCount <= 4 ? 12 : 8)}
                   </div>
                 </div>
               )
             })}
 
             {/* Dealt card stacks per player */}
-            {[0,1,2].map(pi => {
-              const cardsForPlayer = Math.max(0, Math.floor((Math.min(dealStep, 18) - pi) / 3) + (dealStep > pi ? 1 : 0))
+            {Array.from({ length: playerCount }, (_, pi) => {
+              const count = cardsDealtTo(pi, dealStep)
               const p = pp(pi)
-              return Array.from({ length: Math.min(cardsForPlayer, 6) }).map((_, slot) => (
+              return Array.from({ length: count }).map((_, slot) => (
                 <motion.div
                   key={`dealt-${pi}-${slot}`}
                   style={{ position: 'absolute', x: p.x + slot * 2, y: p.y - slot * 2, zIndex: slot + 1 }}
@@ -682,12 +692,12 @@ export default function CardShuffleScreen({ players, onComplete }: CardShuffleSc
             })}
 
             {/* Flying card during deal */}
-            {dealStep < 18 && (
+            {dealStep < TOTAL_DEAL_CARDS && (
               <motion.div
                 key={`fly-${dealStep}`}
                 style={{ position: 'absolute', zIndex: 50 }}
                 initial={{ x: dk().x, y: dk().y, scale: 1.1, opacity: 1 }}
-                animate={{ x: pp(dealStep % 3).x, y: pp(dealStep % 3).y, scale: 1, opacity: 1 }}
+                animate={{ x: pp(dealStep % playerCount).x, y: pp(dealStep % playerCount).y, scale: 1, opacity: 1 }}
                 transition={{ duration: 0.22, ease: 'easeOut' }}
               >
                 <GameCard card={deck[dealStep]} faceUp={false} width={CW} height={CH} />

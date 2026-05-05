@@ -6,15 +6,26 @@ import type { Character, PlayerType } from '../types'
 
 interface ConfirmationScreenProps {
   playerIndex: number
+  playerCount: number
   character: Character
   playerType: PlayerType
   isLastPlayer: boolean
-  onNext: () => void   // "NEXT PLAYER" or "START GAME"
-  onBack: () => void   // "BACKUP" → playerType
+  onNext: () => void
+  onBack: () => void
 }
+
+const PLAYER_COLORS = [
+  '#4477ff',
+  '#33aa33',
+  '#cc2200',
+  '#cc8800',
+  '#cc00cc',
+  '#00cccc',
+]
 
 export default function ConfirmationScreen({
   playerIndex,
+  playerCount,
   character,
   playerType,
   isLastPlayer,
@@ -48,8 +59,7 @@ export default function ConfirmationScreen({
 
   const typeLabel   = playerType === 'human' ? 'HUMAN' : 'COMPUTER'
   const typeColor   = playerType === 'human' ? '#33cc33' : '#cc4400'
-  const playerColors = ['#4477ff', '#33aa33', '#cc2200']
-  const playerAccent = playerColors[playerIndex] ?? '#b8860b'
+  const playerAccent = PLAYER_COLORS[playerIndex] ?? '#b8860b'
 
   return (
     <div
@@ -110,7 +120,7 @@ export default function ConfirmationScreen({
           {/* Title */}
           <div className="text-center mb-5">
             <div className="font-pixel" style={{ fontSize: '7px', color: '#5c3d00', letterSpacing: '3px', marginBottom: '8px' }}>
-              ─── PLAYER {playerIndex + 1} ───
+              ─── PLAYER {playerIndex + 1} OF {playerCount} ───
             </div>
             <motion.h2
               className="font-pixel"
@@ -188,17 +198,18 @@ export default function ConfirmationScreen({
             </div>
           </motion.div>
 
-          {/* Progress dots */}
-          <div className="flex justify-center gap-4 mb-5">
-            {[0, 1, 2].map((i) => (
+          {/* Dynamic progress dots */}
+          <div className="flex justify-center gap-3 mb-5" style={{ flexWrap: 'wrap' }}>
+            {Array.from({ length: playerCount }, (_, i) => (
               <div
                 key={i}
                 style={{
-                  width: i <= playerIndex ? '24px' : '8px',
+                  width: i <= playerIndex ? '20px' : '8px',
                   height: '8px',
                   background: i <= playerIndex ? playerAccent : '#1a1a1a',
                   transition: 'all 0.3s',
                   boxShadow: i === playerIndex ? `0 0 8px ${playerAccent}` : 'none',
+                  flexShrink: 0,
                 }}
               />
             ))}

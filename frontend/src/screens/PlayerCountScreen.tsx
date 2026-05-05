@@ -4,12 +4,11 @@ import CharacterCard from '../components/CharacterCard'
 import { CHARACTERS } from '../types'
 
 interface PlayerCountScreenProps {
-  onConfirm: () => void
+  onSelect: (count: 3 | 4 | 5 | 6) => void
 }
 
-const COUNT_OPTIONS = [3, 4, 5, 6]
+const COUNT_OPTIONS: (3 | 4 | 5 | 6)[] = [3, 4, 5, 6]
 
-/* Panel corner accent */
 function CornerPixels() {
   return (
     <>
@@ -22,17 +21,30 @@ function CornerPixels() {
   )
 }
 
-export default function PlayerCountScreen({ onConfirm }: PlayerCountScreenProps) {
-  const [hoveredCount, setHoveredCount] = useState(3)
+export default function PlayerCountScreen({ onSelect }: PlayerCountScreenProps) {
+  const [selectedCount, setSelectedCount] = useState<3 | 4 | 5 | 6>(3)
 
   const handleConfirm = useCallback(() => {
-    // Only 3 is valid
-    onConfirm()
-  }, [onConfirm])
+    onSelect(selectedCount)
+  }, [onSelect, selectedCount])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') handleConfirm()
+      if (e.key === 'Enter') {
+        handleConfirm()
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelectedCount(prev => {
+          const idx = COUNT_OPTIONS.indexOf(prev)
+          return COUNT_OPTIONS[Math.min(idx + 1, COUNT_OPTIONS.length - 1)]
+        })
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelectedCount(prev => {
+          const idx = COUNT_OPTIONS.indexOf(prev)
+          return COUNT_OPTIONS[Math.max(idx - 1, 0)]
+        })
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -84,12 +96,11 @@ export default function PlayerCountScreen({ onConfirm }: PlayerCountScreenProps)
         transition={{ delay: 0.3, duration: 0.5 }}
       >
         {COUNT_OPTIONS.map((n) => {
-          const isSelectable = n === 3
-          const isHovered = hoveredCount === n && isSelectable
+          const isSelected = selectedCount === n
 
           return (
             <div key={n} className="flex flex-col items-center gap-1">
-              {/* Dagger cursor above "3" */}
+              {/* Cursor above selected option */}
               <motion.div
                 className="font-pixel"
                 style={{
@@ -100,7 +111,7 @@ export default function PlayerCountScreen({ onConfirm }: PlayerCountScreenProps)
                   alignItems: 'center',
                 }}
                 animate={
-                  isSelectable
+                  isSelected
                     ? { opacity: [1, 0.4, 1], y: [0, -2, 0] }
                     : { opacity: 0 }
                 }
@@ -111,8 +122,8 @@ export default function PlayerCountScreen({ onConfirm }: PlayerCountScreenProps)
 
               {/* Number box */}
               <motion.div
-                onClick={isSelectable ? handleConfirm : undefined}
-                onMouseEnter={() => isSelectable && setHoveredCount(n)}
+                onClick={() => { setSelectedCount(n); onSelect(n) }}
+                onMouseEnter={() => setSelectedCount(n)}
                 style={{
                   width: '72px',
                   height: '72px',
@@ -120,43 +131,36 @@ export default function PlayerCountScreen({ onConfirm }: PlayerCountScreenProps)
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  background: isSelectable
-                    ? isHovered ? '#2a1a00' : '#1a1000'
-                    : '#0a0a0a',
-                  border: isSelectable
-                    ? isHovered
-                      ? '3px solid #b8860b'
-                      : '3px solid #5c3d00'
-                    : '3px solid #1e1e1e',
-                  cursor: isSelectable ? 'pointer' : 'not-allowed',
-                  boxShadow: isHovered
+                  background: isSelected ? '#2a1a00' : '#1a1000',
+                  border: isSelected
+                    ? '3px solid #b8860b'
+                    : '3px solid #5c3d00',
+                  cursor: 'pointer',
+                  boxShadow: isSelected
                     ? '0 0 16px #b8860b88, 4px 4px 0 #000'
                     : '3px 3px 0 #000',
                   transition: 'background 0.15s, border-color 0.15s, box-shadow 0.15s',
                 }}
-                animate={isHovered ? { scale: 1.06 } : { scale: 1 }}
+                animate={isSelected ? { scale: 1.06 } : { scale: 1 }}
                 transition={{ duration: 0.12 }}
               >
                 <span
                   className="font-pixel"
                   style={{
                     fontSize: '24px',
-                    color: isSelectable ? (isHovered ? '#ffdd00' : '#b8860b') : '#2a2a2a',
-                    textShadow: isHovered ? '0 0 10px #ffdd00aa' : 'none',
+                    color: isSelected ? '#ffdd00' : '#b8860b',
+                    textShadow: isSelected ? '0 0 10px #ffdd00aa' : 'none',
                     letterSpacing: 0,
                   }}
                 >
                   {n}
                 </span>
-                {/* Lock icon for disabled options */}
-                {!isSelectable && (
-                  <span
-                    className="font-pixel"
-                    style={{ fontSize: '6px', color: '#1e1e1e', marginTop: '3px' }}
-                  >
-                    LOCKED
-                  </span>
-                )}
+                <span
+                  className="font-pixel"
+                  style={{ fontSize: '5px', color: isSelected ? '#cc9933' : '#3d2800', marginTop: '3px', letterSpacing: '0.5px' }}
+                >
+                  PLAYERS
+                </span>
               </motion.div>
             </div>
           )
@@ -189,7 +193,7 @@ export default function PlayerCountScreen({ onConfirm }: PlayerCountScreenProps)
           className="font-pixel text-center mb-3 flex-shrink-0"
           style={{ fontSize: '7px', color: '#5c3d00', letterSpacing: '3px' }}
         >
-          AVAILABLE SUSPECTS
+          AVAILABLE SUSPECTS ({selectedCount} OF 6 WILL PLAY)
         </div>
 
         {/* Pixel-bordered container */}
@@ -217,12 +221,12 @@ export default function PlayerCountScreen({ onConfirm }: PlayerCountScreenProps)
             {CHARACTERS.map((char, i) => (
               <motion.div
                 key={char.id}
-                style={{ minHeight: 0 }}
+                style={{ minHeight: 0, opacity: i < selectedCount ? 1 : 0.2 }}
                 initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
+                animate={{ opacity: i < selectedCount ? 1 : 0.2, scale: 1 }}
                 transition={{ delay: 0.6 + i * 0.07, duration: 0.35 }}
               >
-                <CharacterCard character={char} cardState="normal" compact />
+                <CharacterCard character={char} cardState={i < selectedCount ? 'normal' : 'normal'} compact />
               </motion.div>
             ))}
           </div>
@@ -237,7 +241,7 @@ export default function PlayerCountScreen({ onConfirm }: PlayerCountScreenProps)
         animate={{ opacity: 1 }}
         transition={{ delay: 0.9 }}
       >
-        CLICK 3 OR PRESS ENTER TO CONTINUE
+        ←→ CHOOSE · CLICK OR ENTER TO CONFIRM
       </motion.div>
     </div>
   )
