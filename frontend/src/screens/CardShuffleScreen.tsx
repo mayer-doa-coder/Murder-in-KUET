@@ -35,9 +35,9 @@ interface CardShuffleScreenProps {
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const CW  = 78    // card width  px
-const CH  = 107   // card height px
-const CG  = 8     // gap between cards
+const CW  = 90    // card width  px
+const CH  = 124   // card height px
+const CG  = 10    // gap between cards
 const CS  = CH + CG
 const HDR = 50
 const GROUP_TOP = HDR + 48
@@ -143,7 +143,7 @@ function PhaseLabel({ text, sub }: { text: string; sub?: string }) {
       {sub && (
         <motion.div
           className="font-pixel"
-          style={{ fontSize: '7px', color: '#5c3d00', letterSpacing: '2px', marginTop: '4px' }}
+          style={{ fontSize: '7px', color: '#aa7722', letterSpacing: '2px', marginTop: '4px' }}
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1.2, repeat: Infinity }}
         >
@@ -517,7 +517,7 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
                   transform: 'translateX(-50%)',
                   top: vh / 2 + CH / 2 + 16,
                   fontSize: '6px',
-                  color: '#5c3d00',
+                  color: '#aa7722',
                   letterSpacing: '2px',
                   zIndex: 200,
                   whiteSpace: 'nowrap',
@@ -546,12 +546,12 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
 
             {/* Case file corner display */}
             <div className="absolute" style={{ top: '10px', left: '14px' }}>
-              <div className="font-pixel" style={{ fontSize: '5px', color: '#5c3d00', letterSpacing: '2px', marginBottom: '4px' }}>
+              <div className="font-pixel" style={{ fontSize: '6px', color: '#aa7722', letterSpacing: '2px', marginBottom: '4px' }}>
                 CASE FILE
               </div>
               <div style={{ display: 'flex', gap: '4px' }}>
                 {[crimeFile.suspect, crimeFile.weapon, crimeFile.location].map(c => (
-                  <GameCard key={c.id} card={c} faceUp={false} width={36} height={50} compact />
+                  <GameCard key={c.id} card={c} faceUp={false} width={42} height={58} compact />
                 ))}
               </div>
             </div>
@@ -573,7 +573,7 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
               ))}
             </motion.div>
 
-            <div className="font-pixel" style={{ fontSize: '8px', color: '#5c3d00', letterSpacing: '2px' }}>
+            <div className="font-pixel" style={{ fontSize: '8px', color: '#aa7722', letterSpacing: '2px' }}>
               {TOTAL_DEAL_CARDS} CARDS · {playerCount} PLAYERS
             </div>
 
@@ -585,7 +585,7 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
                 transition={{ delay: 0.4 }}
               >
                 <PressButton label="► SHUFFLE DECK" onClick={handleAwaitShuffle} />
-                <div className="font-pixel" style={{ fontSize: '6px', color: '#2e1e00', letterSpacing: '1px' }}>
+                <div className="font-pixel" style={{ fontSize: '6px', color: '#7a5522', letterSpacing: '1px' }}>
                   PRESS ENTER TO SHUFFLE
                 </div>
               </motion.div>
@@ -618,12 +618,12 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
 
             {/* Case file corner */}
             <div className="absolute" style={{ top: '10px', left: '14px' }}>
-              <div className="font-pixel" style={{ fontSize: '5px', color: '#5c3d00', letterSpacing: '2px', marginBottom: '4px' }}>
+              <div className="font-pixel" style={{ fontSize: '6px', color: '#aa7722', letterSpacing: '2px', marginBottom: '4px' }}>
                 CASE FILE
               </div>
               <div style={{ display: 'flex', gap: '4px' }}>
                 {[crimeFile.suspect, crimeFile.weapon, crimeFile.location].map(c => (
-                  <GameCard key={c.id} card={c} faceUp={false} width={36} height={50} compact />
+                  <GameCard key={c.id} card={c} faceUp={false} width={42} height={58} compact />
                 ))}
               </div>
             </div>
@@ -663,8 +663,8 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
                     left: p.x + CW / 2,
                     top: p.y - 13,
                     transform: 'translateX(-50%)',
-                    fontSize: '5px',
-                    color: '#5c3d00',
+                    fontSize: '6px',
+                    color: '#aa7722',
                     letterSpacing: '0.5px',
                     whiteSpace: 'nowrap',
                   }}>
@@ -716,7 +716,7 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
                   DEALING COMPLETE
                 </div>
                 <PressButton label="► SEE THE CARDS" onClick={handleDealComplete} />
-                <div className="font-pixel" style={{ fontSize: '6px', color: '#2e1e00', letterSpacing: '1px' }}>
+                <div className="font-pixel" style={{ fontSize: '6px', color: '#7a5522', letterSpacing: '1px' }}>
                   PRESS ENTER TO CONTINUE
                 </div>
               </motion.div>

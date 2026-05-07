@@ -392,6 +392,22 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
       setPlayerStatus(ps => ps.map((s, i) =>
         i === currentTurnIndex ? { ...s, eliminated: true } : s
       ))
+      // Per Cluedo rules: eliminated player's cards are shown face-up to all remaining players.
+      // Update every other player's notebooks so the game can converge and avoid infinite loops.
+      const eliminatedHand = deal.playerHands[currentTurnIndex] ?? []
+      if (eliminatedHand.length > 0) {
+        setProbNotebooks(prev => prev.map((nb, i) =>
+          i === currentTurnIndex ? nb : eliminatedHand.reduce((acc, card) => eliminateCard(acc, card.id), nb)
+        ))
+        setNotebooks(prev => prev.map((nb, i) => {
+          if (i === currentTurnIndex) return nb
+          return eliminatedHand.reduce((acc, card) => {
+            const cat = cardCategory(card.id)
+            if (!cat) return acc
+            return { ...acc, [cat]: { ...acc[cat], [card.id]: 'X' as NotebookBoxState } }
+          }, nb)
+        }))
+      }
     } else {
       setGameWinner(currentTurnIndex)
     }
@@ -400,7 +416,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
     setPendingPhaseAfterStory(correct ? 'game_over' : 'reveal_result')
     setStoryText(generateStory(result.suspect, result.weapon, result.location))
     setGamePhase('story')
-  }, [boardPlayers, currentTurnIndex, deal.caseFile])
+  }, [boardPlayers, currentTurnIndex, deal.caseFile, deal.playerHands])
 
   // ── Story complete → show result ──────────────────────────────────────────
   const handleStoryComplete = useCallback(() => {
