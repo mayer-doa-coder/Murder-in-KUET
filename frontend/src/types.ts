@@ -40,6 +40,7 @@ export interface RevealResult {
 
 export type Screen =
   | 'intro'
+  | 'howToPlay'
   | 'gameMode'
   | 'difficulty'
   | 'playerCount'

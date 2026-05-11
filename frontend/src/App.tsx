@@ -13,6 +13,7 @@ import CardShuffleScreen from './screens/CardShuffleScreen'
 import PlayerCardsMenuScreen from './screens/PlayerCardsMenuScreen'
 import PlayerCardViewScreen from './screens/PlayerCardViewScreen'
 import GameBoardScreen from './screens/GameBoardScreen'
+import HowToPlayScreen from './screens/HowToPlayScreen'
 import type { Difficulty, PlayerType, Screen, Character, PlayerSetup, GameDeal, GameMode, AIAlgorithm } from './types'
 
 const pageVariants = {
@@ -212,7 +213,14 @@ export default function App() {
         {screen === 'intro' && (
           <motion.div key="intro" className="absolute inset-0"
             variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
-            <IntroScreen onEnter={() => setScreen('gameMode')} />
+            <IntroScreen onEnter={() => setScreen('howToPlay')} />
+          </motion.div>
+        )}
+
+        {screen === 'howToPlay' && (
+          <motion.div key="howToPlay" className="absolute inset-0"
+            variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
+            <HowToPlayScreen onSkip={() => setScreen('gameMode')} />
           </motion.div>
         )}
 
