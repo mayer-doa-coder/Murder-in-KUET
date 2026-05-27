@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 
 interface Props {
   icon: string
+  imageSrc?: string
   name: string
   shortName: string
   bgColor: string
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export default function SelectionCard({
-  icon, name, shortName, bgColor, accentColor, isSelected, onClick,
+  icon, imageSrc, name, shortName, bgColor, accentColor, isSelected, onClick,
 }: Props) {
   return (
     <motion.button
@@ -60,16 +61,30 @@ export default function SelectionCard({
       )}
 
       {/* Icon */}
-      <span style={{
-        fontFamily: 'monospace',
-        fontSize: 22,
-        color: accentColor,
-        lineHeight: 1,
-        textShadow: isSelected ? `0 0 8px ${accentColor}99` : 'none',
-        position: 'relative',
-      }}>
-        {icon}
-      </span>
+      {imageSrc ? (
+        <img
+          src={imageSrc}
+          style={{
+            width: 56,
+            height: 56,
+            imageRendering: 'pixelated',
+            objectFit: 'cover',
+            position: 'relative',
+            filter: isSelected ? `drop-shadow(0 0 6px ${accentColor})` : 'none',
+          }}
+        />
+      ) : (
+        <span style={{
+          fontFamily: 'monospace',
+          fontSize: 22,
+          color: accentColor,
+          lineHeight: 1,
+          textShadow: isSelected ? `0 0 8px ${accentColor}99` : 'none',
+          position: 'relative',
+        }}>
+          {icon}
+        </span>
+      )}
 
       {/* Short name badge */}
       <div className="font-pixel" style={{

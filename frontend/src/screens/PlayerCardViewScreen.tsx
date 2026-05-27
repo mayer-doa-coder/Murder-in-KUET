@@ -91,14 +91,27 @@ export default function PlayerCardViewScreen({ playerIndex, players, deal, onBac
           ─── PRIVATE FILES ───
         </div>
         <div className="flex items-center justify-center gap-3">
-          <span style={{
-            fontFamily: 'monospace',
-            fontSize: Math.min(26, Math.floor(vw * 0.022)) + 'px',
-            color: player.character.accentColor,
-            textShadow: `0 0 10px ${player.character.accentColor}77`,
-          }}>
-            {player.character.icon}
-          </span>
+          {player.character.imageSrc ? (
+            <img
+              src={player.character.imageSrc}
+              style={{
+                width: Math.min(26, Math.floor(vw * 0.022)) + 'px',
+                height: Math.min(26, Math.floor(vw * 0.022)) + 'px',
+                imageRendering: 'pixelated',
+                objectFit: 'contain',
+                filter: `drop-shadow(0 0 5px ${player.character.accentColor}77)`,
+              }}
+            />
+          ) : (
+            <span style={{
+              fontFamily: 'monospace',
+              fontSize: Math.min(26, Math.floor(vw * 0.022)) + 'px',
+              color: player.character.accentColor,
+              textShadow: `0 0 10px ${player.character.accentColor}77`,
+            }}>
+              {player.character.icon}
+            </span>
+          )}
           <h2 className="font-pixel" style={{
             fontSize: 'clamp(10px, 1.6vw, 15px)',
             color: '#e8c060',

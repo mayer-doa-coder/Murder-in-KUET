@@ -90,19 +90,34 @@ export default function CharacterCard({
           }}
         />
 
-        {/* Character icon */}
-        <span
-          style={{
-            fontFamily: 'monospace',
-            fontSize: compact ? 'clamp(20px, 3vw, 36px)' : 'clamp(28px, 4.5vw, 52px)',
-            color: isTaken ? '#2a2a2a' : character.accentColor,
-            textShadow: isTaken ? 'none' : `0 0 12px ${character.accentColor}99`,
-            zIndex: 1,
-            lineHeight: 1,
-          }}
-        >
-          {character.icon}
-        </span>
+        {/* Character portrait */}
+        {character.imageSrc && !isTaken ? (
+          <img
+            src={character.imageSrc}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              imageRendering: 'pixelated',
+              objectFit: 'cover',
+              zIndex: 0,
+            }}
+          />
+        ) : (
+          <span
+            style={{
+              fontFamily: 'monospace',
+              fontSize: compact ? 'clamp(20px, 3vw, 36px)' : 'clamp(28px, 4.5vw, 52px)',
+              color: isTaken ? '#2a2a2a' : character.accentColor,
+              textShadow: isTaken ? 'none' : `0 0 12px ${character.accentColor}99`,
+              zIndex: 1,
+              lineHeight: 1,
+            }}
+          >
+            {character.icon}
+          </span>
+        )}
 
         {/* Taken overlay */}
         {isTaken && (

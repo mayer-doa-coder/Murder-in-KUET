@@ -87,22 +87,39 @@ export default function GameCard({
             <div style={{
               position: 'absolute', top: 2, left: 2,
               fontSize: catSize, fontFamily: "'Press Start 2P', monospace",
-              color: `${card.accentColor}88`, lineHeight: 1, letterSpacing: 0,
+              color: card.imageSrc ? '#ffffffcc' : `${card.accentColor}88`,
+              lineHeight: 1, letterSpacing: 0, zIndex: 2,
+              textShadow: card.imageSrc ? '1px 1px 0 #000' : 'none',
             }}>
               {card.shortName}
             </div>
 
-            {/* Icon */}
-            <span style={{
-              fontFamily: 'monospace',
-              fontSize: iconSize,
-              color: card.accentColor,
-              textShadow: `0 0 8px ${card.accentColor}88`,
-              zIndex: 1,
-              lineHeight: 1,
-            }}>
-              {card.icon}
-            </span>
+            {/* Icon / portrait image */}
+            {card.imageSrc ? (
+              <img
+                src={card.imageSrc}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  imageRendering: 'pixelated',
+                  objectFit: 'cover',
+                  zIndex: 0,
+                }}
+              />
+            ) : (
+              <span style={{
+                fontFamily: 'monospace',
+                fontSize: iconSize,
+                color: card.accentColor,
+                textShadow: `0 0 8px ${card.accentColor}88`,
+                zIndex: 1,
+                lineHeight: 1,
+              }}>
+                {card.icon}
+              </span>
+            )}
 
             {/* Selected sparkle */}
             {selected && (

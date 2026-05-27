@@ -21,9 +21,22 @@ function CardPill({ cardId, dimmed }: { cardId: string; dimmed?: boolean }) {
       padding: '6px 10px',
       opacity: dimmed ? 0.4 : 1,
     }}>
-      <span style={{ fontFamily: 'monospace', fontSize: 16, color: card.accentColor, lineHeight: 1 }}>
-        {card.icon}
-      </span>
+      {card.imageSrc ? (
+        <img
+          src={card.imageSrc}
+          style={{
+            width: 22,
+            height: 22,
+            imageRendering: 'pixelated',
+            objectFit: 'contain',
+            flexShrink: 0,
+          }}
+        />
+      ) : (
+        <span style={{ fontFamily: 'monospace', fontSize: 16, color: card.accentColor, lineHeight: 1 }}>
+          {card.icon}
+        </span>
+      )}
       <span className="font-pixel" style={{
         fontSize: '7px', color: card.accentColor, letterSpacing: '0.5px',
       }}>

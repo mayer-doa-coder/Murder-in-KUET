@@ -79,14 +79,27 @@ function TrackerSlot({ label, card, locked }: { label: string; card: Card | null
               transition={{ duration: 0.18, ease: 'linear' }}
               style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%' }}
             >
-              <span style={{
-                fontFamily: 'monospace', fontSize: 18,
-                color: card.accentColor,
-                textShadow: `0 0 6px ${card.accentColor}66`,
-                flexShrink: 0,
-              }}>
-                {card.icon}
-              </span>
+              {card.imageSrc ? (
+                <img
+                  src={card.imageSrc}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    imageRendering: 'pixelated',
+                    objectFit: 'contain',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <span style={{
+                  fontFamily: 'monospace', fontSize: 18,
+                  color: card.accentColor,
+                  textShadow: `0 0 6px ${card.accentColor}66`,
+                  flexShrink: 0,
+                }}>
+                  {card.icon}
+                </span>
+              )}
               <div>
                 <div className="font-pixel" style={{
                   fontSize: '5px', color: '#cc8833', letterSpacing: '0.5px', marginBottom: 3,
@@ -260,6 +273,7 @@ export default function SelectionFlow({ mode, onComplete, onCancel, lockedLocati
                   <SelectionCard
                     key={card.id}
                     icon={card.icon}
+                    imageSrc={card.imageSrc}
                     name={card.name}
                     shortName={card.shortName}
                     bgColor={card.bgColor}
@@ -287,6 +301,7 @@ export default function SelectionFlow({ mode, onComplete, onCancel, lockedLocati
                   <SelectionCard
                     key={card.id}
                     icon={card.icon}
+                    imageSrc={card.imageSrc}
                     name={card.name}
                     shortName={card.shortName}
                     bgColor={card.bgColor}
@@ -314,6 +329,7 @@ export default function SelectionFlow({ mode, onComplete, onCancel, lockedLocati
                   <SelectionCard
                     key={card.id}
                     icon={card.icon}
+                    imageSrc={card.imageSrc}
                     name={card.name}
                     shortName={card.shortName}
                     bgColor={card.bgColor}

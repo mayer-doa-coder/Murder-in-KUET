@@ -20,6 +20,7 @@ const ITEMS: MenuEntry[] = [
 interface Props {
   playerName: string
   playerIcon: string
+  playerImageSrc?: string
   playerColor: string
   playerIndex: number
   onAction: (id: ActionId) => void
@@ -27,7 +28,7 @@ interface Props {
 }
 
 export default function TurnOverlay({
-  playerName, playerIcon, playerColor, playerIndex, onAction, disabledActions = [],
+  playerName, playerIcon, playerImageSrc, playerColor, playerIndex, onAction, disabledActions = [],
 }: Props) {
   const selectableIndices = ITEMS.map((item, i) =>
     item.enabled && !disabledActions.includes(item.id) ? i : -1
@@ -86,14 +87,28 @@ export default function TurnOverlay({
         paddingBottom: 10, marginBottom: 10,
         borderBottom: `1px solid ${playerColor}44`,
       }}>
-        <span style={{
-          fontFamily: 'monospace', fontSize: 22,
-          color: playerColor,
-          textShadow: `0 0 8px ${playerColor}99`,
-          lineHeight: 1, flexShrink: 0,
-        }}>
-          {playerIcon}
-        </span>
+        {playerImageSrc ? (
+          <img
+            src={playerImageSrc}
+            style={{
+              width: 28,
+              height: 28,
+              imageRendering: 'pixelated',
+              objectFit: 'contain',
+              flexShrink: 0,
+              filter: `drop-shadow(0 0 4px ${playerColor}99)`,
+            }}
+          />
+        ) : (
+          <span style={{
+            fontFamily: 'monospace', fontSize: 22,
+            color: playerColor,
+            textShadow: `0 0 8px ${playerColor}99`,
+            lineHeight: 1, flexShrink: 0,
+          }}>
+            {playerIcon}
+          </span>
+        )}
         <div>
           <div className="font-pixel" style={{
             fontSize: '7px', color: '#cc8833', letterSpacing: '1.5px', marginBottom: 4,

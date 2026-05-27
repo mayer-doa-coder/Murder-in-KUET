@@ -19,6 +19,7 @@ import HandOverlay from '../components/HandOverlay'
 import Dice from '../components/Dice'
 import PathDots from '../components/PathDots'
 import CameraController from '../components/CameraController'
+import GameCard from '../components/GameCard'
 import SelectionFlow from '../components/SelectionFlow'
 import type { SelectionFlowResult } from '../components/SelectionFlow'
 import RevealResultOverlay from '../components/RevealResultOverlay'
@@ -88,6 +89,19 @@ const ROOM_ICON_TINT: Record<string, string> = {
   br_hall:       'invert(63%) sepia(29%) saturate(710%) hue-rotate(245deg) brightness(102%) contrast(100%)',
   lotus_pond:    'invert(72%) sepia(39%) saturate(466%) hue-rotate(141deg) brightness(96%) contrast(94%)',
   pocket_gate:   'invert(77%) sepia(4%) saturate(168%) hue-rotate(327deg) brightness(96%) contrast(85%)',
+}
+
+// Maps board room IDs → LOCATIONS_CARDS IDs
+const ROOM_TO_CARD_ID: Record<string, string> = {
+  auditorium:    'auditorium',
+  swc:           'student_welfare',
+  ae_hall:       'amar_ekushey',
+  cafeteria:     'cafeteria',
+  central_field: 'central_field',
+  it_park:       'it_park',
+  br_hall:       'begum_rokeya',
+  lotus_pond:    'lotus_pond',
+  pocket_gate:   'pocket_gate',
 }
 
 // ── Board assets (location-themed) ──────────────────────────────────────────
@@ -257,6 +271,216 @@ const SIDEBAR_W = 252
 const HEADER_H  = 54
 const PAD       = 6
 
+// ── CardsOverlay ──────────────────────────────────────────────────────────────
+interface CardsOverlayProps {
+  hand: import('../types').Card[]
+  playerName: string
+  playerIcon: string
+  playerImageSrc?: string
+  playerColor: string
+  playerIndex: number
+  onClose: () => void
+}
+
+function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColor, playerIndex, onClose }: CardsOverlayProps) {
+  const [revealed, setRevealed] = useState(false)
+  const [vw, setVw] = useState(window.innerWidth)
+  const [vh, setVh] = useState(window.innerHeight)
+
+  useEffect(() => {
+    const onResize = () => { setVw(window.innerWidth); setVh(window.innerHeight) }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
+    const onDown = (e: KeyboardEvent) => {
+      if (e.key === 'a' || e.key === 'A' || e.key === ' ') { e.preventDefault(); setRevealed(true) }
+      if (e.key === 'Escape' || e.key === 'Enter') onClose()
+    }
+    const onUp = (e: KeyboardEvent) => {
+      if (e.key === 'a' || e.key === 'A' || e.key === ' ') setRevealed(false)
+    }
+    window.addEventListener('keydown', onDown)
+    window.addEventListener('keyup', onUp)
+    return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
+  }, [onClose])
+
+  const GAP  = Math.max(8, Math.floor(vw * 0.01))
+  const cols = Math.min(hand.length, 3)
+  const cardW = Math.min(Math.floor((vw * 0.72 - GAP * (cols - 1)) / cols), 180)
+  const cardH = Math.floor(cardW * 1.375)
+  const rows = [hand.slice(0, 3), hand.slice(3, 6)].filter(r => r.length > 0)
+
+  return (
+    <motion.div
+      style={{
+        position: 'absolute', inset: 0,
+        background: '#030200',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        zIndex: 46, overflow: 'hidden',
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22, ease: 'linear' }}
+      onMouseDown={() => setRevealed(true)}
+      onMouseUp={() => setRevealed(false)}
+      onMouseLeave={() => setRevealed(false)}
+      onTouchStart={() => setRevealed(true)}
+      onTouchEnd={() => setRevealed(false)}
+    >
+      {/* Vignette */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.82) 100%)',
+        zIndex: 0,
+      }} />
+      {/* CRT scanlines */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px)',
+        zIndex: 0,
+      }} />
+
+      {/* Back button */}
+      <motion.button
+        className="font-pixel absolute"
+        style={{
+          top: 10, left: 12, zIndex: 10,
+          background: '#1a0800', border: '2px solid #3d2000',
+          color: '#6b4020', padding: '5px 10px',
+          fontSize: '5px', letterSpacing: '1px', cursor: 'pointer',
+        }}
+        onClick={onClose}
+        whileHover={{ backgroundColor: '#2a1000', color: '#aa6030' }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.08 }}
+      >
+        ◀ BACK
+      </motion.button>
+
+      {/* Player badge */}
+      <motion.div
+        className="absolute font-pixel"
+        style={{
+          top: 10, right: 12, zIndex: 10,
+          background: '#0d0800', border: `2px solid ${playerColor}44`,
+          padding: '5px 9px', fontSize: '5px', color: playerColor, letterSpacing: '1px',
+        }}
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        P{playerIndex + 1}
+      </motion.div>
+
+      {/* Header */}
+      <motion.div
+        className="relative z-10 text-center"
+        style={{ marginTop: Math.floor(vh * 0.05), marginBottom: Math.floor(vh * 0.03) }}
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+      >
+        <div className="font-pixel" style={{ fontSize: '6px', color: '#4a3010', letterSpacing: '3px', marginBottom: 8 }}>
+          ─── PRIVATE FILES ───
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          {playerImageSrc ? (
+            <img src={playerImageSrc} style={{
+              width: Math.min(28, Math.floor(vw * 0.022)),
+              height: Math.min(28, Math.floor(vw * 0.022)),
+              imageRendering: 'pixelated', objectFit: 'contain',
+              filter: `drop-shadow(0 0 5px ${playerColor}77)`,
+            }} />
+          ) : (
+            <span style={{ fontFamily: 'monospace', fontSize: Math.min(24, Math.floor(vw * 0.022)), color: playerColor, textShadow: `0 0 10px ${playerColor}77` }}>
+              {playerIcon}
+            </span>
+          )}
+          <h2 className="font-pixel" style={{
+            fontSize: 'clamp(10px, 1.5vw, 14px)', color: '#e8c060',
+            letterSpacing: '3px', textShadow: '3px 3px 0 #3d2200',
+          }}>
+            {playerName}&apos;S CARDS
+          </h2>
+        </div>
+      </motion.div>
+
+      {/* Card grid */}
+      <motion.div
+        className="relative z-10 flex flex-col"
+        style={{ gap: GAP }}
+        initial={{ opacity: 0, scale: 0.92 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.12, duration: 0.35 }}
+      >
+        {rows.map((row, rowIdx) => (
+          <div key={rowIdx} style={{ display: 'flex', gap: GAP, justifyContent: 'center' }}>
+            {row.map((card, colIdx) => {
+              const idx = rowIdx * 3 + colIdx
+              return (
+                <motion.div
+                  key={card.id}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 + idx * 0.055, duration: 0.3 }}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {revealed ? (
+                      <motion.div key="up" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }} transition={{ duration: 0.11, ease: 'easeInOut' }}>
+                        <GameCard card={card} faceUp width={cardW} height={cardH} />
+                      </motion.div>
+                    ) : (
+                      <motion.div key="down" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }} transition={{ duration: 0.11, ease: 'easeInOut' }}>
+                        <GameCard card={card} faceUp={false} width={cardW} height={cardH} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )
+            })}
+          </div>
+        ))}
+        {hand.length === 0 && (
+          <div className="font-pixel" style={{ fontSize: '7px', color: '#554433', letterSpacing: '2px' }}>NO CARDS DEALT</div>
+        )}
+      </motion.div>
+
+      {/* Hold hint */}
+      <motion.div
+        className="relative z-10 text-center"
+        style={{ marginTop: GAP * 2 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.55 }}
+      >
+        <AnimatePresence mode="wait">
+          {!revealed ? (
+            <motion.div key="hint" className="font-pixel"
+              style={{ fontSize: 'clamp(6px, 1vw, 8px)', color: '#5c3d00', letterSpacing: '2px' }}
+              animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.4, repeat: Infinity }}
+              initial={{ opacity: 0 }} exit={{ opacity: 0 }}
+            >
+              HOLD  [A]  TO  REVEAL  ALL
+            </motion.div>
+          ) : (
+            <motion.div key="revealed" className="font-pixel"
+              style={{ fontSize: 'clamp(6px, 1vw, 8px)', color: '#cc8833', letterSpacing: '2px' }}
+              initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+            >
+              ★  CARDS  REVEALED  ★
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <div className="font-pixel" style={{ fontSize: 'clamp(4px, 0.7vw, 6px)', color: '#2a1600', letterSpacing: '1.5px', marginTop: 6 }}>
+          ESC / ENTER  —  CLOSE
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function GameBoardScreen({ players, deal, gameMode, onExit, onRestart }: Props) {
   const [vw, setVw] = useState(window.innerWidth)
@@ -295,6 +519,26 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
       }]
     })
   ), [cellSize])
+
+  const locationCardLayers = useMemo(() => {
+    const cardById = Object.fromEntries(LOCATIONS_CARDS.map(c => [c.id, c]))
+    return Object.entries(ROOM_TO_CARD_ID).flatMap(([roomId, cardId]) => {
+      const card = cardById[cardId]
+      if (!card?.imageSrc) return []
+      const bounds = ROOM_BOUNDS[roomId]
+      if (!bounds) return []
+      const [c0, c1, r0, r1] = bounds
+      return [{
+        roomId,
+        src: card.imageSrc,
+        left: c0 * cellSize,
+        top: r0 * cellSize,
+        cardW: (c1 - c0 + 1) * cellSize,
+        cardH: (r1 - r0 + 1) * cellSize,
+        accentColor: card.accentColor,
+      }]
+    })
+  }, [cellSize])
 
   // ── Turn / phase state ────────────────────────────────────────────────────
   const [gamePhase, setGamePhase]       = useState<GamePhase>('idle')
@@ -904,29 +1148,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 ))}
               </div>
 
-              {/* External room icon layer */}
-              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
-                {roomIconLayers.map((layer) => (
-                  <img
-                    key={layer.roomId}
-                    src={layer.src}
-                    alt=""
-                    aria-hidden="true"
-                    draggable={false}
-                    style={{
-                      position: 'absolute',
-                      left: layer.left,
-                      top: layer.top,
-                      width: layer.size,
-                      height: layer.size,
-                      opacity: 0.34,
-                      filter: `${layer.tint} drop-shadow(0 0 ${Math.max(2, cellSize * 0.2)}px rgba(0,0,0,0.85))`,
-                      imageRendering: 'pixelated',
-                      userSelect: 'none',
-                    }}
-                  />
-                ))}
-              </div>
 
               {/* SVG overlay */}
               <svg
@@ -935,66 +1156,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   width: boardW, height: boardH, pointerEvents: 'none', zIndex: 2,
                 }}
               >
-                {BOARD_ASSETS.map((item, i) => {
-                  if (item.shape === 'rect') {
-                    return (
-                      <rect
-                        key={i}
-                        x={item.x * cellSize}
-                        y={item.y * cellSize}
-                        width={item.w * cellSize}
-                        height={item.h * cellSize}
-                        fill={item.fill}
-                        rx={(item.rx ?? 0.04) * cellSize}
-                        opacity={item.opacity ?? 1}
-                        stroke={item.stroke}
-                        strokeWidth={item.strokeWidth ? item.strokeWidth * cellSize : undefined}
-                      />
-                    )
-                  }
-                  if (item.shape === 'circ') {
-                    return (
-                      <circle
-                        key={i}
-                        cx={item.cx * cellSize}
-                        cy={item.cy * cellSize}
-                        r={item.r * cellSize}
-                        fill={item.fill}
-                        opacity={item.opacity ?? 1}
-                        stroke={item.stroke}
-                        strokeWidth={item.strokeWidth ? item.strokeWidth * cellSize : undefined}
-                      />
-                    )
-                  }
-                  if (item.shape === 'ellipse') {
-                    return (
-                      <ellipse
-                        key={i}
-                        cx={item.cx * cellSize}
-                        cy={item.cy * cellSize}
-                        rx={item.rx * cellSize}
-                        ry={item.ry * cellSize}
-                        fill={item.fill}
-                        opacity={item.opacity ?? 1}
-                        stroke={item.stroke}
-                        strokeWidth={item.strokeWidth ? item.strokeWidth * cellSize : undefined}
-                      />
-                    )
-                  }
-                  return (
-                    <line
-                      key={i}
-                      x1={item.x1 * cellSize}
-                      y1={item.y1 * cellSize}
-                      x2={item.x2 * cellSize}
-                      y2={item.y2 * cellSize}
-                      stroke={item.stroke}
-                      strokeWidth={item.strokeWidth * cellSize}
-                      opacity={item.opacity ?? 1}
-                      strokeLinecap="round"
-                    />
-                  )
-                })}
 
                 {/* Door arch bars */}
                 {Object.entries(DOOR_POSITIONS).flatMap(([roomId, doors]) =>
@@ -1083,6 +1244,28 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 ))}
               </svg>
 
+              {/* Location images — fill each room completely */}
+              {locationCardLayers.map(({ roomId, src, left, top, cardW, cardH }) => (
+                <img
+                  key={`loccard-${roomId}`}
+                  src={src}
+                  draggable={false}
+                  style={{
+                    position: 'absolute',
+                    left,
+                    top,
+                    width: cardW,
+                    height: cardH,
+                    imageRendering: 'pixelated',
+                    objectFit: 'cover',
+                    opacity: 0.78,
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                    zIndex: 1,
+                  }}
+                />
+              ))}
+
               {/* Room name labels */}
               {Object.entries(ROOM_LABEL_ANCHORS).map(([roomId, [cx, cy]]) => (
                 <div
@@ -1170,6 +1353,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 key={currentTurnIndex}
                 playerName={currentPlayer.name}
                 playerIcon={currentPlayer.icon}
+                playerImageSrc={currentPlayer.imageSrc}
                 playerColor={currentPlayer.accentColor}
                 playerIndex={currentTurnIndex}
                 onAction={handleAction}
@@ -1272,6 +1456,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
               <ClueNotebook
                 key="notebook"
                 data={notebooks[currentTurnIndex] ?? notebooks[0]}
+                hand={deal.playerHands[currentTurnIndex] ?? []}
                 onChange={(cat, cardId, state) =>
                   updateNotebookBox(currentTurnIndex, cat, cardId, state)
                 }
@@ -1292,116 +1477,19 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             )}
           </AnimatePresence>
 
-          {/* Cards overlay */}
+          {/* Cards overlay — full-screen hold-to-reveal */}
           <AnimatePresence>
             {showCards && (
-              <motion.div
+              <CardsOverlay
                 key="cards-overlay"
-                style={{
-                  position: 'absolute', inset: 0,
-                  background: 'rgba(0,0,0,0.92)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  zIndex: 46,
-                }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.18, ease: 'linear' }}
-                onClick={e => { if (e.target === e.currentTarget) setShowCards(false) }}
-              >
-                <motion.div
-                  style={{
-                    background: '#060208',
-                    border: `2px solid ${currentPlayer?.accentColor ?? '#cc3355'}55`,
-                    boxShadow: `0 0 50px ${currentPlayer?.accentColor ?? '#cc3355'}22`,
-                    padding: '24px 28px',
-                    maxWidth: 480,
-                    width: '90%',
-                    display: 'flex', flexDirection: 'column', gap: 0,
-                  }}
-                  initial={{ scale: 0.88, y: 20 }}
-                  animate={{ scale: 1, y: 0 }}
-                  transition={{ duration: 0.2, ease: 'linear' }}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    marginBottom: 18, paddingBottom: 12,
-                    borderBottom: `1px solid ${currentPlayer?.accentColor ?? '#cc3355'}33`,
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{
-                        fontFamily: 'monospace', fontSize: 20,
-                        color: currentPlayer?.accentColor ?? '#cc3355',
-                        lineHeight: 1,
-                      }}>
-                        {currentPlayer?.icon}
-                      </span>
-                      <div>
-                        <div className="font-pixel" style={{ fontSize: '8px', color: currentPlayer?.accentColor ?? '#cc3355', letterSpacing: '2px' }}>
-                          {currentPlayer?.name} — CARDS
-                        </div>
-                        <div className="font-pixel" style={{ fontSize: '5px', color: '#886644', letterSpacing: '0.8px', marginTop: 4 }}>
-                          {deal.playerHands[currentTurnIndex]?.length ?? 0} CARDS IN HAND
-                        </div>
-                      </div>
-                    </div>
-                    <motion.button
-                      className="font-pixel"
-                      style={{
-                        background: 'transparent',
-                        border: `1px solid ${currentPlayer?.accentColor ?? '#cc3355'}55`,
-                        color: currentPlayer?.accentColor ?? '#cc3355',
-                        fontSize: '7px', padding: '5px 10px',
-                        cursor: 'pointer', letterSpacing: '1px',
-                      }}
-                      whileHover={{ background: `${currentPlayer?.accentColor ?? '#cc3355'}22` }}
-                      whileTap={{ scale: 0.94 }}
-                      transition={{ duration: 0.06 }}
-                      onClick={() => setShowCards(false)}
-                    >
-                      ✕ CLOSE
-                    </motion.button>
-                  </div>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                    {(deal.playerHands[currentTurnIndex] ?? []).map(card => (
-                      <div
-                        key={card.id}
-                        style={{
-                          background: card.bgColor,
-                          border: `2px solid ${card.accentColor}44`,
-                          padding: '10px 14px',
-                          display: 'flex', alignItems: 'center', gap: 9,
-                          minWidth: 140,
-                        }}
-                      >
-                        <span style={{
-                          fontFamily: 'monospace', fontSize: 18,
-                          color: card.accentColor,
-                          textShadow: `0 0 8px ${card.accentColor}55`,
-                          lineHeight: 1, flexShrink: 0,
-                        }}>
-                          {card.icon}
-                        </span>
-                        <div>
-                          <div className="font-pixel" style={{ fontSize: '5px', color: '#666', letterSpacing: '0.5px', marginBottom: 3 }}>
-                            {card.category.toUpperCase()}
-                          </div>
-                          <div className="font-pixel" style={{ fontSize: '6px', color: card.accentColor, letterSpacing: '0.5px' }}>
-                            {card.name.toUpperCase()}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {(deal.playerHands[currentTurnIndex]?.length ?? 0) === 0 && (
-                      <div className="font-pixel" style={{ fontSize: '7px', color: '#554433', letterSpacing: '1px' }}>
-                        NO CARDS DEALT
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              </motion.div>
+                hand={deal.playerHands[currentTurnIndex] ?? []}
+                playerName={currentPlayer?.name ?? ''}
+                playerIcon={currentPlayer?.icon ?? ''}
+                playerImageSrc={currentPlayer?.imageSrc}
+                playerColor={currentPlayer?.accentColor ?? '#cc3355'}
+                playerIndex={currentTurnIndex}
+                onClose={() => setShowCards(false)}
+              />
             )}
           </AnimatePresence>
 

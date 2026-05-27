@@ -193,6 +193,7 @@ export function useBoard(players: PlayerSetup[]) {
         id: p.character.id,
         name: p.character.name,
         icon: p.character.icon,
+        imageSrc: p.character.imageSrc,
         accentColor: p.character.accentColor,
         position: (CHAR_STARTS[p.character.id] ?? [12, 12]) as [number, number],
         currentLocation: null,

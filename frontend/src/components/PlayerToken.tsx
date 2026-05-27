@@ -46,19 +46,34 @@ export default function PlayerToken({ player, cellSize, isSelected, playerIndex,
       }}
       onClick={onClick}
     >
-      <span
-        style={{
-          fontFamily: 'monospace',
-          fontSize: Math.max(8, Math.floor(size * 0.52)),
-          color: player.accentColor,
-          lineHeight: 1,
-          textShadow: isSelected ? `0 0 6px ${player.accentColor}` : 'none',
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}
-      >
-        {player.icon}
-      </span>
+      {player.imageSrc ? (
+        <img
+          src={player.imageSrc}
+          style={{
+            width: Math.max(8, Math.floor(size * 0.72)),
+            height: Math.max(8, Math.floor(size * 0.72)),
+            imageRendering: 'pixelated',
+            objectFit: 'contain',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            filter: isSelected ? `drop-shadow(0 0 3px ${player.accentColor})` : 'none',
+          }}
+        />
+      ) : (
+        <span
+          style={{
+            fontFamily: 'monospace',
+            fontSize: Math.max(8, Math.floor(size * 0.52)),
+            color: player.accentColor,
+            lineHeight: 1,
+            textShadow: isSelected ? `0 0 6px ${player.accentColor}` : 'none',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
+          {player.icon}
+        </span>
+      )}
     </motion.div>
   )
 }

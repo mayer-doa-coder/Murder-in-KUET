@@ -1,3 +1,25 @@
+import suspectChefImg        from './assets/cards/suspect_chef.png'
+import suspectHallboyImg     from './assets/cards/suspect_hallboy.png'
+import suspectSecurityImg    from './assets/cards/suspect_security_guard.png'
+import suspectShopkeeperImg  from './assets/cards/suspect_shopkeeper.png'
+import suspectStudentBoyImg  from './assets/cards/suspect_student_boy.png'
+import suspectStudentGirlImg from './assets/cards/suspect_student_girl.png'
+import weaponAntiCutterImg   from './assets/cards/weapon_anti_cutter.png'
+import weaponKnifeImg        from './assets/cards/weapon_knife.png'
+import weaponLaptopImg       from './assets/cards/weapon_laptop_charger.png'
+import weaponRevolverImg     from './assets/cards/weapon_revolver.png'
+import weaponRopeImg         from './assets/cards/weapon_rope.png'
+import weaponPillImg         from './assets/cards/weapon_sleeping_pill.png'
+import locationAmarImg       from './assets/cards/location_Amar_Ekushey_Hall.png'
+import locationAuditoriumImg from './assets/cards/location_auditorium.png'
+import locationBegumImg      from './assets/cards/location_begum_rokeya_hall.png'
+import locationCafeteriaImg  from './assets/cards/location_cafetaria.png'
+import locationFieldImg      from './assets/cards/location_central_field.png'
+import locationITParkImg     from './assets/cards/location_it_park.png'
+import locationLotusImg      from './assets/cards/location_lotus_pond.png'
+import locationGateImg       from './assets/cards/location_pocket_gate.png'
+import locationWelfareImg    from './assets/cards/location_student_welfare_center.png'
+
 // ── Basic game enums ──────────────────────────────────────────────────────────
 export type Difficulty   = 'easy' | 'medium' | 'hard'
 export type PlayerType   = 'human' | 'computer'
@@ -66,6 +88,7 @@ export interface BoardPlayer {
   id: string
   name: string
   icon: string
+  imageSrc?: string
   accentColor: string
   position: [number, number]        // [col, row]; when inside a room this is the entry door cell
   currentLocation: string | null    // roomId when fully inside a room, null when on grid
@@ -80,6 +103,7 @@ export interface Character {
   borderColor: string
   accentColor: string
   icon: string
+  imageSrc?: string
 }
 
 export interface PlayerSetup {
@@ -101,7 +125,8 @@ export interface Card {
   name: string
   shortName: string     // ≤3 chars — compact label
   category: CardCategory
-  icon: string          // Unicode symbol
+  icon: string          // Unicode symbol (fallback)
+  imageSrc?: string     // PNG asset; renders instead of icon when present
   bgColor: string       // face-up background
   accentColor: string   // icon + text color
 }
@@ -111,7 +136,7 @@ export interface GameDeal {
   playerHands: Card[][]   // [P1 cards, P2 cards, P3 cards]
 }
 
-// ── Character roster (updated suspect names) ──────────────────────────────────
+// ── Character roster ──────────────────────────────────────────────────────────
 export const CHARACTERS: Character[] = [
   {
     id: 'chef',
@@ -121,6 +146,7 @@ export const CHARACTERS: Character[] = [
     borderColor: '#884422',
     accentColor: '#ff6633',
     icon: '♛',
+    imageSrc: suspectChefImg,
   },
   {
     id: 'hallboy',
@@ -130,6 +156,7 @@ export const CHARACTERS: Character[] = [
     borderColor: '#6a5500',
     accentColor: '#ccaa00',
     icon: '◇',
+    imageSrc: suspectHallboyImg,
   },
   {
     id: 'security_guard',
@@ -139,6 +166,7 @@ export const CHARACTERS: Character[] = [
     borderColor: '#223388',
     accentColor: '#4466ff',
     icon: '⚔',
+    imageSrc: suspectSecurityImg,
   },
   {
     id: 'shopkeeper',
@@ -148,6 +176,7 @@ export const CHARACTERS: Character[] = [
     borderColor: '#226622',
     accentColor: '#44cc44',
     icon: '♟',
+    imageSrc: suspectShopkeeperImg,
   },
   {
     id: 'student_girl',
@@ -157,6 +186,7 @@ export const CHARACTERS: Character[] = [
     borderColor: '#6622aa',
     accentColor: '#cc44ff',
     icon: '✿',
+    imageSrc: suspectStudentGirlImg,
   },
   {
     id: 'student_boy',
@@ -166,40 +196,41 @@ export const CHARACTERS: Character[] = [
     borderColor: '#115566',
     accentColor: '#22aacc',
     icon: '♞',
+    imageSrc: suspectStudentBoyImg,
   },
 ]
 
 // ── Suspects (6) ──────────────────────────────────────────────────────────────
 export const SUSPECTS_CARDS: Card[] = [
-  { id: 'chef',           name: 'Chef',           shortName: 'CHF', category: 'suspect', icon: '♛', bgColor: '#2a0800', accentColor: '#ff6633' },
-  { id: 'hallboy',        name: 'Hallboy',         shortName: 'HBY', category: 'suspect', icon: '◇', bgColor: '#1a1500', accentColor: '#ccaa00' },
-  { id: 'security_guard', name: 'Security Guard',  shortName: 'SGD', category: 'suspect', icon: '⚔', bgColor: '#0a0a2a', accentColor: '#4466ff' },
-  { id: 'shopkeeper',     name: 'Shopkeeper',      shortName: 'SHK', category: 'suspect', icon: '♟', bgColor: '#082008', accentColor: '#44cc44' },
-  { id: 'student_girl',   name: 'Student Girl',    shortName: 'SGR', category: 'suspect', icon: '✿', bgColor: '#1a0828', accentColor: '#cc44ff' },
-  { id: 'student_boy',    name: 'Student Boy',     shortName: 'SBY', category: 'suspect', icon: '♞', bgColor: '#001a20', accentColor: '#22aacc' },
+  { id: 'chef',           name: 'Chef',           shortName: 'CHF', category: 'suspect', icon: '♛', imageSrc: suspectChefImg,        bgColor: '#2a0800', accentColor: '#ff6633' },
+  { id: 'hallboy',        name: 'Hallboy',         shortName: 'HBY', category: 'suspect', icon: '◇', imageSrc: suspectHallboyImg,     bgColor: '#1a1500', accentColor: '#ccaa00' },
+  { id: 'security_guard', name: 'Security Guard',  shortName: 'SGD', category: 'suspect', icon: '⚔', imageSrc: suspectSecurityImg,    bgColor: '#0a0a2a', accentColor: '#4466ff' },
+  { id: 'shopkeeper',     name: 'Shopkeeper',      shortName: 'SHK', category: 'suspect', icon: '♟', imageSrc: suspectShopkeeperImg,  bgColor: '#082008', accentColor: '#44cc44' },
+  { id: 'student_girl',   name: 'Student Girl',    shortName: 'SGR', category: 'suspect', icon: '✿', imageSrc: suspectStudentGirlImg, bgColor: '#1a0828', accentColor: '#cc44ff' },
+  { id: 'student_boy',    name: 'Student Boy',     shortName: 'SBY', category: 'suspect', icon: '♞', imageSrc: suspectStudentBoyImg,  bgColor: '#001a20', accentColor: '#22aacc' },
 ]
 
 // ── Weapons (6) ───────────────────────────────────────────────────────────────
 export const WEAPONS_CARDS: Card[] = [
-  { id: 'knife',          name: 'Knife',           shortName: 'KNF', category: 'weapon', icon: '†',  bgColor: '#1a1a1a', accentColor: '#cccccc' },
-  { id: 'sleeping_pills', name: 'Sleeping Pills',  shortName: 'SLP', category: 'weapon', icon: '●',  bgColor: '#0a0a20', accentColor: '#8899ff' },
-  { id: 'revolver',       name: 'Revolver',        shortName: 'RVL', category: 'weapon', icon: '⊛',  bgColor: '#1a1000', accentColor: '#ddcc22' },
-  { id: 'laptop_charger', name: 'Laptop Charger',  shortName: 'LPC', category: 'weapon', icon: '⚡', bgColor: '#000a1a', accentColor: '#22aaff' },
-  { id: 'anti_cutter',    name: 'Anti Cutter',     shortName: 'ACT', category: 'weapon', icon: '✦',  bgColor: '#1a0800', accentColor: '#ff8833' },
-  { id: 'rope',           name: 'Rope',            shortName: 'RPE', category: 'weapon', icon: '∿',  bgColor: '#0d0800', accentColor: '#cc8833' },
+  { id: 'knife',          name: 'Knife',           shortName: 'KNF', category: 'weapon', icon: '†',  imageSrc: weaponKnifeImg,      bgColor: '#1a1a1a', accentColor: '#cccccc' },
+  { id: 'sleeping_pills', name: 'Sleeping Pills',  shortName: 'SLP', category: 'weapon', icon: '●',  imageSrc: weaponPillImg,       bgColor: '#0a0a20', accentColor: '#8899ff' },
+  { id: 'revolver',       name: 'Revolver',        shortName: 'RVL', category: 'weapon', icon: '⊛',  imageSrc: weaponRevolverImg,   bgColor: '#1a1000', accentColor: '#ddcc22' },
+  { id: 'laptop_charger', name: 'Laptop Charger',  shortName: 'LPC', category: 'weapon', icon: '⚡', imageSrc: weaponLaptopImg,     bgColor: '#000a1a', accentColor: '#22aaff' },
+  { id: 'anti_cutter',    name: 'Anti Cutter',     shortName: 'ACT', category: 'weapon', icon: '✦',  imageSrc: weaponAntiCutterImg, bgColor: '#1a0800', accentColor: '#ff8833' },
+  { id: 'rope',           name: 'Rope',            shortName: 'RPE', category: 'weapon', icon: '∿',  imageSrc: weaponRopeImg,       bgColor: '#0d0800', accentColor: '#cc8833' },
 ]
 
 // ── Locations (9) ─────────────────────────────────────────────────────────────
 export const LOCATIONS_CARDS: Card[] = [
-  { id: 'auditorium',        name: 'Auditorium',              shortName: 'AUD', category: 'location', icon: '▲', bgColor: '#180018', accentColor: '#aa44ff' },
-  { id: 'student_welfare',   name: 'Student Welfare Center',  shortName: 'SWC', category: 'location', icon: '✦', bgColor: '#001a0a', accentColor: '#44cc77' },
-  { id: 'amar_ekushey',      name: 'Amar Ekushey Hall',       shortName: 'AEH', category: 'location', icon: '♦', bgColor: '#1a0000', accentColor: '#ff4444' },
-  { id: 'cafeteria',         name: 'Cafeteria',               shortName: 'CAF', category: 'location', icon: '□', bgColor: '#1a0d00', accentColor: '#ffaa22' },
-  { id: 'central_field',     name: 'Central Field',           shortName: 'CTF', category: 'location', icon: '◆', bgColor: '#001800', accentColor: '#44ff44' },
-  { id: 'it_park',           name: 'IT Park',                 shortName: 'ITP', category: 'location', icon: '⌘', bgColor: '#00001a', accentColor: '#4488ff' },
-  { id: 'begum_rokeya',      name: 'Begum Rokeya Hall',       shortName: 'BRH', category: 'location', icon: '◎', bgColor: '#1a0014', accentColor: '#ff55aa' },
-  { id: 'lotus_pond',        name: 'Lotus Pond',              shortName: 'LTP', category: 'location', icon: '◉', bgColor: '#001a1a', accentColor: '#44cccc' },
-  { id: 'pocket_gate',       name: 'Pocket Gate',             shortName: 'PGT', category: 'location', icon: '⬡', bgColor: '#0d0d0d', accentColor: '#888888' },
+  { id: 'auditorium',        name: 'Auditorium',              shortName: 'AUD', category: 'location', icon: '▲', imageSrc: locationAuditoriumImg, bgColor: '#180018', accentColor: '#aa44ff' },
+  { id: 'student_welfare',   name: 'Student Welfare Center',  shortName: 'SWC', category: 'location', icon: '✦', imageSrc: locationWelfareImg,    bgColor: '#001a0a', accentColor: '#44cc77' },
+  { id: 'amar_ekushey',      name: 'Amar Ekushey Hall',       shortName: 'AEH', category: 'location', icon: '♦', imageSrc: locationAmarImg,       bgColor: '#1a0000', accentColor: '#ff4444' },
+  { id: 'cafeteria',         name: 'Cafeteria',               shortName: 'CAF', category: 'location', icon: '□', imageSrc: locationCafeteriaImg,  bgColor: '#1a0d00', accentColor: '#ffaa22' },
+  { id: 'central_field',     name: 'Central Field',           shortName: 'CTF', category: 'location', icon: '◆', imageSrc: locationFieldImg,      bgColor: '#001800', accentColor: '#44ff44' },
+  { id: 'it_park',           name: 'IT Park',                 shortName: 'ITP', category: 'location', icon: '⌘', imageSrc: locationITParkImg,     bgColor: '#00001a', accentColor: '#4488ff' },
+  { id: 'begum_rokeya',      name: 'Begum Rokeya Hall',       shortName: 'BRH', category: 'location', icon: '◎', imageSrc: locationBegumImg,      bgColor: '#1a0014', accentColor: '#ff55aa' },
+  { id: 'lotus_pond',        name: 'Lotus Pond',              shortName: 'LTP', category: 'location', icon: '◉', imageSrc: locationLotusImg,      bgColor: '#001a1a', accentColor: '#44cccc' },
+  { id: 'pocket_gate',       name: 'Pocket Gate',             shortName: 'PGT', category: 'location', icon: '⬡', imageSrc: locationGateImg,       bgColor: '#0d0d0d', accentColor: '#888888' },
 ]
 
 export const ALL_CARDS: Card[] = [
