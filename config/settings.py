@@ -28,7 +28,12 @@ AI_CONFIG = {
     # Maximum rollout steps per simulation — guarantees termination.
     "MCTS_ROLLOUT_DEPTH": 50,
     # Minimum Bayesian confidence across all three categories to trigger accusation.
-    "MCTS_ACCUSATION_THRESHOLD": 0.70,
+    # Unified threshold so all AIs compete on information quality, not threshold gaps.
+    "MCTS_ACCUSATION_THRESHOLD":           0.70,
+    "MINIMAX_ACCUSATION_THRESHOLD":        0.70,
+    "EXPECTIMINIMAX_ACCUSATION_THRESHOLD": 0.70,
+    "NEGAMAX_ACCUSATION_THRESHOLD":        0.70,
+    "RULE_BASED_ACCUSATION_THRESHOLD":     0.70,
 }
 
 

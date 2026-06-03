@@ -93183,3 +93183,1701 @@
 2026-04-23 21:45:12,898 - INFO - main - Game finished. Winner: MonteCarloAI
 2026-04-23 21:45:18,216 - INFO - main - Game finished. Winner: MonteCarloAI
 2026-04-23 21:45:21,992 - INFO - main - Game finished. Winner: MonteCarloAI
+2026-06-04 04:15:12,187 - INFO - __main__ - ====================================================================
+2026-06-04 04:15:12,187 - INFO - __main__ -  Murder in KUET - Minimax vs Expectiminimax vs Negamax vs MonteCarlo vs MCTS Metrics
+2026-06-04 04:15:12,187 - INFO - __main__ - ====================================================================
+2026-06-04 04:15:12,187 - INFO - __main__ - === Game 1 ===
+2026-06-04 04:15:12,188 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:12,189 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:15:12,272 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:12,551 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:15:12,552 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:12,552 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:12,552 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:12,553 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:12,704 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:15:12,704 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Amar Ekushey Hall)
+2026-06-04 04:15:12,705 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:15:12,705 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:12,705 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:12,706 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:15:12,706 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:12,706 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:15:12,706 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:12,706 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:12,707 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:12,707 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:15:12,750 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:12,893 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:15:12,893 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:12,893 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:12,894 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:12,894 - INFO - engine.game_state - Dice: 12
+2026-06-04 04:15:13,082 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:13,146 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:15:13,146 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:13,147 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:13,147 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:13,147 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:13,192 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:13,444 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Lotus Pond)
+2026-06-04 04:15:13,444 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:13,445 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:13,445 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:13,445 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:15:13,608 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:15:13,608 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Begum Rokeya Hall)
+2026-06-04 04:15:13,609 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:13,609 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:13,610 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:13,610 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:13,610 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:13,610 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:15:13,611 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:13,611 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:13,611 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:13,611 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:15:13,714 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:14,178 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:15:14,179 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:14,179 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:14,180 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:14,180 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:15:14,268 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:14,332 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:15:14,333 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:14,333 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:14,334 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:14,334 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:14,366 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:14,536 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Auditorium)
+2026-06-04 04:15:14,537 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:14,537 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:14,537 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:14,538 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:15:14,691 - INFO - engine.game_state - Move: Central Field
+2026-06-04 04:15:14,692 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Central Field)
+2026-06-04 04:15:14,692 - INFO - engine.game_state - AI Player 4 revealed a card
+2026-06-04 04:15:14,692 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:14,693 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:14,693 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:15:14,693 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:15:14,694 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Anti Cutter, Location=Student Welfare Center)
+2026-06-04 04:15:14,694 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:14,694 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:14,694 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:14,694 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:15:14,845 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:15,310 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:15:15,310 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:15,311 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:15,311 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:15,311 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:15,409 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:15,483 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:15:15,483 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:15,483 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:15,484 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:15,484 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:15,505 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:15,665 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:15,666 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:15,666 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:15,666 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:15,666 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:15:15,862 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:15:15,862 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Amar Ekushey Hall)
+2026-06-04 04:15:15,863 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:15:15,863 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:15,863 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:15,863 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:15,864 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:15,864 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:15:15,864 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:15,864 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:15,865 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:15,865 - INFO - engine.game_state - Dice: 12
+2026-06-04 04:15:15,962 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:16,531 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:15:16,532 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:16,532 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:16,532 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:16,533 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:16,565 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:16,614 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:15:16,614 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:16,614 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:16,615 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:16,615 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:16,644 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:16,742 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:16,743 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:16,743 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:16,744 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:16,744 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:15:16,896 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:15:16,897 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Begum Rokeya Hall)
+2026-06-04 04:15:16,897 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:16,897 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:16,897 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:16,897 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:15:16,898 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:15:16,898 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Student Welfare Center)
+2026-06-04 04:15:16,898 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:16,898 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:16,898 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:16,898 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:15:16,920 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:17,143 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:15:17,144 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:17,144 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:17,144 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:17,145 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:15:17,204 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:17,276 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:15:17,277 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:17,277 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:17,278 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:17,278 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:15:17,292 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:17,367 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:17,367 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:17,367 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:17,368 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:17,368 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:15:17,504 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:15:17,504 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Amar Ekushey Hall)
+2026-06-04 04:15:17,505 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:15:17,505 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:17,505 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:17,505 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:15:17,505 - INFO - engine.game_state - Move: Cafeteria
+2026-06-04 04:15:17,506 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Cafeteria)
+2026-06-04 04:15:17,506 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:17,506 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:17,506 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:17,506 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:15:17,596 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:18,109 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:15:18,109 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:18,110 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:18,110 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:18,110 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:18,175 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:18,219 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:15:18,219 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:18,219 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:18,220 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:18,220 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:15:18,240 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:18,318 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:18,318 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:18,319 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:18,319 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:18,319 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:18,459 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:15:18,459 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Pocket Gate)
+2026-06-04 04:15:18,460 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:18,460 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:18,460 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:18,460 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:18,460 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:15:18,461 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Pocket Gate)
+2026-06-04 04:15:18,461 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:18,461 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:18,461 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:18,461 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:18,514 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:18,841 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:15:18,841 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:18,842 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:18,842 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:18,842 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:18,929 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:18,994 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Knife, Location=Auditorium)
+2026-06-04 04:15:18,994 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:18,994 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:18,995 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:18,995 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:19,034 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:19,140 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:19,140 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:19,141 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:19,141 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:19,141 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:19,296 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:19,296 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Laptop Charger, Location=Auditorium)
+2026-06-04 04:15:19,297 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:19,297 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:19,297 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:19,297 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:15:19,297 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:15:19,298 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Begum Rokeya Hall)
+2026-06-04 04:15:19,298 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:19,298 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:19,299 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:19,299 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:15:19,309 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:19,493 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:15:19,493 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:19,493 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:19,494 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:19,494 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:19,537 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:19,588 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Knife, Location=Lotus Pond)
+2026-06-04 04:15:19,588 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:19,589 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:19,589 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:19,590 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:15:19,617 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:19,680 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:19,681 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:15:19,681 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:19,681 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:19,685 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:19,839 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:15:19,840 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Student Welfare Center)
+2026-06-04 04:15:19,840 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:19,841 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:19,841 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:19,841 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:15:19,842 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:15:19,842 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Amar Ekushey Hall)
+2026-06-04 04:15:19,842 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:15:19,842 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:19,843 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:19,843 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:15:19,872 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:20,139 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:15:20,139 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:20,140 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:20,140 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:20,140 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:15:20,309 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:20,387 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:20,388 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:20,388 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:20,388 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:20,389 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:20,428 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:20,533 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:20,533 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:20,534 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:20,534 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:20,534 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:15:20,691 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:20,692 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:20,692 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:20,692 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:20,692 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:20,692 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:15:20,693 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:15:20,693 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:15:20,693 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:20,693 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:20,693 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:20,693 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:20,735 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:21,041 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:15:21,041 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:21,042 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:21,042 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:21,042 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:15:21,061 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:21,114 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:21,114 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:21,115 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:21,115 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:21,115 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:15:21,133 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:21,200 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:21,200 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:15:21,200 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:21,201 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:21,201 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:15:21,360 - INFO - engine.game_state - Move: Cafeteria
+2026-06-04 04:15:21,360 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Cafeteria)
+2026-06-04 04:15:21,360 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:15:21,361 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:21,361 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:21,361 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:21,362 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:15:21,362 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Amar Ekushey Hall)
+2026-06-04 04:15:21,362 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:15:21,362 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:21,362 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:21,362 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:15:21,448 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:21,828 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:15:21,829 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:21,829 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:21,829 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:21,829 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:21,904 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:21,969 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:21,970 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:21,970 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:21,970 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:21,971 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:15:21,986 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:22,063 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:22,063 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:22,063 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:22,063 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:22,064 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:22,218 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:22,219 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:22,219 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:15:22,220 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:22,220 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:22,220 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:15:22,223 - INFO - engine.game_state - Move: IT Park
+2026-06-04 04:15:22,223 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=IT Park)
+2026-06-04 04:15:22,223 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:15:22,224 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:22,224 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:22,224 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:15:22,248 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:22,453 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:15:22,453 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:22,454 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:22,454 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:22,454 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:22,507 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:22,560 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:22,561 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:22,561 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:22,561 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:22,561 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:15:22,616 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:22,719 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:22,719 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:15:22,720 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:22,720 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:22,720 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:22,854 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:15:22,855 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Student Welfare Center)
+2026-06-04 04:15:22,855 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:22,855 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:22,855 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:22,856 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:15:22,856 - INFO - engine.game_state - Move: Central Field
+2026-06-04 04:15:22,856 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Central Field)
+2026-06-04 04:15:22,856 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:15:22,856 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:22,856 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:22,857 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:15:22,928 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:23,276 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:15:23,276 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:23,276 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:23,276 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:23,277 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:23,351 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:23,418 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:23,418 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:23,418 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:23,418 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:23,419 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:23,438 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:23,530 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:23,531 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:23,531 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:23,531 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:23,532 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:23,676 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:23,676 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:23,677 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:23,677 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:23,677 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:15:23,677 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:15:23,678 - INFO - engine.game_state - Move: IT Park
+2026-06-04 04:15:23,678 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=IT Park)
+2026-06-04 04:15:23,678 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:15:23,678 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:23,678 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:15:23,678 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:15:23,700 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:23,890 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:15:23,890 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:23,890 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:23,890 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:15:23,891 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:15:23,961 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:15:24,031 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:15:24,031 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:15:24,032 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:24,032 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:15:24,032 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:15:24,059 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:15:24,124 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:15:24,124 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:15:24,124 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:15:24,125 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:15:24,125 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:15:24,262 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:15:24,262 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Pocket Gate)
+2026-06-04 04:15:24,263 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:15:24,263 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:15:24,263 - INFO - engine.game_state - Accusation Decision: True
+2026-06-04 04:15:24,263 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:15:24,264 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:15:24,264 - INFO - __main__ - === Game 2 ===
+2026-06-04 04:15:34,308 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:15:34,308 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:15:34,309 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:15:34,309 - INFO - __main__ - === Game 3 ===
+2026-06-04 04:15:42,958 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:15:42,958 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:15:42,959 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:15:42,959 - INFO - __main__ - === Game 4 ===
+2026-06-04 04:15:55,201 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:15:55,202 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:15:55,203 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:15:55,203 - INFO - __main__ - === Game 5 ===
+2026-06-04 04:16:07,960 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:16:07,960 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:16:07,961 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:16:07,961 - INFO - __main__ - === Game 6 ===
+2026-06-04 04:16:26,627 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:16:26,628 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:16:26,628 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:16:26,629 - INFO - __main__ - === Game 7 ===
+2026-06-04 04:16:46,118 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:16:46,118 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:16:46,119 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:16:46,119 - INFO - __main__ - === Game 8 ===
+2026-06-04 04:16:56,544 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:16:56,545 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:16:56,545 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:16:56,545 - INFO - __main__ - === Game 9 ===
+2026-06-04 04:17:09,774 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:17:09,774 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:17:09,775 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:17:09,775 - INFO - __main__ - === Game 10 ===
+2026-06-04 04:17:22,039 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:17:22,040 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:17:22,040 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:17:22,040 - INFO - __main__ - ====================================================================
+2026-06-04 04:17:22,040 - INFO - __main__ - Final Performance Summary
+2026-06-04 04:17:22,041 - INFO - __main__ - ====================================================================
+2026-06-04 04:17:22,041 - INFO - __main__ - MinimaxAI:
+2026-06-04 04:17:22,041 - INFO - __main__ - Wins: 0
+2026-06-04 04:17:22,041 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:17:22,042 - INFO - __main__ - Average Moves: 10.60
+2026-06-04 04:17:22,042 - INFO - __main__ - Average Decision Time: 0.06248 sec
+2026-06-04 04:17:22,042 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:17:22,042 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:17:22,042 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:17:22,042 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:17:22,043 - INFO - __main__ - Suggestion Efficiency: 0.915
+2026-06-04 04:17:22,043 - INFO - __main__ - ExpectiminimaxAI:
+2026-06-04 04:17:22,043 - INFO - __main__ - Wins: 0
+2026-06-04 04:17:22,044 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:17:22,044 - INFO - __main__ - Average Moves: 10.70
+2026-06-04 04:17:22,044 - INFO - __main__ - Average Decision Time: 0.07619 sec
+2026-06-04 04:17:22,044 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:17:22,044 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:17:22,044 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:17:22,045 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:17:22,045 - INFO - __main__ - Suggestion Efficiency: 0.860
+2026-06-04 04:17:22,045 - INFO - __main__ - NegamaxAI:
+2026-06-04 04:17:22,045 - INFO - __main__ - Wins: 0
+2026-06-04 04:17:22,046 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:17:22,047 - INFO - __main__ - Average Moves: 10.70
+2026-06-04 04:17:22,047 - INFO - __main__ - Average Decision Time: 0.18351 sec
+2026-06-04 04:17:22,048 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:17:22,049 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:17:22,050 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:17:22,050 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:17:22,050 - INFO - __main__ - Suggestion Efficiency: 0.907
+2026-06-04 04:17:22,050 - INFO - __main__ - RuleBasedAI:
+2026-06-04 04:17:22,051 - INFO - __main__ - Wins: 0
+2026-06-04 04:17:22,051 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:17:22,052 - INFO - __main__ - Average Moves: 10.70
+2026-06-04 04:17:22,052 - INFO - __main__ - Average Decision Time: 0.00001 sec
+2026-06-04 04:17:22,052 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:17:22,053 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:17:22,053 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:17:22,053 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:17:22,053 - INFO - __main__ - Suggestion Efficiency: 0.804
+2026-06-04 04:17:22,053 - INFO - __main__ - MctsAI:
+2026-06-04 04:17:22,054 - INFO - __main__ - Wins: 10
+2026-06-04 04:17:22,054 - INFO - __main__ - Win Rate: 100.0%
+2026-06-04 04:17:22,054 - INFO - __main__ - Average Moves: 11.30
+2026-06-04 04:17:22,054 - INFO - __main__ - Average Decision Time: 0.07781 sec
+2026-06-04 04:17:22,054 - INFO - __main__ - Correct Accusations: 10
+2026-06-04 04:17:22,054 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:17:22,054 - INFO - __main__ - Accusation Accuracy: 100.0%
+2026-06-04 04:17:22,055 - INFO - __main__ - Average Turns To Win: 54.00
+2026-06-04 04:17:22,055 - INFO - __main__ - Suggestion Efficiency: 0.832
+2026-06-04 04:17:22,055 - INFO - __main__ - No-Winner Games: 0
+2026-06-04 04:17:22,055 - INFO - __main__ - Average Game Runtime: 12.9838 sec
+2026-06-04 04:17:22,055 - INFO - __main__ - ====================================================================
+2026-06-04 04:17:22,057 - INFO - __main__ - Metrics saved to logs\metrics.json
+2026-06-04 04:23:11,478 - INFO - __main__ - ====================================================================
+2026-06-04 04:23:11,479 - INFO - __main__ -  Murder in KUET - Minimax vs Expectiminimax vs Negamax vs MonteCarlo vs MCTS Metrics
+2026-06-04 04:23:11,479 - INFO - __main__ - ====================================================================
+2026-06-04 04:23:11,479 - INFO - __main__ - === Game 1 ===
+2026-06-04 04:23:11,484 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:11,484 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:23:11,559 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:11,910 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:23:11,910 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:11,910 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:11,910 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:11,910 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:12,111 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:23:12,112 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Amar Ekushey Hall)
+2026-06-04 04:23:12,112 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:23:12,112 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:12,112 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:12,112 - INFO - engine.game_state - Dice: 12
+2026-06-04 04:23:12,112 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:12,112 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:23:12,113 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:12,113 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:12,113 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:12,113 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:23:12,206 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:12,514 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:23:12,514 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:12,514 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:12,514 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:12,514 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:12,750 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:12,833 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:23:12,834 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:12,834 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:12,834 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:12,834 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:12,872 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:13,118 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Lotus Pond)
+2026-06-04 04:23:13,118 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:13,118 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:13,118 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:13,118 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:23:13,331 - INFO - engine.game_state - Move: Cafeteria
+2026-06-04 04:23:13,332 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Cafeteria)
+2026-06-04 04:23:13,332 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:13,332 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:13,332 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:13,332 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:23:13,332 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:13,332 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:23:13,332 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:13,333 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:13,333 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:13,333 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:13,399 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:13,848 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:23:13,848 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:13,848 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:13,848 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:13,848 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:23:13,868 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:13,951 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:23:13,951 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:13,952 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:13,952 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:13,952 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:23:14,021 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:15,144 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:15,145 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:15,145 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:15,145 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:15,145 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:15,695 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:23:15,695 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Amar Ekushey Hall)
+2026-06-04 04:23:15,695 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:23:15,695 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:15,695 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:15,696 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:23:15,696 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:23:15,696 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Anti Cutter, Location=Student Welfare Center)
+2026-06-04 04:23:15,696 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:15,696 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:15,696 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:15,696 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:15,775 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:16,257 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:23:16,257 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:16,257 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:16,257 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:16,257 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:23:16,432 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:16,552 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:23:16,552 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:16,552 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:16,553 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:16,553 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:16,589 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:16,868 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:23:16,868 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:16,868 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:16,868 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:16,868 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:17,173 - INFO - engine.game_state - Move: Cafeteria
+2026-06-04 04:23:17,173 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Cafeteria)
+2026-06-04 04:23:17,173 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:17,174 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:17,174 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:17,174 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:23:17,174 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:17,174 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:23:17,175 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:17,175 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:17,175 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:17,175 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:17,258 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:17,863 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:23:17,863 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:17,864 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:17,864 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:17,864 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:17,920 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:18,009 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:23:18,009 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:18,009 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:18,009 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:18,009 - INFO - engine.game_state - Dice: 12
+2026-06-04 04:23:18,121 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:18,401 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:18,401 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:18,401 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:18,401 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:18,401 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:23:18,736 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:18,736 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Laptop Charger, Location=Lotus Pond)
+2026-06-04 04:23:18,736 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:18,736 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:18,736 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:18,737 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:18,737 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:23:18,759 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Knife, Location=Student Welfare Center)
+2026-06-04 04:23:18,760 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:18,760 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:18,760 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:18,760 - INFO - engine.game_state - Dice: 12
+2026-06-04 04:23:18,987 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:19,885 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:23:19,885 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:19,885 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:19,885 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:19,885 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:20,088 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:20,232 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:23:20,232 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:20,233 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:20,233 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:20,233 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:20,294 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:20,505 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:23:20,505 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:20,505 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:20,506 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:20,506 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:23:20,896 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:20,897 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:20,897 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:20,897 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:20,897 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:20,898 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:23:20,898 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:20,898 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Knife, Location=Lotus Pond)
+2026-06-04 04:23:20,898 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:20,898 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:20,899 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:20,899 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:23:20,947 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:21,446 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:23:21,446 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:21,446 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:21,446 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:21,447 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:23:21,471 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:21,559 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:23:21,559 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:21,560 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:21,560 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:21,560 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:23:21,643 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:21,826 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:21,827 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:23:21,827 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:21,828 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:21,828 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:23:22,157 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:23:22,157 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Pocket Gate)
+2026-06-04 04:23:22,157 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:22,157 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:22,157 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:22,157 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:22,158 - INFO - engine.game_state - Move: Cafeteria
+2026-06-04 04:23:22,158 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Cafeteria)
+2026-06-04 04:23:22,158 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:22,158 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:22,158 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:22,158 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:22,236 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:22,698 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:23:22,698 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:22,699 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:22,699 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:22,699 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:23:23,052 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:23,184 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:23,185 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:23,185 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:23,185 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:23,185 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:23,241 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:23,428 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:23:23,428 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:23,428 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:23,428 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:23,428 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:23,720 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:23:23,721 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Amar Ekushey Hall)
+2026-06-04 04:23:23,721 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:23:23,721 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:23,721 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:23,721 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:23:23,721 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:23:23,722 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Pocket Gate)
+2026-06-04 04:23:23,722 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:23,722 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:23,722 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:23,722 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:23:23,900 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:24,843 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:23:24,843 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:24,843 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:24,844 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:24,844 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:24,928 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:25,022 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:23:25,023 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:25,023 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:25,023 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:25,023 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:23:25,062 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:25,185 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:25,185 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:23:25,185 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:25,186 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:25,186 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:25,519 - INFO - engine.game_state - Move: Central Field
+2026-06-04 04:23:25,519 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Central Field)
+2026-06-04 04:23:25,519 - INFO - engine.game_state - AI Player 4 revealed a card
+2026-06-04 04:23:25,519 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:25,519 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:25,519 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:25,520 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:23:25,520 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:23:25,520 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:25,520 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:25,520 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:25,520 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:25,664 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:26,420 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:23:26,421 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:26,421 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:26,421 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:26,421 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:26,571 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:26,705 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:26,705 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:26,705 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:26,705 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:26,705 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:23:26,808 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:27,064 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:23:27,065 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:27,065 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:27,065 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:27,065 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:27,464 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:23:27,464 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:23:27,464 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:27,464 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:27,464 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:27,464 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:27,464 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:23:27,465 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Amar Ekushey Hall)
+2026-06-04 04:23:27,465 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:23:27,465 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:27,465 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:27,465 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:27,542 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:28,151 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:23:28,152 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:28,152 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:28,152 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:28,152 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:23:28,207 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:28,295 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:23:28,307 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:28,308 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:28,308 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:28,308 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:23:28,363 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:28,499 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:28,499 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:23:28,499 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:28,499 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:28,499 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:23:28,766 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:23:28,766 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Amar Ekushey Hall)
+2026-06-04 04:23:28,767 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:23:28,767 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:28,767 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:28,767 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:23:28,767 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:23:28,767 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:23:28,768 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:28,768 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:28,768 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:23:28,768 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:23:28,934 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:29,716 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:23:29,716 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:29,717 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:29,717 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:23:29,717 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:23:30,056 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:23:30,180 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:23:30,181 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:23:30,181 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:30,181 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:23:30,181 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:23:30,257 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:23:30,483 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:23:30,483 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:23:30,484 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:30,484 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:23:30,484 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:23:30,780 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:23:30,780 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:23:30,780 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:23:30,781 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:23:30,781 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:23:30,781 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:23:30,781 - INFO - engine.game_state - Move: IT Park
+2026-06-04 04:23:30,781 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=IT Park)
+2026-06-04 04:23:30,781 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:23:30,781 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:23:30,781 - INFO - engine.game_state - Accusation Decision: True
+2026-06-04 04:23:30,782 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:23:30,782 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:23:30,782 - INFO - __main__ - === Game 2 ===
+2026-06-04 04:23:44,461 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:23:44,461 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:23:44,461 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:23:44,461 - INFO - __main__ - === Game 3 ===
+2026-06-04 04:23:58,583 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:23:58,583 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:23:58,583 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:23:58,583 - INFO - __main__ - === Game 4 ===
+2026-06-04 04:24:12,693 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:24:12,693 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:24:12,693 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:24:12,694 - INFO - __main__ - === Game 5 ===
+2026-06-04 04:24:35,844 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:24:35,844 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:24:35,844 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:24:35,844 - INFO - __main__ - === Game 6 ===
+2026-06-04 04:24:49,858 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:24:49,858 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:24:49,858 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:24:49,859 - INFO - __main__ - === Game 7 ===
+2026-06-04 04:25:04,751 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:25:04,752 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:25:04,752 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:25:04,752 - INFO - __main__ - === Game 8 ===
+2026-06-04 04:25:15,343 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:25:15,343 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:25:15,344 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:25:15,344 - INFO - __main__ - === Game 9 ===
+2026-06-04 04:25:33,921 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:25:33,921 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:25:33,921 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:25:33,921 - INFO - __main__ - === Game 10 ===
+2026-06-04 04:25:51,485 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:25:51,486 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:25:51,486 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:25:51,486 - INFO - __main__ - ====================================================================
+2026-06-04 04:25:51,486 - INFO - __main__ - Final Performance Summary
+2026-06-04 04:25:51,486 - INFO - __main__ - ====================================================================
+2026-06-04 04:25:51,487 - INFO - __main__ - MinimaxAI:
+2026-06-04 04:25:51,487 - INFO - __main__ - Wins: 0
+2026-06-04 04:25:51,487 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:25:51,488 - INFO - __main__ - Average Moves: 9.50
+2026-06-04 04:25:51,488 - INFO - __main__ - Average Decision Time: 0.08722 sec
+2026-06-04 04:25:51,488 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:25:51,488 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:25:51,489 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:25:51,489 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:25:51,489 - INFO - __main__ - Suggestion Efficiency: 0.937
+2026-06-04 04:25:51,489 - INFO - __main__ - ExpectiminimaxAI:
+2026-06-04 04:25:51,489 - INFO - __main__ - Wins: 0
+2026-06-04 04:25:51,490 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:25:51,490 - INFO - __main__ - Average Moves: 9.70
+2026-06-04 04:25:51,490 - INFO - __main__ - Average Decision Time: 0.11343 sec
+2026-06-04 04:25:51,490 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:25:51,490 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:25:51,490 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:25:51,491 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:25:51,491 - INFO - __main__ - Suggestion Efficiency: 0.897
+2026-06-04 04:25:51,491 - INFO - __main__ - NegamaxAI:
+2026-06-04 04:25:51,491 - INFO - __main__ - Wins: 0
+2026-06-04 04:25:51,491 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:25:51,491 - INFO - __main__ - Average Moves: 9.50
+2026-06-04 04:25:51,492 - INFO - __main__ - Average Decision Time: 0.25168 sec
+2026-06-04 04:25:51,492 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:25:51,492 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:25:51,492 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:25:51,492 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:25:51,493 - INFO - __main__ - Suggestion Efficiency: 0.926
+2026-06-04 04:25:51,493 - INFO - __main__ - RuleBasedAI:
+2026-06-04 04:25:51,493 - INFO - __main__ - Wins: 10
+2026-06-04 04:25:51,493 - INFO - __main__ - Win Rate: 100.0%
+2026-06-04 04:25:51,493 - INFO - __main__ - Average Moves: 10.10
+2026-06-04 04:25:51,493 - INFO - __main__ - Average Decision Time: 0.00002 sec
+2026-06-04 04:25:51,494 - INFO - __main__ - Correct Accusations: 10
+2026-06-04 04:25:51,494 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:25:51,494 - INFO - __main__ - Accusation Accuracy: 100.0%
+2026-06-04 04:25:51,494 - INFO - __main__ - Average Turns To Win: 48.50
+2026-06-04 04:25:51,495 - INFO - __main__ - Suggestion Efficiency: 0.871
+2026-06-04 04:25:51,495 - INFO - __main__ - MctsAI:
+2026-06-04 04:25:51,496 - INFO - __main__ - Wins: 0
+2026-06-04 04:25:51,496 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:25:51,496 - INFO - __main__ - Average Moves: 9.70
+2026-06-04 04:25:51,496 - INFO - __main__ - Average Decision Time: 0.10385 sec
+2026-06-04 04:25:51,496 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:25:51,496 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:25:51,496 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:25:51,496 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:25:51,496 - INFO - __main__ - Suggestion Efficiency: 0.928
+2026-06-04 04:25:51,496 - INFO - __main__ - No-Winner Games: 0
+2026-06-04 04:25:51,496 - INFO - __main__ - Average Game Runtime: 15.9993 sec
+2026-06-04 04:25:51,496 - INFO - __main__ - ====================================================================
+2026-06-04 04:25:51,498 - INFO - __main__ - Metrics saved to logs\metrics.json
+2026-06-04 04:32:28,872 - INFO - __main__ - ====================================================================
+2026-06-04 04:32:28,872 - INFO - __main__ -  Murder in KUET - Minimax vs Expectiminimax vs Negamax vs MonteCarlo vs MCTS Metrics
+2026-06-04 04:32:28,872 - INFO - __main__ - ====================================================================
+2026-06-04 04:32:28,872 - INFO - __main__ - === Game 1 ===
+2026-06-04 04:32:28,873 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:28,873 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:32:28,937 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:29,240 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:32:29,240 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:29,240 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:29,241 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:29,241 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:32:29,440 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:32:29,440 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Amar Ekushey Hall)
+2026-06-04 04:32:29,440 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:32:29,441 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:29,441 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:29,441 - INFO - engine.game_state - Dice: 12
+2026-06-04 04:32:29,441 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:29,441 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:32:29,441 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:29,441 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:29,441 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:32:29,441 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:32:29,557 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:29,957 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:32:29,957 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:29,957 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:29,957 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:32:29,957 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:32:30,166 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:30,233 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:32:30,233 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:30,233 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:30,233 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:30,233 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:32:30,270 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:30,498 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Lotus Pond)
+2026-06-04 04:32:30,498 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:30,498 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:30,498 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:30,498 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:32:30,681 - INFO - engine.game_state - Move: Central Field
+2026-06-04 04:32:30,681 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Central Field)
+2026-06-04 04:32:30,681 - INFO - engine.game_state - AI Player 4 revealed a card
+2026-06-04 04:32:30,681 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:30,682 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:30,682 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:32:30,682 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:30,682 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:32:30,682 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:30,682 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:30,682 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:32:30,682 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:32:30,719 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:31,009 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:32:31,009 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:31,009 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:31,010 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:32:31,010 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:32:31,104 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:31,154 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:32:31,154 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:31,154 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:31,154 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:31,154 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:32:31,199 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:31,414 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Auditorium)
+2026-06-04 04:32:31,415 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:31,415 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:31,415 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:31,415 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:32:31,609 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:32:31,609 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Pocket Gate)
+2026-06-04 04:32:31,610 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:32:31,610 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:31,610 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:31,610 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:32:31,610 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:32:31,610 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Student Welfare Center)
+2026-06-04 04:32:31,610 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:31,610 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:31,610 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:32:31,610 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:32:31,688 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:32,072 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:32:32,072 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:32,073 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:32,073 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:32:32,073 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:32:32,179 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:32,235 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:32:32,236 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:32,236 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:32,236 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:32,236 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:32:32,286 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:32,467 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Knife, Location=Lotus Pond)
+2026-06-04 04:32:32,468 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:32,468 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:32,468 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:32,468 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:32:32,644 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:32,644 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Laptop Charger, Location=Auditorium)
+2026-06-04 04:32:32,644 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:32,644 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:32,644 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:32,645 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:32:32,645 - INFO - engine.game_state - Move: Cafeteria
+2026-06-04 04:32:32,645 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Cafeteria)
+2026-06-04 04:32:32,645 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:32:32,645 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:32,645 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:32:32,645 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:32:32,653 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:32,823 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:32:32,824 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:32,824 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:32,824 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:32:32,824 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:32:32,849 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:32,893 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:32:32,894 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:32,894 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:32,894 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:32,894 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:32:32,905 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:32,966 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:32:32,967 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:32:32,967 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:32,967 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:32,967 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:32:33,138 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:32:33,138 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Pocket Gate)
+2026-06-04 04:32:33,138 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:33,138 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:33,138 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:33,138 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:32:33,138 - INFO - engine.game_state - Move: Central Field
+2026-06-04 04:32:33,138 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Central Field)
+2026-06-04 04:32:33,138 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:33,138 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:33,138 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:32:33,139 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:32:33,151 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:33,292 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:32:33,292 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:33,292 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:33,292 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:32:33,293 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:32:33,402 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:33,473 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:32:33,473 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:33,474 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:33,474 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:33,474 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:32:33,512 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:33,630 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:32:33,630 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:33,631 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:33,631 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:33,631 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:32:33,823 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:33,824 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:32:33,824 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:33,824 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:33,824 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:33,824 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:32:33,824 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:32:33,824 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Pocket Gate)
+2026-06-04 04:32:33,824 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:33,824 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:33,825 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:32:33,825 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:32:33,905 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:34,279 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:32:34,279 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:34,279 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:34,279 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:32:34,279 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:32:34,304 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:34,345 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:32:34,345 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:34,345 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:34,345 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:34,345 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:32:34,357 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:34,402 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:32:34,402 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:32:34,402 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:34,402 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:34,402 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:32:34,533 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:32:34,533 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Student Welfare Center)
+2026-06-04 04:32:34,533 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:34,534 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:34,534 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:34,534 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:32:34,534 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:32:34,534 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:32:34,534 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:32:34,534 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:34,534 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:32:34,534 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:32:34,603 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:34,956 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:32:34,956 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:34,956 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:34,957 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:32:34,957 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:32:35,103 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:35,162 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:32:35,162 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:32:35,162 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:35,162 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:35,162 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:32:35,208 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:35,362 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:32:35,362 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:35,362 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:35,362 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:35,362 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:32:35,487 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:35,487 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:32:35,488 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:32:35,488 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:35,488 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:35,488 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:32:35,488 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:32:35,488 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Amar Ekushey Hall)
+2026-06-04 04:32:35,488 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:32:35,488 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:35,488 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:32:35,488 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:32:35,528 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:35,888 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:32:35,888 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:35,888 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:35,889 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:32:35,889 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:32:35,995 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:32:36,040 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:32:36,041 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:32:36,041 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:36,041 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:32:36,041 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:32:36,076 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:32:36,184 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:32:36,184 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:32:36,184 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:36,184 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:32:36,184 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:32:36,364 - INFO - engine.game_state - Move: IT Park
+2026-06-04 04:32:36,364 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=IT Park)
+2026-06-04 04:32:36,364 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:32:36,364 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:32:36,364 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:32:36,365 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:32:36,365 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:32:36,365 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:32:36,365 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:32:36,365 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:32:36,365 - INFO - engine.game_state - Accusation Decision: True
+2026-06-04 04:32:36,365 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:32:36,365 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:32:36,365 - INFO - __main__ - === Game 2 ===
+2026-06-04 04:32:42,952 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:32:42,952 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:32:42,952 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:32:42,952 - INFO - __main__ - === Game 3 ===
+2026-06-04 04:32:49,929 - WARNING - engine.game_state - AI Player 5 eliminated
+2026-06-04 04:32:51,262 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:32:51,262 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:32:51,262 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:32:51,262 - INFO - __main__ - === Game 4 ===
+2026-06-04 04:32:56,921 - INFO - engine.game_state - AI Player 5 wins
+2026-06-04 04:32:56,921 - INFO - services.game_runner - Game finished. Winner: MctsAI
+2026-06-04 04:32:56,921 - INFO - __main__ - Winner: AI Player 5 (MctsAI)
+2026-06-04 04:32:56,921 - INFO - __main__ - === Game 5 ===
+2026-06-04 04:33:03,629 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:33:03,629 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:33:03,629 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:33:03,630 - INFO - __main__ - === Game 6 ===
+2026-06-04 04:33:11,297 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:33:11,297 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:33:11,297 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:33:11,297 - INFO - __main__ - === Game 7 ===
+2026-06-04 04:33:20,489 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:33:20,489 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:33:20,489 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:33:20,489 - INFO - __main__ - === Game 8 ===
+2026-06-04 04:33:25,365 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:33:25,365 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:33:25,365 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:33:25,366 - INFO - __main__ - === Game 9 ===
+2026-06-04 04:33:33,280 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:33:33,281 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:33:33,281 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:33:33,281 - INFO - __main__ - === Game 10 ===
+2026-06-04 04:33:43,068 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:33:43,068 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:33:43,068 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:33:43,069 - INFO - __main__ - ====================================================================
+2026-06-04 04:33:43,069 - INFO - __main__ - Final Performance Summary
+2026-06-04 04:33:43,069 - INFO - __main__ - ====================================================================
+2026-06-04 04:33:43,069 - INFO - __main__ - MinimaxAI:
+2026-06-04 04:33:43,069 - INFO - __main__ - Wins: 0
+2026-06-04 04:33:43,069 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:33:43,069 - INFO - __main__ - Average Moves: 8.60
+2026-06-04 04:33:43,069 - INFO - __main__ - Average Decision Time: 0.04344 sec
+2026-06-04 04:33:43,069 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:33:43,069 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:33:43,069 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:33:43,069 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:33:43,069 - INFO - __main__ - Suggestion Efficiency: 0.919
+2026-06-04 04:33:43,069 - INFO - __main__ - ExpectiminimaxAI:
+2026-06-04 04:33:43,069 - INFO - __main__ - Wins: 0
+2026-06-04 04:33:43,069 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:33:43,069 - INFO - __main__ - Average Moves: 8.80
+2026-06-04 04:33:43,069 - INFO - __main__ - Average Decision Time: 0.05511 sec
+2026-06-04 04:33:43,069 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:33:43,069 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:33:43,069 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:33:43,069 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:33:43,069 - INFO - __main__ - Suggestion Efficiency: 0.898
+2026-06-04 04:33:43,070 - INFO - __main__ - NegamaxAI:
+2026-06-04 04:33:43,070 - INFO - __main__ - Wins: 0
+2026-06-04 04:33:43,070 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:33:43,070 - INFO - __main__ - Average Moves: 8.60
+2026-06-04 04:33:43,070 - INFO - __main__ - Average Decision Time: 0.13242 sec
+2026-06-04 04:33:43,070 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:33:43,070 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:33:43,070 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:33:43,070 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:33:43,070 - INFO - __main__ - Suggestion Efficiency: 0.907
+2026-06-04 04:33:43,070 - INFO - __main__ - RuleBasedAI:
+2026-06-04 04:33:43,070 - INFO - __main__ - Wins: 9
+2026-06-04 04:33:43,070 - INFO - __main__ - Win Rate: 90.0%
+2026-06-04 04:33:43,070 - INFO - __main__ - Average Moves: 9.10
+2026-06-04 04:33:43,070 - INFO - __main__ - Average Decision Time: 0.00001 sec
+2026-06-04 04:33:43,070 - INFO - __main__ - Correct Accusations: 9
+2026-06-04 04:33:43,070 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:33:43,070 - INFO - __main__ - Accusation Accuracy: 100.0%
+2026-06-04 04:33:43,070 - INFO - __main__ - Average Turns To Win: 45.44
+2026-06-04 04:33:43,070 - INFO - __main__ - Suggestion Efficiency: 0.901
+2026-06-04 04:33:43,070 - INFO - __main__ - MctsAI:
+2026-06-04 04:33:43,070 - INFO - __main__ - Wins: 1
+2026-06-04 04:33:43,070 - INFO - __main__ - Win Rate: 10.0%
+2026-06-04 04:33:43,070 - INFO - __main__ - Average Moves: 8.70
+2026-06-04 04:33:43,070 - INFO - __main__ - Average Decision Time: 0.05440 sec
+2026-06-04 04:33:43,070 - INFO - __main__ - Correct Accusations: 1
+2026-06-04 04:33:43,070 - INFO - __main__ - Wrong Accusations: 1
+2026-06-04 04:33:43,071 - INFO - __main__ - Accusation Accuracy: 50.0%
+2026-06-04 04:33:43,071 - INFO - __main__ - Average Turns To Win: 29.00
+2026-06-04 04:33:43,071 - INFO - __main__ - Suggestion Efficiency: 0.897
+2026-06-04 04:33:43,071 - INFO - __main__ - No-Winner Games: 0
+2026-06-04 04:33:43,071 - INFO - __main__ - Average Game Runtime: 7.4192 sec
+2026-06-04 04:33:43,071 - INFO - __main__ - ====================================================================
+2026-06-04 04:33:43,072 - INFO - __main__ - Metrics saved to logs\metrics.json
+2026-06-04 04:35:12,507 - INFO - __main__ - ====================================================================
+2026-06-04 04:35:12,507 - INFO - __main__ -  Murder in KUET - Minimax vs Expectiminimax vs Negamax vs MonteCarlo vs MCTS Metrics
+2026-06-04 04:35:12,508 - INFO - __main__ - ====================================================================
+2026-06-04 04:35:12,508 - INFO - __main__ - === Game 1 ===
+2026-06-04 04:35:12,509 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:12,509 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:35:12,580 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:12,885 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:35:12,885 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:12,886 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:12,886 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:12,886 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:35:13,052 - INFO - engine.game_state - Move: Amar Ekushey Hall
+2026-06-04 04:35:13,053 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Amar Ekushey Hall)
+2026-06-04 04:35:13,053 - INFO - engine.game_state - AI Player 3 revealed a card
+2026-06-04 04:35:13,053 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:13,053 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:13,053 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:35:13,053 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:13,053 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:35:13,053 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:13,053 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:13,053 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:35:13,053 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:35:13,155 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:13,542 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:35:13,542 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:13,542 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:13,542 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:35:13,542 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:35:13,774 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:13,851 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:35:13,851 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:13,852 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:13,852 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:13,852 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:35:13,874 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:14,046 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Lotus Pond)
+2026-06-04 04:35:14,046 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:14,046 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:14,046 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:14,047 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:35:14,223 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:35:14,223 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Laptop Charger, Location=Begum Rokeya Hall)
+2026-06-04 04:35:14,223 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:35:14,223 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:14,223 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:14,223 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:35:14,223 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:14,223 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:35:14,223 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:14,223 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:14,224 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:35:14,224 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:35:14,287 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:14,665 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:35:14,665 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:14,665 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:14,665 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:35:14,665 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:35:14,699 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:14,754 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:35:14,755 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:14,755 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:14,755 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:14,755 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:35:14,795 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:14,980 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Auditorium)
+2026-06-04 04:35:14,981 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:14,981 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:14,981 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:14,981 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:35:15,116 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:15,116 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Laptop Charger, Location=Lotus Pond)
+2026-06-04 04:35:15,116 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:15,116 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:15,116 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:15,116 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:35:15,116 - INFO - engine.game_state - Move: Student Welfare Center
+2026-06-04 04:35:15,116 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Student Welfare Center)
+2026-06-04 04:35:15,116 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:15,116 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:15,116 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:35:15,116 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:35:15,185 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:15,556 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:35:15,556 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:15,556 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:15,556 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:35:15,556 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:35:15,623 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:15,691 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:35:15,691 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:15,692 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:15,692 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:15,692 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:35:15,732 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:15,927 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:35:15,927 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:15,927 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:15,927 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:15,927 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:35:16,106 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:16,106 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:35:16,106 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:16,106 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:16,106 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:16,106 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:35:16,107 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:16,107 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Knife, Location=Lotus Pond)
+2026-06-04 04:35:16,107 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:16,107 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:16,107 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:35:16,107 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:35:16,166 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:16,474 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:35:16,474 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:16,474 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:16,474 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:35:16,474 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:35:16,539 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:16,581 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:35:16,581 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:16,581 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:16,581 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:16,581 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:35:16,605 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:16,687 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Hallboy, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:35:16,687 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:35:16,687 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:16,688 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:16,688 - INFO - engine.game_state - Dice: 10
+2026-06-04 04:35:16,871 - INFO - engine.game_state - Move: Central Field
+2026-06-04 04:35:16,889 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Central Field)
+2026-06-04 04:35:16,889 - INFO - engine.game_state - AI Player 4 revealed a card
+2026-06-04 04:35:16,889 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:16,890 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:16,890 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:35:16,890 - INFO - engine.game_state - Move: Cafeteria
+2026-06-04 04:35:16,890 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Laptop Charger, Location=Cafeteria)
+2026-06-04 04:35:16,890 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:35:16,890 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:16,890 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:35:16,890 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:35:16,932 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:17,196 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:35:17,196 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:17,196 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:17,196 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:35:17,196 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:35:17,240 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:17,305 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Auditorium)
+2026-06-04 04:35:17,305 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:17,306 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:17,306 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:17,306 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:35:17,319 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:17,384 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:35:17,384 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:17,384 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:17,384 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:17,384 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:35:17,600 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:35:17,600 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:35:17,600 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:35:17,601 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:17,601 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:17,601 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:35:17,601 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:17,601 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Laptop Charger, Location=Lotus Pond)
+2026-06-04 04:35:17,601 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:17,601 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:17,601 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:35:17,601 - INFO - engine.game_state - Dice: 2
+2026-06-04 04:35:17,609 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:17,799 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:35:17,799 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:17,800 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:17,800 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:35:17,800 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:35:17,844 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:17,888 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Chef, Weapon=Anti Cutter, Location=Lotus Pond)
+2026-06-04 04:35:17,888 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:17,888 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:17,888 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:17,888 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:35:17,961 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:18,073 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:35:18,073 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:35:18,073 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:18,073 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:18,074 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:35:18,213 - INFO - engine.game_state - Move: Pocket Gate
+2026-06-04 04:35:18,213 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Pocket Gate)
+2026-06-04 04:35:18,213 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:18,213 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:18,213 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:18,213 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:35:18,214 - INFO - engine.game_state - Move: IT Park
+2026-06-04 04:35:18,214 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=IT Park)
+2026-06-04 04:35:18,214 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:35:18,214 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:18,214 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:35:18,214 - INFO - engine.game_state - Dice: 11
+2026-06-04 04:35:18,318 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:18,790 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Auditorium)
+2026-06-04 04:35:18,790 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:18,791 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:18,791 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:35:18,791 - INFO - engine.game_state - Dice: 3
+2026-06-04 04:35:18,818 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:18,889 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:35:18,889 - INFO - engine.game_state - AI Player 2 revealed a card
+2026-06-04 04:35:18,889 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:18,890 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:18,890 - INFO - engine.game_state - Dice: 4
+2026-06-04 04:35:18,906 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:18,968 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:35:18,968 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:18,968 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:18,968 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:18,968 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:35:19,120 - INFO - engine.game_state - Move: Begum Rokeya Hall
+2026-06-04 04:35:19,120 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Begum Rokeya Hall)
+2026-06-04 04:35:19,120 - INFO - engine.game_state - AI Player 1 revealed a card
+2026-06-04 04:35:19,120 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:19,120 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:19,120 - INFO - engine.game_state - Dice: 8
+2026-06-04 04:35:19,120 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:19,120 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:35:19,120 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:19,120 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:19,120 - INFO - engine.game_state - --- AI Player 3 (NegamaxAI) Turn ---
+2026-06-04 04:35:19,120 - INFO - engine.game_state - Dice: 6
+2026-06-04 04:35:19,151 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:19,449 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Student Boy, Weapon=Rope, Location=Lotus Pond)
+2026-06-04 04:35:19,449 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:19,449 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:19,450 - INFO - engine.game_state - --- AI Player 1 (MinimaxAI) Turn ---
+2026-06-04 04:35:19,450 - INFO - engine.game_state - Dice: 9
+2026-06-04 04:35:19,519 - INFO - engine.game_state - Move: Lotus Pond
+2026-06-04 04:35:19,563 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Lotus Pond)
+2026-06-04 04:35:19,563 - INFO - engine.game_state - AI Player 5 revealed a card
+2026-06-04 04:35:19,564 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:19,564 - INFO - engine.game_state - --- AI Player 2 (ExpectiminimaxAI) Turn ---
+2026-06-04 04:35:19,564 - INFO - engine.game_state - Dice: 7
+2026-06-04 04:35:19,597 - INFO - engine.game_state - Move: Auditorium
+2026-06-04 04:35:19,679 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Auditorium)
+2026-06-04 04:35:19,679 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:35:19,679 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:19,679 - INFO - engine.game_state - --- AI Player 5 (MctsAI) Turn ---
+2026-06-04 04:35:19,679 - INFO - engine.game_state - Dice: 5
+2026-06-04 04:35:19,822 - INFO - engine.game_state - Move: Central Field
+2026-06-04 04:35:19,822 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=Central Field)
+2026-06-04 04:35:19,822 - INFO - engine.game_state - AI Player 4 revealed a card
+2026-06-04 04:35:19,823 - INFO - engine.game_state - Accusation Decision: False
+2026-06-04 04:35:19,823 - INFO - engine.game_state - --- AI Player 4 (RuleBasedAI) Turn ---
+2026-06-04 04:35:19,823 - INFO - engine.game_state - Dice: 12
+2026-06-04 04:35:19,823 - INFO - engine.game_state - Move: IT Park
+2026-06-04 04:35:19,823 - INFO - engine.game_state - Suggestion: Suggestion(Suspect=Security Guard, Weapon=Revolver, Location=IT Park)
+2026-06-04 04:35:19,823 - INFO - engine.game_state - No one could disprove
+2026-06-04 04:35:19,823 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:35:19,823 - INFO - engine.game_state - Accusation Decision: True
+2026-06-04 04:35:19,823 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:35:19,823 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:35:19,823 - INFO - __main__ - === Game 2 ===
+2026-06-04 04:35:27,033 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:35:27,033 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:35:27,033 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:35:27,034 - INFO - __main__ - === Game 3 ===
+2026-06-04 04:35:32,232 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:35:32,232 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:35:32,232 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:35:32,233 - INFO - __main__ - === Game 4 ===
+2026-06-04 04:35:38,341 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:35:38,341 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:35:38,341 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:35:38,341 - INFO - __main__ - === Game 5 ===
+2026-06-04 04:35:50,447 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:35:50,447 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:35:50,447 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:35:50,447 - INFO - __main__ - === Game 6 ===
+2026-06-04 04:35:57,189 - WARNING - engine.game_state - AI Player 5 eliminated
+2026-06-04 04:35:57,880 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:35:57,880 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:35:57,880 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:35:57,880 - INFO - __main__ - === Game 7 ===
+2026-06-04 04:36:06,463 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:36:06,463 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:36:06,463 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:36:06,463 - INFO - __main__ - === Game 8 ===
+2026-06-04 04:36:11,774 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:36:11,775 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:36:11,775 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:36:11,775 - INFO - __main__ - === Game 9 ===
+2026-06-04 04:36:21,326 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:36:21,326 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:36:21,326 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:36:21,326 - INFO - __main__ - === Game 10 ===
+2026-06-04 04:36:30,429 - INFO - engine.game_state - AI Player 4 wins
+2026-06-04 04:36:30,429 - INFO - services.game_runner - Game finished. Winner: RuleBasedAI
+2026-06-04 04:36:30,430 - INFO - __main__ - Winner: AI Player 4 (RuleBasedAI)
+2026-06-04 04:36:30,430 - INFO - __main__ - ====================================================================
+2026-06-04 04:36:30,430 - INFO - __main__ - Final Performance Summary
+2026-06-04 04:36:30,430 - INFO - __main__ - ====================================================================
+2026-06-04 04:36:30,430 - INFO - __main__ - MinimaxAI:
+2026-06-04 04:36:30,430 - INFO - __main__ - Wins: 0
+2026-06-04 04:36:30,430 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:36:30,430 - INFO - __main__ - Average Moves: 9.20
+2026-06-04 04:36:30,430 - INFO - __main__ - Average Decision Time: 0.04518 sec
+2026-06-04 04:36:30,430 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:36:30,430 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:36:30,430 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:36:30,430 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:36:30,430 - INFO - __main__ - Suggestion Efficiency: 0.924
+2026-06-04 04:36:30,430 - INFO - __main__ - ExpectiminimaxAI:
+2026-06-04 04:36:30,430 - INFO - __main__ - Wins: 0
+2026-06-04 04:36:30,430 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:36:30,430 - INFO - __main__ - Average Moves: 9.40
+2026-06-04 04:36:30,430 - INFO - __main__ - Average Decision Time: 0.05584 sec
+2026-06-04 04:36:30,430 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:36:30,430 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:36:30,430 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:36:30,431 - INFO - __main__ - Suggestion Efficiency: 0.904
+2026-06-04 04:36:30,431 - INFO - __main__ - NegamaxAI:
+2026-06-04 04:36:30,431 - INFO - __main__ - Wins: 0
+2026-06-04 04:36:30,431 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Moves: 9.20
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Decision Time: 0.12363 sec
+2026-06-04 04:36:30,431 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:36:30,431 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:36:30,431 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:36:30,431 - INFO - __main__ - Suggestion Efficiency: 0.913
+2026-06-04 04:36:30,431 - INFO - __main__ - RuleBasedAI:
+2026-06-04 04:36:30,431 - INFO - __main__ - Wins: 10
+2026-06-04 04:36:30,431 - INFO - __main__ - Win Rate: 100.0%
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Moves: 9.80
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Decision Time: 0.00001 sec
+2026-06-04 04:36:30,431 - INFO - __main__ - Correct Accusations: 10
+2026-06-04 04:36:30,431 - INFO - __main__ - Wrong Accusations: 0
+2026-06-04 04:36:30,431 - INFO - __main__ - Accusation Accuracy: 100.0%
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Turns To Win: 47.00
+2026-06-04 04:36:30,431 - INFO - __main__ - Suggestion Efficiency: 0.857
+2026-06-04 04:36:30,431 - INFO - __main__ - MctsAI:
+2026-06-04 04:36:30,431 - INFO - __main__ - Wins: 0
+2026-06-04 04:36:30,431 - INFO - __main__ - Win Rate: 0.0%
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Moves: 9.40
+2026-06-04 04:36:30,431 - INFO - __main__ - Average Decision Time: 0.05488 sec
+2026-06-04 04:36:30,431 - INFO - __main__ - Correct Accusations: 0
+2026-06-04 04:36:30,431 - INFO - __main__ - Wrong Accusations: 1
+2026-06-04 04:36:30,432 - INFO - __main__ - Accusation Accuracy: 0.0%
+2026-06-04 04:36:30,432 - INFO - __main__ - Average Turns To Win: 0.00
+2026-06-04 04:36:30,432 - INFO - __main__ - Suggestion Efficiency: 0.915
+2026-06-04 04:36:30,432 - INFO - __main__ - No-Winner Games: 0
+2026-06-04 04:36:30,432 - INFO - __main__ - Average Game Runtime: 7.7916 sec
+2026-06-04 04:36:30,432 - INFO - __main__ - ====================================================================
+2026-06-04 04:36:30,433 - INFO - __main__ - Metrics saved to logs\metrics.json

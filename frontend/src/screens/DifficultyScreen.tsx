@@ -12,7 +12,7 @@ interface DifficultyScreenProps {
 const LEVELS: { key: Difficulty; label: string; desc: string; color: string }[] = [
   { key: 'easy',   label: 'EASY',   desc: 'Random AI  — beginner',       color: '#5c8a2a' },
   { key: 'medium', label: 'MEDIUM', desc: 'Rule-based — balanced',        color: '#b8860b' },
-  { key: 'hard',   label: 'HARD',   desc: 'MCTS/Minimax — brutal',        color: '#8b0000' },
+  { key: 'hard',   label: 'HARD',   desc: 'MCTS — unforgiving',           color: '#8b0000' },
 ]
 
 /* Background card grid data */

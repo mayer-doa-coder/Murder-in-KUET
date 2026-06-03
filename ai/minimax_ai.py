@@ -255,12 +255,7 @@ class StrategicEvaluationMixin:
         if state is None:
             raise ValueError("State cannot be None")
 
-        if not hasattr(state, "possible_suspects") or not hasattr(state, "possible_weapons") or not hasattr(state, "possible_locations"):
-            return 0.0
-
-        suspects = self._as_set(getattr(state, "possible_suspects", None))
-        weapons = self._as_set(getattr(state, "possible_weapons", None))
-        locations = self._as_set(getattr(state, "possible_locations", None))
+        suspects, weapons, locations = self._resolve_possibility_space(state)
 
         # Optional configurable constants for easy tuning.
         weight = 2.0
@@ -299,12 +294,7 @@ class StrategicEvaluationMixin:
         if state is None:
             raise ValueError("State cannot be None")
 
-        if not hasattr(state, "possible_suspects") or not hasattr(state, "possible_weapons") or not hasattr(state, "possible_locations"):
-            return 0.0
-
-        suspects = self._as_set(getattr(state, "possible_suspects", None))
-        weapons = self._as_set(getattr(state, "possible_weapons", None))
-        locations = self._as_set(getattr(state, "possible_locations", None))
+        suspects, weapons, locations = self._resolve_possibility_space(state)
 
         # Optional configurable certainty rewards.
         reward = 10.0
@@ -332,12 +322,7 @@ class StrategicEvaluationMixin:
         if state is None:
             raise ValueError("State cannot be None")
 
-        if not hasattr(state, "possible_suspects") or not hasattr(state, "possible_weapons") or not hasattr(state, "possible_locations"):
-            return 0.0
-
-        suspects = self._as_set(getattr(state, "possible_suspects", None)) or set()
-        weapons = self._as_set(getattr(state, "possible_weapons", None)) or set()
-        locations = self._as_set(getattr(state, "possible_locations", None)) or set()
+        suspects, weapons, locations = self._resolve_possibility_space(state)
 
         remaining = len(suspects) * len(weapons) * len(locations)
         return -20.0 if remaining > 10 else 0.0
@@ -725,11 +710,12 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
         if state is None:
             raise ValueError("Invalid state provided")
 
+        threshold = float(AI_CONFIG.get("MINIMAX_ACCUSATION_THRESHOLD", 0.72))
         search_state = self._coerce_state(state)
         notebook = getattr(search_state, "notebook", None)
         confidence_check = getattr(notebook, "confident_accusation", None)
         if callable(confidence_check):
-            return bool(confidence_check())
+            return bool(confidence_check(threshold))
 
         return False
 

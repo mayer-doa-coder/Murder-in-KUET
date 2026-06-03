@@ -1,35 +1,62 @@
 {
     "MinimaxAI": {
-        "wins": 2.0,
-        "moves": 1026.0,
-        "decision_time": 137.11849019874353,
-        "decisions": 3078.0,
-        "correct_accusations": 2.0,
-        "wrong_accusations": 41.0,
-        "total_turns": 46.0,
-        "suggestion_success": 983.0,
-        "suggestion_total": 1026.0
+        "wins": 0.0,
+        "games_played": 10.0,
+        "total_moves": 92.0,
+        "decision_time": 12.468389099929482,
+        "decisions": 276.0,
+        "correct_accusations": 0.0,
+        "wrong_accusations": 0.0,
+        "total_turns": 0.0,
+        "suggestion_success": 85.0,
+        "suggestion_total": 92.0
     },
     "ExpectiminimaxAI": {
         "wins": 0.0,
-        "moves": 5506.0,
-        "decision_time": 460.38651909906184,
-        "decisions": 16518.0,
+        "games_played": 10.0,
+        "total_moves": 94.0,
+        "decision_time": 15.747568501508795,
+        "decisions": 282.0,
         "correct_accusations": 0.0,
         "wrong_accusations": 0.0,
         "total_turns": 0.0,
-        "suggestion_success": 3465.0,
-        "suggestion_total": 5506.0
+        "suggestion_success": 85.0,
+        "suggestion_total": 94.0
     },
     "NegamaxAI": {
         "wins": 0.0,
-        "moves": 5514.0,
-        "decision_time": 699.1383157020027,
-        "decisions": 16542.0,
+        "games_played": 10.0,
+        "total_moves": 92.0,
+        "decision_time": 34.12297440005932,
+        "decisions": 276.0,
         "correct_accusations": 0.0,
         "wrong_accusations": 0.0,
         "total_turns": 0.0,
-        "suggestion_success": 4938.0,
-        "suggestion_total": 5514.0
+        "suggestion_success": 84.0,
+        "suggestion_total": 92.0
+    },
+    "RuleBasedAI": {
+        "wins": 10.0,
+        "games_played": 10.0,
+        "total_moves": 98.0,
+        "decision_time": 0.002699300181120634,
+        "decisions": 294.0,
+        "correct_accusations": 10.0,
+        "wrong_accusations": 0.0,
+        "total_turns": 470.0,
+        "suggestion_success": 84.0,
+        "suggestion_total": 98.0
+    },
+    "MctsAI": {
+        "wins": 0.0,
+        "games_played": 10.0,
+        "total_moves": 94.0,
+        "decision_time": 15.476461201556958,
+        "decisions": 282.0,
+        "correct_accusations": 0.0,
+        "wrong_accusations": 1.0,
+        "total_turns": 0.0,
+        "suggestion_success": 86.0,
+        "suggestion_total": 94.0
     }
 }

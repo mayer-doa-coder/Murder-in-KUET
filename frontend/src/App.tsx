@@ -30,7 +30,7 @@ const pageTransition = {
 function difficultyToAlgorithm(d: Difficulty): AIAlgorithm {
   if (d === 'easy')   return 'random'
   if (d === 'medium') return 'rule_based'
-  return 'minimax'
+  return 'mcts'
 }
 
 // ── App ───────────────────────────────────────────────────────────────────────

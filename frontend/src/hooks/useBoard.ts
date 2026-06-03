@@ -43,6 +43,21 @@ export const DOOR_POSITIONS: Record<string, [number, number][]> = {
   pocket_gate:   [[16, 12], [19, 9]],
 }
 
+// Secret passage pairs — mirrors board.py passages dict
+export const SECRET_PASSAGE_MAP: Record<string, string> = {
+  auditorium:  'pocket_gate',
+  pocket_gate: 'auditorium',
+  lotus_pond:  'br_hall',
+  br_hall:     'lotus_pond',
+}
+
+// Returns the door cells for the passage destination of a given room, or []
+export function getPassageDoors(fromRoomId: string): [number, number][] {
+  const destRoom = SECRET_PASSAGE_MAP[fromRoomId]
+  if (!destRoom) return []
+  return (DOOR_POSITIONS[destRoom] ?? []) as [number, number][]
+}
+
 export const ROOM_DISPLAY_NAMES: Record<string, string> = {
   auditorium:    'AUDITORIUM',
   swc:           'STUDENT\nWELFARE CTR',

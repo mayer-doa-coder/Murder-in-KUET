@@ -9,6 +9,7 @@ import {
   COLS,
   ROWS,
   getReachableCells,
+  getPassageDoors,
   findPath,
 } from '../hooks/useBoard'
 import { ROOM_ACCENT } from '../components/GridCell'
@@ -409,6 +410,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
   const [diceValue, setDiceValue]       = useState<number | null>(null)
   const [diceRolling, setDiceRolling]   = useState(false)
   const [pathCells, setPathCells]       = useState<[number, number][]>([])
+  const [passageCells, setPassageCells] = useState<[number, number][]>([])
   const [movePath, setMovePath]         = useState<[number, number][]>([])
   const [moveStep, setMoveStep]         = useState(0)
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus[]>(
@@ -489,6 +491,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
     setDiceValue(null)
     setDiceRolling(false)
     setPathCells([])
+    setPassageCells([])
     setMovePath([])
     setMoveStep(0)
     setRevealResult(null)
@@ -672,7 +675,14 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
     setDiceRolling(false)
     if (diceValue === null || !currentPlayer) return
     const cells = getReachableCells(board, currentPlayer.position, diceValue)
-    if (cells.length === 0) {
+
+    // Secret passage: if player is inside a passage room, offer destination doors
+    const passageDoors = currentPlayer.currentLocation
+      ? getPassageDoors(currentPlayer.currentLocation)
+      : []
+    setPassageCells(passageDoors)
+
+    if (cells.length === 0 && passageDoors.length === 0) {
       advanceTurn()
       return
     }
@@ -683,13 +693,30 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
     // AI: pick a cell and animate movement
     if (isAiTurn) {
       const algo = currentSetup?.aiAlgorithm ?? 'rule_based'
-      const target = aiChooseCell(cells, board, probNotebooks[currentTurnIndex], algo, ROOM_TO_LOCATION_CARD)
+      const allCells = [...cells, ...passageDoors]
+      const target = aiChooseCell(allCells, board, probNotebooks[currentTurnIndex], algo, ROOM_TO_LOCATION_CARD)
       if (target) {
+        // Check if AI chose a passage door — teleport instead of path-animate
+        const isPassageTarget = passageDoors.some(([pc, pr]) => pc === target[0] && pr === target[1])
+        if (isPassageTarget) {
+          const destRoomId = Object.entries(DOOR_POSITIONS).find(([, doors]) =>
+            doors.some(([dc, dr]) => dc === target[0] && dr === target[1])
+          )?.[0]
+          if (destRoomId) {
+            movePlayer(currentPlayer.id, target)
+            enterRoom(currentPlayer.id, destRoomId)
+            setPassageCells([])
+            setPathCells([])
+            advanceTurn()
+            return
+          }
+        }
         const path = findPath(board, currentPlayer.position, target)
         if (path.length > 0) {
           setMovePath(path)
           setMoveStep(0)
           setPathCells([])
+          setPassageCells([])
           setGamePhase('moving')
           return
         }
@@ -697,11 +724,30 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
       // No valid path — skip movement
       advanceTurn()
     }
-  }, [diceValue, currentPlayer, board, advanceTurn, isAiTurn, currentSetup, probNotebooks, currentTurnIndex])
+  }, [diceValue, currentPlayer, board, advanceTurn, isAiTurn, currentSetup, probNotebooks, currentTurnIndex, movePlayer, enterRoom])
 
   const handleGridClick = useCallback(
-    (_e: React.MouseEvent<HTMLDivElement>) => { /* arrow keys handle movement */ },
-    []
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (gamePhase !== 'dice' || isAiTurn || !currentPlayer) return
+      const rect = e.currentTarget.getBoundingClientRect()
+      const col = Math.floor((e.clientX - rect.left) / cellSize)
+      const row = Math.floor((e.clientY - rect.top) / cellSize)
+      const isPassage = passageCells.some(([pc, pr]) => pc === col && pr === row)
+      if (!isPassage) return
+      const destRoomId = Object.entries(DOOR_POSITIONS).find(([, doors]) =>
+        doors.some(([dc, dr]) => dc === col && dr === row)
+      )?.[0]
+      if (destRoomId) {
+        movePlayer(currentPlayer.id, [col, row])
+        enterRoom(currentPlayer.id, destRoomId)
+        setPassageCells([])
+        setPathCells([])
+        remainingMovesRef.current = 0
+        setRemainingMoves(0)
+        advanceTurn()
+      }
+    },
+    [gamePhase, isAiTurn, currentPlayer, passageCells, cellSize, movePlayer, enterRoom, advanceTurn]
   )
 
   // ── AI idle automation ────────────────────────────────────────────────────
@@ -1192,6 +1238,48 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
               {gamePhase === 'dice' && !isAiTurn && (
                 <PathDots cells={pathCells} cellSize={cellSize} />
               )}
+
+              {/* Secret passage dots — gold, clickable, shown for human during dice phase */}
+              {gamePhase === 'dice' && !isAiTurn && passageCells.map(([col, row]) => {
+                const dotSize = Math.max(6, Math.round(cellSize * 0.35))
+                return (
+                  <motion.div
+                    key={`passage-${col}-${row}`}
+                    onClick={() => {
+                      const destRoomId = Object.entries(DOOR_POSITIONS).find(([, doors]) =>
+                        doors.some(([dc, dr]) => dc === col && dr === row)
+                      )?.[0]
+                      if (destRoomId && currentPlayer) {
+                        movePlayer(currentPlayer.id, [col, row])
+                        enterRoom(currentPlayer.id, destRoomId)
+                        setPassageCells([])
+                        setPathCells([])
+                        remainingMovesRef.current = 0
+                        setRemainingMoves(0)
+                        advanceTurn()
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      left: (col + 0.5) * cellSize - dotSize / 2,
+                      top:  (row + 0.5) * cellSize - dotSize / 2,
+                      width: dotSize, height: dotSize,
+                      borderRadius: '50%',
+                      background: '#ffcc00',
+                      cursor: 'pointer',
+                      zIndex: 9,
+                      boxShadow: '0 0 8px #ffcc0099',
+                    }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: [0.8, 1, 0.8], scale: 1 }}
+                    transition={{
+                      opacity: { duration: 0.6, repeat: Infinity, ease: 'linear' },
+                      scale: { duration: 0.12 },
+                    }}
+                    title="Secret Passage"
+                  />
+                )
+              })}
 
               {/* Player tokens — hidden while player is inside a room */}
               {boardPlayers.map((p, i) =>

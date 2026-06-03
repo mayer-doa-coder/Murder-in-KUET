@@ -512,9 +512,10 @@ class ExpectiminimaxAI(StrategicEvaluationMixin, BaseAI):
         if state is None:
             raise ValueError("Invalid state")
 
+        threshold = float(AI_CONFIG.get("EXPECTIMINIMAX_ACCUSATION_THRESHOLD", 0.75))
         notebook = self._get_current_notebook(state)
         confidence_check = getattr(notebook, "confident_accusation", None)
         if callable(confidence_check):
-            return bool(confidence_check())
+            return bool(confidence_check(threshold))
 
         return False
