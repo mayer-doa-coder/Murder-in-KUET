@@ -20,7 +20,6 @@ const ALL_MENU_ITEMS = [
 export default function PlayerTypeScreen({
   playerIndex,
   character,
-  gameMode,
   onSelect,
   onBack,
 }: PlayerTypeScreenProps) {

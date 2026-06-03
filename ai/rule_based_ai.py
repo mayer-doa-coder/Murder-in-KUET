@@ -71,14 +71,10 @@ class RuleBasedAI(BaseAI):
         self._cache_notebook(state)
         notebook = self._last_notebook
 
-        suspects_pool = sorted(
-            getattr(notebook, "possible_suspects", set()) if notebook else set()
-            or getattr(state, "suspects", [])
-        )
-        weapons_pool = sorted(
-            getattr(notebook, "possible_weapons", set()) if notebook else set()
-            or getattr(state, "weapons", [])
-        )
+        nb_suspects = getattr(notebook, "possible_suspects", None) if notebook else None
+        nb_weapons = getattr(notebook, "possible_weapons", None) if notebook else None
+        suspects_pool = sorted(nb_suspects or getattr(state, "suspects", []))
+        weapons_pool = sorted(nb_weapons or getattr(state, "weapons", []))
 
         if not suspects_pool or not weapons_pool:
             raise ValueError("Empty suggestion space")

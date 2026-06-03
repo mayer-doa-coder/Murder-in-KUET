@@ -417,7 +417,7 @@ export default function HowToPlayScreen({ onSkip }: Props) {
                 className="font-pixel"
                 style={{ fontSize: '14px', color: section.color, marginLeft: 4 }}
                 animate={{ opacity: [1, 0, 1] }}
-                transition={{ duration: 0.8, repeat: Infinity, ease: 'steps(1)' }}
+                transition={{ duration: 0.8, repeat: Infinity, ease: 'linear', times: [0, 0.45, 0.5, 0.95, 1] }}
               >
                 _
               </motion.span>

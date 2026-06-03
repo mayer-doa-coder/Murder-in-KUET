@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+logs/
+frontend/node_modules/
+frontend/dist/
+*.md
+tests/
+analytics/

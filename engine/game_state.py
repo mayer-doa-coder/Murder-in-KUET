@@ -310,7 +310,10 @@ class GameState:
             return
 
         if card is not None and not hasattr(card, "name"):
-            raise ValueError("Invalid card object")
+            logger.warning(
+                "_apply_bayesian_notebook_updates received card without 'name'; skipping update"
+            )
+            return
 
         suspect = getattr(suggestion, "suspect", None)
         weapon = getattr(suggestion, "weapon", None)
@@ -758,6 +761,16 @@ class GameState:
                     "Human returned invalid move '%s' in run_turn; ignoring", move
                 )
 
+            # Ensure the player is in a room before suggesting (first turn edge case).
+            if player.position is None and valid_moves:
+                fallback = safe_random_choice(valid_moves)
+                player.move(fallback)
+                logger.warning(
+                    "Human player '%s' had no position; moved to fallback room '%s'",
+                    player.name,
+                    fallback,
+                )
+
             self.current_location = player.position
             result["move"] = player.position
 
@@ -769,6 +782,15 @@ class GameState:
                 suspect = safe_random_choice(self.suspects)
             if not weapon or weapon not in self.weapons:
                 weapon = safe_random_choice(self.weapons)
+
+            if player.position is None:
+                logger.error(
+                    "Human player '%s' still has no position; skipping suggestion",
+                    player.name,
+                )
+                if not self.game_over:
+                    self.next_turn()
+                return result
 
             suggestion = player.make_suggestion(suspect, weapon, player.position)
             if suggestion is None:
@@ -898,6 +920,26 @@ class GameState:
             logger.warning(
                 "Human move '%s' not in valid_moves for %s; ignoring", move, player.name
             )
+
+        # Ensure the player is in a room before suggesting (first turn edge case).
+        if player.position is None and valid_moves:
+            fallback = safe_random_choice(valid_moves)
+            player.move(fallback)
+            logger.warning(
+                "Human player '%s' had no position; moved to fallback room '%s'",
+                player.name,
+                fallback,
+            )
+
+        if player.position is None:
+            logger.error(
+                "Human player '%s' still has no position after movement; skipping suggestion",
+                player.name,
+            )
+            if not self.game_over:
+                self.next_turn()
+            return result
+
         self.current_location = player.position
         result["move"] = player.position
 
@@ -1127,7 +1169,13 @@ class GameState:
                 weapon = self.weapons[0]
 
             suggestion = player.make_suggestion(suspect, weapon, player.position)
-            assert suggestion is not None, "Suggestion failed"
+            if suggestion is None:
+                logger.error(
+                    "make_suggestion returned None for %s; skipping turn", player.name
+                )
+                current_index = (current_index + 1) % len(self.players)
+                turns_played += 1
+                continue
             if verbose:
                 logger.info("Suggestion: %s", suggestion)
 

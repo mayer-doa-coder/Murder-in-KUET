@@ -66,30 +66,6 @@ const ROOM_LABEL_ANCHORS: Record<string, [number, number]> = {
   pocket_gate:   [19.5, 12 ],
 }
 
-// External icons sourced from Bootstrap Icons (MIT).
-const ROOM_ICON_ASSETS: Record<string, string> = {
-  auditorium: '/board-assets/auditorium.svg',
-  swc: '/board-assets/swc.svg',
-  ae_hall: '/board-assets/ae_hall.svg',
-  cafeteria: '/board-assets/cafeteria.svg',
-  central_field: '/board-assets/central_field.svg',
-  it_park: '/board-assets/it_park.svg',
-  br_hall: '/board-assets/br_hall.svg',
-  lotus_pond: '/board-assets/lotus_pond.svg',
-  pocket_gate: '/board-assets/pocket_gate.svg',
-}
-
-const ROOM_ICON_TINT: Record<string, string> = {
-  auditorium:    'invert(63%) sepia(29%) saturate(710%) hue-rotate(245deg) brightness(102%) contrast(100%)',
-  swc:           'invert(71%) sepia(25%) saturate(564%) hue-rotate(96deg) brightness(97%) contrast(89%)',
-  ae_hall:       'invert(54%) sepia(56%) saturate(1191%) hue-rotate(325deg) brightness(104%) contrast(92%)',
-  cafeteria:     'invert(65%) sepia(38%) saturate(858%) hue-rotate(348deg) brightness(98%) contrast(90%)',
-  central_field: 'invert(76%) sepia(28%) saturate(608%) hue-rotate(70deg) brightness(93%) contrast(91%)',
-  it_park:       'invert(62%) sepia(31%) saturate(825%) hue-rotate(187deg) brightness(102%) contrast(96%)',
-  br_hall:       'invert(63%) sepia(29%) saturate(710%) hue-rotate(245deg) brightness(102%) contrast(100%)',
-  lotus_pond:    'invert(72%) sepia(39%) saturate(466%) hue-rotate(141deg) brightness(96%) contrast(94%)',
-  pocket_gate:   'invert(77%) sepia(4%) saturate(168%) hue-rotate(327deg) brightness(96%) contrast(85%)',
-}
 
 // Maps board room IDs → LOCATIONS_CARDS IDs
 const ROOM_TO_CARD_ID: Record<string, string> = {
@@ -104,101 +80,6 @@ const ROOM_TO_CARD_ID: Record<string, string> = {
   pocket_gate:   'pocket_gate',
 }
 
-// ── Board assets (location-themed) ──────────────────────────────────────────
-type BoardAsset =
-  | { shape: 'rect'; x: number; y: number; w: number; h: number; fill: string; rx?: number; opacity?: number; stroke?: string; strokeWidth?: number }
-  | { shape: 'circ'; cx: number; cy: number; r: number; fill: string; opacity?: number; stroke?: string; strokeWidth?: number }
-  | { shape: 'ellipse'; cx: number; cy: number; rx: number; ry: number; fill: string; opacity?: number; stroke?: string; strokeWidth?: number }
-  | { shape: 'line'; x1: number; y1: number; x2: number; y2: number; stroke: string; strokeWidth: number; opacity?: number }
-
-const BOARD_ASSETS: BoardAsset[] = [
-  // Auditorium: stage + seating rows
-  { shape: 'rect', x: 0.45, y: 0.25, w: 6.1, h: 0.82, fill: '#2a0018', rx: 0.08 },
-  { shape: 'rect', x: 0.5, y: 0.2, w: 0.34, h: 2.4, fill: '#3a0022' },
-  { shape: 'rect', x: 6.16, y: 0.2, w: 0.34, h: 2.4, fill: '#3a0022' },
-  { shape: 'rect', x: 0.7, y: 1.25, w: 0.64, h: 0.48, fill: '#1d000f', rx: 0.06 },
-  { shape: 'rect', x: 1.55, y: 1.25, w: 0.64, h: 0.48, fill: '#1d000f', rx: 0.06 },
-  { shape: 'rect', x: 2.4, y: 1.25, w: 0.64, h: 0.48, fill: '#1d000f', rx: 0.06 },
-  { shape: 'rect', x: 3.25, y: 1.25, w: 0.64, h: 0.48, fill: '#1d000f', rx: 0.06 },
-  { shape: 'rect', x: 4.1, y: 1.25, w: 0.64, h: 0.48, fill: '#1d000f', rx: 0.06 },
-  { shape: 'rect', x: 4.95, y: 1.25, w: 0.64, h: 0.48, fill: '#1d000f', rx: 0.06 },
-  { shape: 'rect', x: 0.4, y: 2.58, w: 6.2, h: 0.24, fill: '#2f0019' },
-
-  // Student Welfare Center: desk + notice board + waiting seats
-  { shape: 'rect', x: 9.25, y: 0.55, w: 5.5, h: 0.82, fill: '#032915', rx: 0.08 },
-  { shape: 'rect', x: 9.45, y: 0.75, w: 2.2, h: 0.44, fill: '#0d3b20', rx: 0.06 },
-  { shape: 'rect', x: 12.35, y: 0.75, w: 2.2, h: 0.44, fill: '#0d3b20', rx: 0.06 },
-  { shape: 'rect', x: 9.4, y: 4.05, w: 4.9, h: 0.8, fill: '#012010', rx: 0.08 },
-  { shape: 'circ', cx: 10.25, cy: 2.45, r: 0.28, fill: '#145c36' },
-  { shape: 'circ', cx: 11.05, cy: 2.45, r: 0.28, fill: '#145c36' },
-  { shape: 'circ', cx: 11.85, cy: 2.45, r: 0.28, fill: '#145c36' },
-
-  // Amar Ekushey Hall: multiple rooms
-  { shape: 'rect', x: 17.3, y: 0.45, w: 1.72, h: 2.2, fill: '#2a0202', rx: 0.06 },
-  { shape: 'rect', x: 19.35, y: 0.45, w: 1.72, h: 2.2, fill: '#2a0202', rx: 0.06 },
-  { shape: 'rect', x: 21.4, y: 0.45, w: 1.72, h: 2.2, fill: '#2a0202', rx: 0.06 },
-  { shape: 'rect', x: 17.3, y: 3.15, w: 1.72, h: 2.2, fill: '#2a0202', rx: 0.06 },
-  { shape: 'rect', x: 19.35, y: 3.15, w: 1.72, h: 2.2, fill: '#2a0202', rx: 0.06 },
-  { shape: 'rect', x: 21.4, y: 3.15, w: 1.72, h: 2.2, fill: '#2a0202', rx: 0.06 },
-  { shape: 'line', x1: 17.12, y1: 2.85, x2: 22.9, y2: 2.85, stroke: '#511414', strokeWidth: 0.06, opacity: 0.9 },
-
-  // Cafeteria: tables + chairs
-  { shape: 'circ', cx: 1.7, cy: 7.25, r: 0.66, fill: '#2f1a05', stroke: '#5d3a14', strokeWidth: 0.05 },
-  { shape: 'circ', cx: 4.8, cy: 7.25, r: 0.66, fill: '#2f1a05', stroke: '#5d3a14', strokeWidth: 0.05 },
-  { shape: 'circ', cx: 1.7, cy: 9.2, r: 0.66, fill: '#2f1a05', stroke: '#5d3a14', strokeWidth: 0.05 },
-  { shape: 'circ', cx: 4.8, cy: 9.2, r: 0.66, fill: '#2f1a05', stroke: '#5d3a14', strokeWidth: 0.05 },
-  { shape: 'rect', x: 1.15, y: 6.35, w: 0.28, h: 0.38, fill: '#603710' },
-  { shape: 'rect', x: 1.95, y: 6.35, w: 0.28, h: 0.38, fill: '#603710' },
-  { shape: 'rect', x: 4.25, y: 6.35, w: 0.28, h: 0.38, fill: '#603710' },
-  { shape: 'rect', x: 5.05, y: 6.35, w: 0.28, h: 0.38, fill: '#603710' },
-  { shape: 'rect', x: 1.15, y: 10.0, w: 0.28, h: 0.38, fill: '#603710' },
-  { shape: 'rect', x: 1.95, y: 10.0, w: 0.28, h: 0.38, fill: '#603710' },
-  { shape: 'rect', x: 4.25, y: 10.0, w: 0.28, h: 0.38, fill: '#603710' },
-  { shape: 'rect', x: 5.05, y: 10.0, w: 0.28, h: 0.38, fill: '#603710' },
-
-  // Central field: turf + track
-  { shape: 'ellipse', cx: 2.5, cy: 14.15, rx: 2.2, ry: 1.35, fill: '#0a2b0a', stroke: '#1d4f1d', strokeWidth: 0.06 },
-  { shape: 'ellipse', cx: 2.5, cy: 14.15, rx: 1.5, ry: 0.88, fill: '#0e360e', opacity: 0.9 },
-  { shape: 'line', x1: 0.75, y1: 14.15, x2: 4.25, y2: 14.15, stroke: '#1f5f1f', strokeWidth: 0.04, opacity: 0.9 },
-  { shape: 'line', x1: 2.5, y1: 12.95, x2: 2.5, y2: 15.35, stroke: '#1f5f1f', strokeWidth: 0.04, opacity: 0.9 },
-
-  // IT Park: workstations + monitor glow
-  { shape: 'rect', x: 0.35, y: 19.35, w: 2.15, h: 1.48, fill: '#061239', rx: 0.08 },
-  { shape: 'rect', x: 2.85, y: 19.35, w: 2.15, h: 1.48, fill: '#061239', rx: 0.08 },
-  { shape: 'rect', x: 0.35, y: 21.3, w: 2.15, h: 1.48, fill: '#061239', rx: 0.08 },
-  { shape: 'rect', x: 2.85, y: 21.3, w: 2.15, h: 1.48, fill: '#061239', rx: 0.08 },
-  { shape: 'rect', x: 0.35, y: 23.24, w: 2.15, h: 1.2, fill: '#030d2a', rx: 0.08 },
-  { shape: 'rect', x: 2.85, y: 23.24, w: 2.15, h: 1.2, fill: '#030d2a', rx: 0.08 },
-  { shape: 'rect', x: 0.8, y: 19.75, w: 0.8, h: 0.45, fill: '#1a4f93', opacity: 0.9 },
-  { shape: 'rect', x: 3.3, y: 19.75, w: 0.8, h: 0.45, fill: '#1a4f93', opacity: 0.9 },
-
-  // Begum Rokeya Hall: multi-room blocks
-  { shape: 'rect', x: 8.7, y: 17.65, w: 2.05, h: 1.7, fill: '#2b0825', rx: 0.07 },
-  { shape: 'rect', x: 11.0, y: 17.65, w: 2.05, h: 1.7, fill: '#2b0825', rx: 0.07 },
-  { shape: 'rect', x: 13.3, y: 17.65, w: 2.05, h: 1.7, fill: '#2b0825', rx: 0.07 },
-  { shape: 'rect', x: 8.7, y: 19.7, w: 2.05, h: 1.7, fill: '#2b0825', rx: 0.07 },
-  { shape: 'rect', x: 11.0, y: 19.7, w: 2.05, h: 1.7, fill: '#2b0825', rx: 0.07 },
-  { shape: 'rect', x: 13.3, y: 19.7, w: 2.05, h: 1.7, fill: '#2b0825', rx: 0.07 },
-  { shape: 'rect', x: 9.0, y: 22.1, w: 5.35, h: 0.9, fill: '#1b0517', rx: 0.05 },
-
-  // Lotus pond: water + lotuses
-  { shape: 'ellipse', cx: 20.7, cy: 21.35, rx: 2.35, ry: 2.05, fill: '#093c43', stroke: '#1f6e78', strokeWidth: 0.05 },
-  { shape: 'ellipse', cx: 20.7, cy: 21.35, rx: 1.7, ry: 1.45, fill: '#0a4b52', opacity: 0.9 },
-  { shape: 'circ', cx: 19.75, cy: 20.65, r: 0.22, fill: '#f1a6d5' },
-  { shape: 'circ', cx: 20.8, cy: 22.15, r: 0.22, fill: '#f1a6d5' },
-  { shape: 'circ', cx: 21.75, cy: 20.95, r: 0.22, fill: '#f1a6d5' },
-  { shape: 'ellipse', cx: 19.95, cy: 21.95, rx: 0.32, ry: 0.16, fill: '#2b7d40' },
-  { shape: 'ellipse', cx: 21.45, cy: 21.85, rx: 0.32, ry: 0.16, fill: '#2b7d40' },
-
-  // Pocket gate: gate arch + side posts
-  { shape: 'rect', x: 16.85, y: 10.45, w: 1.1, h: 3.2, fill: '#2a2a2a', rx: 0.06 },
-  { shape: 'rect', x: 22.0, y: 10.45, w: 1.1, h: 3.2, fill: '#2a2a2a', rx: 0.06 },
-  { shape: 'rect', x: 17.0, y: 10.05, w: 6.0, h: 0.8, fill: '#343434', rx: 0.05 },
-  { shape: 'line', x1: 18.05, y1: 11.0, x2: 18.05, y2: 13.4, stroke: '#4a4a4a', strokeWidth: 0.05 },
-  { shape: 'line', x1: 19.05, y1: 11.0, x2: 19.05, y2: 13.4, stroke: '#4a4a4a', strokeWidth: 0.05 },
-  { shape: 'line', x1: 20.05, y1: 11.0, x2: 20.05, y2: 13.4, stroke: '#4a4a4a', strokeWidth: 0.05 },
-  { shape: 'line', x1: 21.05, y1: 11.0, x2: 21.05, y2: 13.4, stroke: '#4a4a4a', strokeWidth: 0.05 },
-]
 
 type StartLabel = {
   charId: string; col: number; row: number; dir: 'top' | 'bottom' | 'left' | 'right'; label: string
@@ -501,24 +382,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
 
   const { board, boardPlayers, movePlayer, enterRoom, exitRoom } = useBoard(players)
   const flatCells = useMemo(() => board.flat(), [board])
-  const roomIconLayers = useMemo(() => (
-    Object.entries(ROOM_ICON_ASSETS).flatMap(([roomId, src]) => {
-      const bounds = ROOM_BOUNDS[roomId]
-      if (!bounds) return []
-      const [c0, c1, r0, r1] = bounds
-      const roomW = (c1 - c0 + 1) * cellSize
-      const roomH = (r1 - r0 + 1) * cellSize
-      const iconSize = Math.max(14, Math.min(roomW, roomH) * 0.5)
-      return [{
-        roomId,
-        src,
-        left: (c0 + c1 + 1) * cellSize * 0.5 - iconSize * 0.5,
-        top: (r0 + r1 + 1) * cellSize * 0.5 - iconSize * 0.5,
-        size: iconSize,
-        tint: ROOM_ICON_TINT[roomId] ?? 'invert(84%)',
-      }]
-    })
-  ), [cellSize])
 
   const locationCardLayers = useMemo(() => {
     const cardById = Object.fromEntries(LOCATIONS_CARDS.map(c => [c.id, c]))

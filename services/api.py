@@ -23,10 +23,12 @@ Stateless mode (portable, AI-only):
 """
 
 import logging
+import time
 import uuid
 from typing import Any
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.mcts_ai import MctsAI
@@ -64,12 +66,31 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# Allow the Vercel frontend to call this API.
+# Set ALLOWED_ORIGIN to your Vercel URL in the hosting platform's env vars.
+import os as _os
+_allowed_origin = _os.environ.get("ALLOWED_ORIGIN", "*")
+CORS(app, origins=_allowed_origin)
+
 # ── In-memory session store ───────────────────────────────────────────────────
-# Maps session_id (str UUID) → {"state": GameState}
+# Maps session_id (str UUID) → {"state": GameState, "created_at": float}
 # The solution is part of the live GameState object (state.solution) and is
 # never sent to clients in any response.
 
 _sessions: dict[str, dict[str, Any]] = {}
+
+# Sessions older than this are eligible for cleanup.
+_SESSION_TTL_SECONDS: int = 3600  # 1 hour
+
+
+def _purge_expired_sessions() -> None:
+    """Remove sessions that have been idle longer than _SESSION_TTL_SECONDS."""
+    cutoff = time.monotonic() - _SESSION_TTL_SECONDS
+    expired = [sid for sid, s in _sessions.items() if s.get("created_at", 0) < cutoff]
+    for sid in expired:
+        del _sessions[sid]
+    if expired:
+        logger.info("Purged %d expired session(s)", len(expired))
 
 # ── Validation constants ──────────────────────────────────────────────────────
 
@@ -268,8 +289,13 @@ def game_start():
 
     state.setup_game()
 
+    _purge_expired_sessions()
     session_id = str(uuid.uuid4())
-    _sessions[session_id] = {"state": state, "pending_human": None}
+    _sessions[session_id] = {
+        "state": state,
+        "pending_human": None,
+        "created_at": time.monotonic(),
+    }
 
     human_count = sum(1 for p in state.players if not p.is_ai)
     logger.info(
@@ -330,7 +356,23 @@ def turn():
         current_player = state.get_current_player()
 
         # Human turn: prepare context, store it, ask the frontend for input.
+        # Guard: if a pending human turn already exists, reuse its dice so that
+        # repeated calls (e.g. network retries) are idempotent and don't re-roll.
         if current_player is not None and not current_player.is_ai:
+            if session.get("pending_human") is not None:
+                pending = session["pending_human"]
+                return jsonify({
+                    "requires_human_input": True,
+                    "player": current_player.name,
+                    "dice": _serialize_dice(pending["dice"]),
+                    "valid_moves": pending["valid_moves"],
+                    "suspects": list(state.suspects),
+                    "weapons": list(state.weapons),
+                    "game_over": False,
+                    "winner": None,
+                    "state": state.to_dict(),
+                }), 200
+
             context = state.get_human_turn_context()
             if not context:
                 return jsonify({"error": "Could not prepare human turn context"}), 500
@@ -590,5 +632,7 @@ def internal_error(_exc):
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    logger.info("Starting Murder-in-KUET API on http://127.0.0.1:5000")
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    logger.info("Starting Murder-in-KUET API on http://0.0.0.0:%d", port)
+    app.run(host="0.0.0.0", port=port, debug=False)

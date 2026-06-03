@@ -15,7 +15,16 @@ function cloneNb(nb: ProbabilityData): ProbabilityData {
 
 function normalize(rec: Record<string, number>) {
   const total = Object.values(rec).reduce((s, v) => s + v, 0)
-  if (total <= 0) return
+  if (total <= 0) {
+    // All probabilities are zero — spread uniform weight so downstream callers
+    // (mostLikely, isConfident) always operate on a well-formed distribution.
+    const keys = Object.keys(rec)
+    if (keys.length > 0) {
+      const uniform = 1 / keys.length
+      for (const k of keys) rec[k] = uniform
+    }
+    return
+  }
   for (const k of Object.keys(rec)) rec[k] /= total
 }
 
