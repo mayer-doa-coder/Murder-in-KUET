@@ -1,5 +1,3 @@
-hf-deploy/
-
 # Python bytecode
 __pycache__/
 *.pyc
