@@ -8,8 +8,6 @@ from typing import Any
 from config.settings import GAME_CONFIG, get_positive_int
 from services.game_runner import (
     InstrumentedAI,  # noqa: F401 — re-exported for backward compatibility
-    _blank_metrics,
-    _create_comparison_players,
     _create_metrics,
     run_single_game,
 )

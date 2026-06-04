@@ -54,8 +54,8 @@ def create_deck():
         deck.append(Card(s, "suspect"))
     for w in weapons:
         deck.append(Card(w, "weapon"))
-    for l in locations:
-        deck.append(Card(l, "location"))
+    for loc in locations:
+        deck.append(Card(loc, "location"))
 
     random.shuffle(deck)
     return deck

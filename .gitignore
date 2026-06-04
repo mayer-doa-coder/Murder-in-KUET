@@ -1,8 +1,33 @@
 hf-deploy/
 
-# Python bytecode — never commit these
+# Python bytecode
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .pytest_cache/
+
+# Test coverage artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Environment / secrets
+.env
+.env.*
+*.env
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/

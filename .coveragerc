@@ -1,0 +1,16 @@
+[run]
+omit =
+    tests/*
+    hf-deploy/*
+    frontend/*
+    */site-packages/*
+    */__pycache__/*
+    # Entry-point / operational scripts — not library code
+    main.py
+    services/game_runner.py
+    services/simulation_runner.py
+    utils/logger.py
+
+[report]
+fail_under = 60
+show_missing = true

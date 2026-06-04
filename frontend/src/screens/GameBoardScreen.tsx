@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   useBoard,
@@ -8,9 +8,8 @@ import {
   CHAR_STARTS,
   COLS,
   ROWS,
-  getReachableCells,
+  ROOM_TO_LOCATION_CARD,
   getPassageDoors,
-  findPath,
 } from '../hooks/useBoard'
 import { ROOM_ACCENT } from '../components/GridCell'
 import GridCell from '../components/GridCell'
@@ -22,27 +21,29 @@ import PathDots from '../components/PathDots'
 import CameraController from '../components/CameraController'
 import GameCard from '../components/GameCard'
 import SelectionFlow from '../components/SelectionFlow'
-import type { SelectionFlowResult } from '../components/SelectionFlow'
 import RevealResultOverlay from '../components/RevealResultOverlay'
 import StoryScreen from '../components/StoryScreen'
 import GameOverPopup from '../components/GameOverPopup'
 import ClueNotebook from '../components/ClueNotebook'
 import ProbabilityNotebook from '../components/ProbabilityNotebook'
-import { generateStory } from '../lib/storyGenerator'
-import { createProbabilityNotebook, eliminateCard, updateNoReveal } from '../lib/probabilityNotebook'
-import { aiChooseCell, aiMakeSuggestion, aiDecideAccusation, AI_IDLE_DELAY } from '../lib/aiEngine'
-import type { PlayerSetup, GameDeal, GamePhase, PlayerStatus, RevealResult, NotebookData, NotebookBoxState, GameMode, ProbabilityData } from '../types'
-import { LOCATIONS_CARDS, SUSPECTS_CARDS, WEAPONS_CARDS, ALL_CARDS } from '../types'
+import { useGameState } from '../hooks/useGameState'
+import { useNotebooks } from '../hooks/useNotebooks'
+import { useTurnActions } from '../hooks/useTurnActions'
+import { useMovement } from '../hooks/useMovement'
+import { useAITurn } from '../hooks/useAITurn'
+import { useAudio } from '../hooks/useAudio'
+import type { PlayerSetup, GameDeal, GameMode } from '../types'
+import { LOCATIONS_CARDS } from '../types'
 
 interface Props {
-  players:  PlayerSetup[]
-  deal:     GameDeal
-  gameMode: GameMode
+  players:   PlayerSetup[]
+  deal:      GameDeal
+  gameMode:  GameMode
   onExit:    () => void
   onRestart: () => void
 }
 
-// ── Room visual config ────────────────────────────────────────────────────────
+// ── Module-level visual constants ─────────────────────────────────────────────
 const ROOM_LABEL_COLORS: Record<string, string> = {
   auditorium:    '#cc66ee',
   swc:           '#44cc88',
@@ -67,20 +68,8 @@ const ROOM_LABEL_ANCHORS: Record<string, [number, number]> = {
   pocket_gate:   [19.5, 12 ],
 }
 
-
-// Maps board room IDs → LOCATIONS_CARDS IDs
-const ROOM_TO_CARD_ID: Record<string, string> = {
-  auditorium:    'auditorium',
-  swc:           'student_welfare',
-  ae_hall:       'amar_ekushey',
-  cafeteria:     'cafeteria',
-  central_field: 'central_field',
-  it_park:       'it_park',
-  br_hall:       'begum_rokeya',
-  lotus_pond:    'lotus_pond',
-  pocket_gate:   'pocket_gate',
-}
-
+// ROOM_TO_CARD_ID used only for location card image layers (same values as ROOM_TO_LOCATION_CARD)
+const ROOM_TO_CARD_ID = ROOM_TO_LOCATION_CARD
 
 type StartLabel = {
   charId: string; col: number; row: number; dir: 'top' | 'bottom' | 'left' | 'right'; label: string
@@ -100,54 +89,6 @@ const SECRET_PASSAGES = [
   { col: 18.5,row: 18.5,arrow: '↖', label: 'SECRET' },
   { col: 14.5,row: 23.5,arrow: '↘', label: 'SECRET' },
 ]
-
-// ── Notebook helpers ──────────────────────────────────────────────────────────
-function createEmptyNotebook(): NotebookData {
-  const suspects:  Record<string, NotebookBoxState> = {}
-  const weapons:   Record<string, NotebookBoxState> = {}
-  const locations: Record<string, NotebookBoxState> = {}
-  SUSPECTS_CARDS.forEach(c  => { suspects[c.id]  = '' })
-  WEAPONS_CARDS.forEach(c   => { weapons[c.id]   = '' })
-  LOCATIONS_CARDS.forEach(c => { locations[c.id] = '' })
-  return { suspects, weapons, locations }
-}
-
-function cardCategory(cardId: string): 'suspects' | 'weapons' | 'locations' | null {
-  const card = ALL_CARDS.find(c => c.id === cardId)
-  if (!card) return null
-  return card.category === 'suspect' ? 'suspects'
-       : card.category === 'weapon'  ? 'weapons'
-       : 'locations'
-}
-
-const ROOM_TO_LOCATION_CARD: Record<string, string> = {
-  auditorium:    'auditorium',
-  swc:           'student_welfare',
-  ae_hall:       'amar_ekushey',
-  cafeteria:     'cafeteria',
-  central_field: 'central_field',
-  it_park:       'it_park',
-  br_hall:       'begum_rokeya',
-  lotus_pond:    'lotus_pond',
-  pocket_gate:   'pocket_gate',
-}
-
-function runRevealLoop(
-  hands: readonly (readonly string[])[],
-  currentIdx: number,
-  suspectId: string,
-  weaponId: string,
-  locationCardId: string,
-): { revealedCardId: string | null; revealedByIdx: number | null } {
-  const n = hands.length
-  for (let offset = 1; offset < n; offset++) {
-    const idx = (currentIdx + offset) % n
-    const hand = hands[idx]
-    const match = hand.find(c => c === suspectId || c === weaponId || c === locationCardId)
-    if (match) return { revealedCardId: match, revealedByIdx: idx }
-  }
-  return { revealedCardId: null, revealedByIdx: null }
-}
 
 const SIDEBAR_W = 252
 const HEADER_H  = 54
@@ -212,18 +153,15 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
       onTouchStart={() => setRevealed(true)}
       onTouchEnd={() => setRevealed(false)}
     >
-      {/* Vignette */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: 'radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.82) 100%)',
         zIndex: 0,
       }} />
-      {/* CRT scanlines */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px)',
         zIndex: 0,
       }} />
 
-      {/* Back button */}
       <motion.button
         className="font-pixel absolute"
         style={{
@@ -240,7 +178,6 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
         ◀ BACK
       </motion.button>
 
-      {/* Player badge */}
       <motion.div
         className="absolute font-pixel"
         style={{
@@ -255,7 +192,6 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
         P{playerIndex + 1}
       </motion.div>
 
-      {/* Header */}
       <motion.div
         className="relative z-10 text-center"
         style={{ marginTop: Math.floor(vh * 0.05), marginBottom: Math.floor(vh * 0.03) }}
@@ -268,97 +204,55 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
           {playerImageSrc ? (
-            <img src={playerImageSrc} style={{
-              width: Math.min(28, Math.floor(vw * 0.022)),
-              height: Math.min(28, Math.floor(vw * 0.022)),
-              imageRendering: 'pixelated', objectFit: 'contain',
-              filter: `drop-shadow(0 0 5px ${playerColor}77)`,
-            }} />
+            <img src={playerImageSrc} alt="" style={{ width: 28, height: 28, objectFit: 'cover', imageRendering: 'pixelated', border: `1px solid ${playerColor}44` }} />
           ) : (
-            <span style={{ fontFamily: 'monospace', fontSize: Math.min(24, Math.floor(vw * 0.022)), color: playerColor, textShadow: `0 0 10px ${playerColor}77` }}>
-              {playerIcon}
-            </span>
+            <span style={{ fontFamily: 'monospace', fontSize: 22, color: playerColor }}>{playerIcon}</span>
           )}
-          <h2 className="font-pixel" style={{
-            fontSize: 'clamp(10px, 1.5vw, 14px)', color: '#e8c060',
-            letterSpacing: '3px', textShadow: '3px 3px 0 #3d2200',
-          }}>
-            {playerName}&apos;S CARDS
-          </h2>
+          <div className="font-pixel" style={{ fontSize: 'clamp(9px, 1.8vw, 13px)', color: playerColor, letterSpacing: '2px' }}>
+            {playerName.toUpperCase()}
+          </div>
         </div>
       </motion.div>
 
-      {/* Card grid */}
-      <motion.div
-        className="relative z-10 flex flex-col"
-        style={{ gap: GAP }}
-        initial={{ opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.12, duration: 0.35 }}
-      >
-        {rows.map((row, rowIdx) => (
-          <div key={rowIdx} style={{ display: 'flex', gap: GAP, justifyContent: 'center' }}>
-            {row.map((card, colIdx) => {
-              const idx = rowIdx * 3 + colIdx
-              return (
-                <motion.div
-                  key={card.id}
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 + idx * 0.055, duration: 0.3 }}
-                >
-                  <AnimatePresence mode="wait" initial={false}>
-                    {revealed ? (
-                      <motion.div key="up" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }} transition={{ duration: 0.11, ease: 'easeInOut' }}>
-                        <GameCard card={card} faceUp width={cardW} height={cardH} />
-                      </motion.div>
-                    ) : (
-                      <motion.div key="down" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }} transition={{ duration: 0.11, ease: 'easeInOut' }}>
-                        <GameCard card={card} faceUp={false} width={cardW} height={cardH} />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              )
-            })}
+      <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', gap: GAP, alignItems: 'center' }}>
+        {rows.map((rowCards, ri) => (
+          <div key={ri} style={{ display: 'flex', gap: GAP }}>
+            {rowCards.map((card, ci) => (
+              <GameCard
+                key={card.id}
+                card={card}
+                width={cardW}
+                height={cardH}
+                faceUp={revealed}
+                index={ri * 3 + ci}
+              />
+            ))}
           </div>
         ))}
-        {hand.length === 0 && (
-          <div className="font-pixel" style={{ fontSize: '7px', color: '#554433', letterSpacing: '2px' }}>NO CARDS DEALT</div>
-        )}
-      </motion.div>
+      </div>
 
-      {/* Hold hint */}
-      <motion.div
-        className="relative z-10 text-center"
-        style={{ marginTop: GAP * 2 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.55 }}
-      >
-        <AnimatePresence mode="wait">
-          {!revealed ? (
-            <motion.div key="hint" className="font-pixel"
-              style={{ fontSize: 'clamp(6px, 1vw, 8px)', color: '#5c3d00', letterSpacing: '2px' }}
-              animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.4, repeat: Infinity }}
-              initial={{ opacity: 0 }} exit={{ opacity: 0 }}
-            >
-              HOLD  [A]  TO  REVEAL  ALL
-            </motion.div>
-          ) : (
-            <motion.div key="revealed" className="font-pixel"
-              style={{ fontSize: 'clamp(6px, 1vw, 8px)', color: '#cc8833', letterSpacing: '2px' }}
-              initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
-            >
-              ★  CARDS  REVEALED  ★
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className="font-pixel" style={{ fontSize: 'clamp(4px, 0.7vw, 6px)', color: '#2a1600', letterSpacing: '1.5px', marginTop: 6 }}>
-          ESC / ENTER  —  CLOSE
-        </div>
-      </motion.div>
+      <AnimatePresence mode="wait">
+        {!revealed ? (
+          <motion.div key="hint" className="font-pixel"
+            style={{ fontSize: 'clamp(6px, 1vw, 8px)', color: '#5c3d00', letterSpacing: '2px', marginTop: Math.floor(vh * 0.04) }}
+            animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.4, repeat: Infinity }}
+            initial={{ opacity: 0 }} exit={{ opacity: 0 }}
+          >
+            HOLD  [A]  TO  REVEAL  ALL
+          </motion.div>
+        ) : (
+          <motion.div key="revealed" className="font-pixel"
+            style={{ fontSize: 'clamp(6px, 1vw, 8px)', color: '#cc8833', letterSpacing: '2px', marginTop: Math.floor(vh * 0.04) }}
+            initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+          >
+            ★  CARDS  REVEALED  ★
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="font-pixel" style={{ fontSize: 'clamp(4px, 0.7vw, 6px)', color: '#2a1600', letterSpacing: '1.5px', marginTop: 6 }}>
+        ESC / ENTER  —  CLOSE
+      </div>
     </motion.div>
   )
 }
@@ -404,513 +298,49 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
     })
   }, [cellSize])
 
-  // ── Turn / phase state ────────────────────────────────────────────────────
-  const [gamePhase, setGamePhase]       = useState<GamePhase>('idle')
-  const [currentTurnIndex, setCurrentTurnIndex] = useState(0)
-  const [diceValue, setDiceValue]       = useState<number | null>(null)
-  const [diceRolling, setDiceRolling]   = useState(false)
-  const [pathCells, setPathCells]       = useState<[number, number][]>([])
-  const [passageCells, setPassageCells] = useState<[number, number][]>([])
-  const [movePath, setMovePath]         = useState<[number, number][]>([])
-  const [moveStep, setMoveStep]         = useState(0)
-  const [playerStatus, setPlayerStatus] = useState<PlayerStatus[]>(
-    () => players.map(() => ({ eliminated: false, hasAccused: false }))
-  )
-  const playerStatusRef = useRef(playerStatus)
-  useEffect(() => { playerStatusRef.current = playerStatus }, [playerStatus])
-  const [revealResult, setRevealResult] = useState<RevealResult | null>(null)
-  const [gameWinner, setGameWinner]     = useState<number | null>(null)
-  const [remainingMoves, setRemainingMoves] = useState(0)
+  // ── Hooks ─────────────────────────────────────────────────────────────────
+  const gs = useGameState(players)
+  const nb = useNotebooks(players, deal)
 
-  // ── Clue notebooks (human players) ───────────────────────────────────────
-  const [notebooks, setNotebooks] = useState<NotebookData[]>(
-    () => players.map(() => createEmptyNotebook())
-  )
-  const [showNotebook, setShowNotebook] = useState(false)
-  const [showCards,    setShowCards]    = useState(false)
-  const [showAiNotebook, setShowAiNotebook] = useState(false)
-
-  // ── AI probability notebooks ──────────────────────────────────────────────
-  const [probNotebooks, setProbNotebooks] = useState<ProbabilityData[]>(() =>
-    players.map((_, i) =>
-      createProbabilityNotebook(deal.playerHands[i]?.map(c => c.id) ?? [])
-    )
-  )
-
-  const updateNotebookBox = useCallback((
-    playerIdx: number,
-    category: 'suspects' | 'weapons' | 'locations',
-    cardId: string,
-    state: NotebookBoxState,
-  ) => {
-    setNotebooks(prev => prev.map((nb, i) =>
-      i !== playerIdx ? nb : { ...nb, [category]: { ...nb[category], [cardId]: state } }
-    ))
-  }, [])
-
-  // ── Story / pending state ─────────────────────────────────────────────────
-  const [storyText, setStoryText]       = useState('')
-  const [pendingReveal, setPendingReveal] = useState<RevealResult | null>(null)
-  const [pendingPhaseAfterStory, setPendingPhaseAfterStory] = useState<'reveal_result' | 'game_over'>('reveal_result')
-
-  // Refs for immediate sync during rapid key presses / AI callbacks
-  const positionRef       = useRef<[number, number]>([12, 12])
-  const remainingMovesRef = useRef(0)
-
-  // ── Simulation speed & pause ──────────────────────────────────────────────
-  const [simSpeed, setSimSpeed] = useState<1 | 4 | 16>(1)
-  const ms = useCallback((base: number) => Math.max(0, Math.round(base / simSpeed)), [simSpeed])
-  const [isPaused,       setIsPaused]       = useState(false)
-  const [pauseViewIdx,   setPauseViewIdx]   = useState(0)   // which player to inspect
-
-  const currentPlayer = boardPlayers[currentTurnIndex]
-  const currentSetup  = players[currentTurnIndex]
+  const currentPlayer = boardPlayers[gs.currentTurnIndex]
+  const currentSetup  = players[gs.currentTurnIndex]
   const isAiTurn      = currentSetup?.type === 'computer'
 
-  // ── Stable refs for values used inside AI timeouts ────────────────────────
-  // probNotebooks/boardPlayers are declared above so they can be used as initial values.
-  // The callback refs can't reference their callbacks here (TDZ — callbacks are defined
-  // later via useCallback), so they start as no-ops; useEffect sets the real values
-  // before any setTimeout fires (minimum ~80ms away).
-  const probNotebooksRef        = useRef(probNotebooks)
-  const boardPlayersRef         = useRef(boardPlayers)
-  const handleInterrogationRef  = useRef<(r: SelectionFlowResult) => void>(() => {})
-  const handleAccusationRef     = useRef<(r: SelectionFlowResult) => void>(() => {})
-  const handleStoryCompleteRef  = useRef<() => void>(() => {})
-  const handleRevealContinueRef = useRef<() => void>(() => {})
-  useEffect(() => { probNotebooksRef.current       = probNotebooks },        [probNotebooks])
-  useEffect(() => { boardPlayersRef.current        = boardPlayers },         [boardPlayers])
-
-  // Keep positionRef in sync
+  // Keep positionRef in sync with current player's grid position
   useEffect(() => {
-    if (currentPlayer) positionRef.current = currentPlayer.position
-  }, [currentPlayer])
+    if (currentPlayer) gs.positionRef.current = currentPlayer.position
+  }, [currentPlayer, gs.positionRef])
 
-  // ── advanceTurn ───────────────────────────────────────────────────────────
-  const advanceTurn = useCallback(() => {
-    setDiceValue(null)
-    setDiceRolling(false)
-    setPathCells([])
-    setPassageCells([])
-    setMovePath([])
-    setMoveStep(0)
-    setRevealResult(null)
-    setRemainingMoves(0)
-    remainingMovesRef.current = 0
-    setCurrentTurnIndex(prev => {
-      const n = boardPlayers.length
-      const status = playerStatusRef.current
-      let next = (prev + 1) % n
-      for (let i = 1; i < n; i++) {
-        if (!status[next].eliminated) break
-        next = (next + 1) % n
-      }
-      return next
-    })
-    setGamePhase('idle')
-  }, [boardPlayers.length])
+  const actions = useTurnActions({ gs, nb, boardPlayers, deal, exitRoom, onRestart })
 
-  // ── handleAction (from TurnOverlay) ──────────────────────────────────────
-  const handleAction = useCallback((id: string) => {
-    if (id === 'roll') {
-      setGamePhase('rolling')
-    } else if (id === 'interrogation') {
-      const p = boardPlayers[currentTurnIndex]
-      if (!p || !p.currentLocation) return
-      setGamePhase('interrogation')
-    } else if (id === 'accusation') {
-      if (playerStatusRef.current[currentTurnIndex]?.hasAccused) return
-      if (playerStatusRef.current[currentTurnIndex]?.eliminated) return
-      setGamePhase('accusation')
-    } else if (id === 'cards') {
-      setShowCards(true)
-    } else if (id === 'notes') {
-      setShowNotebook(true)
-    }
-  }, [boardPlayers, currentTurnIndex])
+  const { handleDiceRelease, handleDiceSettled, handleGridClick } = useMovement({
+    gs, nb, board, boardPlayers, currentPlayer, isAiTurn,
+    currentSetup, cellSize, movePlayer, enterRoom, exitRoom,
+    advanceTurn: actions.advanceTurn,
+  })
 
-  // ── Interrogation complete → show story ──────────────────────────────────
-  const handleInterrogationComplete = useCallback((result: SelectionFlowResult) => {
-    const p = boardPlayers[currentTurnIndex]
-    if (!p) return
-    const roomId = p.currentLocation
-    const locationCardId = roomId ? (ROOM_TO_LOCATION_CARD[roomId] ?? roomId) : result.location
-    const roomName = roomId ? (ROOM_DISPLAY_NAMES[roomId] ?? roomId).replace('\n', ' ') : undefined
-    const hands = deal.playerHands.map(h => h.map(c => c.id))
-    const { revealedCardId, revealedByIdx } = runRevealLoop(
-      hands, currentTurnIndex, result.suspect, result.weapon, locationCardId
-    )
-    const rv: RevealResult = {
-      type: 'interrogation',
-      suspectId: result.suspect,
-      weaponId: result.weapon,
-      locationId: locationCardId,
-      roomName,
-      revealedCardId,
-      revealedByName: revealedByIdx !== null ? boardPlayers[revealedByIdx]?.name ?? null : null,
-    }
+  useAITurn({ gs, boardPlayers, actions, currentSetup, isAiTurn })
 
-    // Update suggesting player's prob notebook
-    if (revealedCardId !== null) {
-      // A card was revealed — eliminate it from the suggesting player's notebook
-      setProbNotebooks(prev => prev.map((nb, i) =>
-        i === currentTurnIndex ? eliminateCard(nb, revealedCardId) : nb
-      ))
-      const cat = cardCategory(revealedCardId)
-      if (cat) updateNotebookBox(currentTurnIndex, cat, revealedCardId, 'X')
-    } else {
-      // No reveal — boost all three suggested cards in ALL players' notebooks (public info)
-      setProbNotebooks(prev => prev.map(nb =>
-        updateNoReveal(nb, result.suspect, result.weapon, locationCardId)
-      ))
-    }
+  // ── Audio ─────────────────────────────────────────────────────────────────
+  const { muted, toggleMute, playDiceRoll, playStep, playInterrogation, playAccusation, playReveal } = useAudio()
 
-    setPendingReveal(rv)
-    setPendingPhaseAfterStory('reveal_result')
-    setStoryText(generateStory(result.suspect, result.weapon, locationCardId))
-    setGamePhase('story')
-  }, [boardPlayers, currentTurnIndex, deal.playerHands, updateNotebookBox])
-
-  // ── Accusation complete → show story ─────────────────────────────────────
-  const handleAccusationComplete = useCallback((result: SelectionFlowResult) => {
-    const p = boardPlayers[currentTurnIndex]
-    if (!p) return
-
-    setPlayerStatus(ps => ps.map((s, i) =>
-      i === currentTurnIndex ? { ...s, hasAccused: true } : s
-    ))
-
-    const cf = deal.caseFile
-    const correct =
-      result.suspect  === cf.suspect.id &&
-      result.weapon   === cf.weapon.id  &&
-      result.location === cf.location.id
-
-    const rv: RevealResult = {
-      type: 'accusation',
-      suspectId: result.suspect,
-      weaponId: result.weapon,
-      locationId: result.location,
-      revealedCardId: null,
-      revealedByName: null,
-      correct,
-      accusingPlayerName: p.name,
-      accusingPlayerIcon: p.icon,
-    }
-
-    if (!correct) {
-      setPlayerStatus(ps => ps.map((s, i) =>
-        i === currentTurnIndex ? { ...s, eliminated: true } : s
-      ))
-      // Per Cluedo rules: eliminated player's cards are shown face-up to all remaining players.
-      // Update every other player's notebooks so the game can converge and avoid infinite loops.
-      const eliminatedHand = deal.playerHands[currentTurnIndex] ?? []
-      if (eliminatedHand.length > 0) {
-        setProbNotebooks(prev => prev.map((nb, i) =>
-          i === currentTurnIndex ? nb : eliminatedHand.reduce((acc, card) => eliminateCard(acc, card.id), nb)
-        ))
-        setNotebooks(prev => prev.map((nb, i) => {
-          if (i === currentTurnIndex) return nb
-          return eliminatedHand.reduce((acc, card) => {
-            const cat = cardCategory(card.id)
-            if (!cat) return acc
-            return { ...acc, [cat]: { ...acc[cat], [card.id]: 'X' as NotebookBoxState } }
-          }, nb)
-        }))
-      }
-    } else {
-      setGameWinner(currentTurnIndex)
-    }
-
-    setPendingReveal(rv)
-    setPendingPhaseAfterStory(correct ? 'game_over' : 'reveal_result')
-    setStoryText(generateStory(result.suspect, result.weapon, result.location))
-    setGamePhase('story')
-  }, [boardPlayers, currentTurnIndex, deal.caseFile, deal.playerHands])
-
-  // ── Story complete → show result ──────────────────────────────────────────
-  const handleStoryComplete = useCallback(() => {
-    if (!pendingReveal) return
-    if (pendingReveal.type === 'interrogation' && pendingReveal.revealedCardId !== null) {
-      const p = boardPlayers[currentTurnIndex]
-      if (p && p.currentLocation !== null) exitRoom(p.id)
-    }
-    setRevealResult(pendingReveal)
-    setGamePhase(pendingPhaseAfterStory)
-  }, [pendingReveal, pendingPhaseAfterStory, boardPlayers, currentTurnIndex, exitRoom])
-
-  // ── Reveal result acknowledged ────────────────────────────────────────────
-  const handleRevealContinue = useCallback(() => {
-    if (gamePhase === 'game_over') {
-      onRestart()
-      return
-    }
-    if (playerStatusRef.current.every(s => s.eliminated)) {
-      setGamePhase('game_over')
-      setGameWinner(null)
-      return
-    }
-    advanceTurn()
-  }, [gamePhase, onRestart, advanceTurn])
-
-  const handleSelectionCancel = useCallback(() => {
-    setGamePhase('idle')
-  }, [])
-
-  // ── Sync callback refs after all useCallbacks are defined ─────────────────
-  useEffect(() => { handleInterrogationRef.current  = handleInterrogationComplete }, [handleInterrogationComplete])
-  useEffect(() => { handleAccusationRef.current     = handleAccusationComplete },    [handleAccusationComplete])
-  useEffect(() => { handleStoryCompleteRef.current  = handleStoryComplete },         [handleStoryComplete])
-  useEffect(() => { handleRevealContinueRef.current = handleRevealContinue },        [handleRevealContinue])
-
-  // ── Dice ──────────────────────────────────────────────────────────────────
-  const handleDiceRelease = useCallback(() => {
-    const value = Math.ceil(Math.random() * 6)
-    setDiceValue(value)
-    setDiceRolling(true)
-    setGamePhase('dice')
-  }, [])
-
-  const handleDiceSettled = useCallback(() => {
-    setDiceRolling(false)
-    if (diceValue === null || !currentPlayer) return
-    const cells = getReachableCells(board, currentPlayer.position, diceValue)
-
-    // Secret passage: if player is inside a passage room, offer destination doors
-    const passageDoors = currentPlayer.currentLocation
-      ? getPassageDoors(currentPlayer.currentLocation)
-      : []
-    setPassageCells(passageDoors)
-
-    if (cells.length === 0 && passageDoors.length === 0) {
-      advanceTurn()
-      return
-    }
-    setPathCells(cells)
-    remainingMovesRef.current = diceValue
-    setRemainingMoves(diceValue)
-
-    // AI: pick a cell and animate movement
-    if (isAiTurn) {
-      const algo = currentSetup?.aiAlgorithm ?? 'rule_based'
-      const allCells = [...cells, ...passageDoors]
-      const target = aiChooseCell(allCells, board, probNotebooks[currentTurnIndex], algo, ROOM_TO_LOCATION_CARD)
-      if (target) {
-        // Check if AI chose a passage door — teleport instead of path-animate
-        const isPassageTarget = passageDoors.some(([pc, pr]) => pc === target[0] && pr === target[1])
-        if (isPassageTarget) {
-          const destRoomId = Object.entries(DOOR_POSITIONS).find(([, doors]) =>
-            doors.some(([dc, dr]) => dc === target[0] && dr === target[1])
-          )?.[0]
-          if (destRoomId) {
-            movePlayer(currentPlayer.id, target)
-            enterRoom(currentPlayer.id, destRoomId)
-            setPassageCells([])
-            setPathCells([])
-            advanceTurn()
-            return
-          }
-        }
-        const path = findPath(board, currentPlayer.position, target)
-        if (path.length > 0) {
-          setMovePath(path)
-          setMoveStep(0)
-          setPathCells([])
-          setPassageCells([])
-          setGamePhase('moving')
-          return
-        }
-      }
-      // No valid path — skip movement
-      advanceTurn()
-    }
-  }, [diceValue, currentPlayer, board, advanceTurn, isAiTurn, currentSetup, probNotebooks, currentTurnIndex, movePlayer, enterRoom])
-
-  const handleGridClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (gamePhase !== 'dice' || isAiTurn || !currentPlayer) return
-      const rect = e.currentTarget.getBoundingClientRect()
-      const col = Math.floor((e.clientX - rect.left) / cellSize)
-      const row = Math.floor((e.clientY - rect.top) / cellSize)
-      const isPassage = passageCells.some(([pc, pr]) => pc === col && pr === row)
-      if (!isPassage) return
-      const destRoomId = Object.entries(DOOR_POSITIONS).find(([, doors]) =>
-        doors.some(([dc, dr]) => dc === col && dr === row)
-      )?.[0]
-      if (destRoomId) {
-        movePlayer(currentPlayer.id, [col, row])
-        enterRoom(currentPlayer.id, destRoomId)
-        setPassageCells([])
-        setPathCells([])
-        remainingMovesRef.current = 0
-        setRemainingMoves(0)
-        advanceTurn()
-      }
-    },
-    [gamePhase, isAiTurn, currentPlayer, passageCells, cellSize, movePlayer, enterRoom, advanceTurn]
-  )
-
-  // ── AI idle automation ────────────────────────────────────────────────────
-  // Deps are intentionally minimal: we read probNotebooks/boardPlayers/callbacks
-  // via refs so that those updates never cancel+restart this timer.
-  useEffect(() => {
-    if (gamePhase !== 'idle' || !isAiTurn || isPaused) return
-
-    const algo = currentSetup?.aiAlgorithm ?? 'rule_based'
-    const t = setTimeout(() => {
-      const notebook = probNotebooksRef.current[currentTurnIndex]
-      const status   = playerStatusRef.current[currentTurnIndex]
-      const p        = boardPlayersRef.current[currentTurnIndex]
-
-      // Try accusation first
-      const accusation = aiDecideAccusation(notebook, algo, status?.hasAccused ?? false)
-      if (accusation) {
-        handleAccusationRef.current({ suspect: accusation.suspect, weapon: accusation.weapon, location: accusation.location })
-        return
-      }
-      // If in a room, interrogate
-      if (p?.currentLocation) {
-        const suggestion = aiMakeSuggestion(notebook, algo)
-        handleInterrogationRef.current({
-          suspect:  suggestion.suspect,
-          weapon:   suggestion.weapon,
-          location: ROOM_TO_LOCATION_CARD[p.currentLocation] ?? p.currentLocation,
-        })
-        return
-      }
-      // Otherwise roll dice
-      const value = Math.ceil(Math.random() * 6)
-      setDiceValue(value)
-      setDiceRolling(true)
-      setGamePhase('dice')
-    }, ms(AI_IDLE_DELAY[algo] ?? 100))
-
-    return () => clearTimeout(t)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gamePhase, isAiTurn, currentTurnIndex, currentSetup, simSpeed, isPaused])
-
-  // ── AI: auto-continue story ───────────────────────────────────────────────
-  useEffect(() => {
-    if (gamePhase !== 'story' || !isAiTurn || isPaused) return
-    const t = setTimeout(() => handleStoryCompleteRef.current(), ms(1800))
-    return () => clearTimeout(t)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gamePhase, isAiTurn, simSpeed, isPaused])
-
-  // ── AI: auto-continue reveal_result ──────────────────────────────────────
-  useEffect(() => {
-    if (gamePhase !== 'reveal_result' || !isAiTurn || isPaused) return
-    const t = setTimeout(() => handleRevealContinueRef.current(), ms(1400))
-    return () => clearTimeout(t)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gamePhase, isAiTurn, simSpeed, isPaused])
-
-  // ── Arrow-key step-by-step movement (human only) ─────────────────────────
-  useEffect(() => {
-    if (gamePhase !== 'dice' || isAiTurn) return
-
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === ' ') {
-        if (remainingMovesRef.current > 0) {
-          e.preventDefault()
-          setPathCells([])
-          remainingMovesRef.current = 0
-          setRemainingMoves(0)
-          advanceTurn()
-        }
-        return
-      }
-
-      const DIRS: Record<string, [number, number]> = {
-        ArrowUp:    [0, -1],
-        ArrowDown:  [0, 1],
-        ArrowLeft:  [-1, 0],
-        ArrowRight: [1, 0],
-      }
-      const dir = DIRS[e.key]
-      if (!dir) return
-      e.preventDefault()
-
-      if (remainingMovesRef.current <= 0) return
-      const player = currentPlayer
-      if (!player) return
-
-      if (player.currentLocation !== null) exitRoom(player.id)
-
-      const [dc, dr] = dir
-      const [cc, cr] = positionRef.current
-      const nc = cc + dc, nr = cr + dr
-
-      if (nc < 0 || nc >= COLS || nr < 0 || nr >= ROWS) return
-      const cell = board[nr]?.[nc]
-      if (!cell || !cell.isWalkable) return
-
-      positionRef.current = [nc, nr]
-      remainingMovesRef.current -= 1
-
-      movePlayer(player.id, [nc, nr])
-      setRemainingMoves(remainingMovesRef.current)
-
-      if (remainingMovesRef.current > 0) {
-        const newReachable = getReachableCells(board, [nc, nr], remainingMovesRef.current)
-        setPathCells(newReachable)
-      } else {
-        setPathCells([])
-      }
-
-      if (cell.type === 'door' && cell.roomId) {
-        enterRoom(player.id, cell.roomId)
-        setPathCells([])
-        remainingMovesRef.current = 0
-        setRemainingMoves(0)
-        advanceTurn()
-        return
-      }
-
-      if (remainingMovesRef.current <= 0) {
-        advanceTurn()
-      }
-    }
-
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [gamePhase, isAiTurn, currentPlayer, board, movePlayer, exitRoom, enterRoom, advanceTurn])
-
-  // ── Step-by-step movement animation ──────────────────────────────────────
-  useEffect(() => {
-    if (gamePhase !== 'moving' || movePath.length === 0 || isPaused) return
-    const delay = moveStep >= movePath.length ? 0 : ms(isAiTurn ? 30 : 130)
-    const t = setTimeout(() => {
-      if (moveStep >= movePath.length) {
-        const finalPos = movePath[movePath.length - 1]
-        if (finalPos && currentPlayer) {
-          const [fc, fr] = finalPos
-          const cell = board[fr]?.[fc]
-          if (cell?.type === 'door' && cell.roomId) {
-            enterRoom(currentPlayer.id, cell.roomId)
-          }
-        }
-        advanceTurn()
-      } else {
-        const [col, row] = movePath[moveStep]
-        if (currentPlayer) movePlayer(currentPlayer.id, [col, row])
-        setMoveStep(s => s + 1)
-      }
-    }, delay)
-    return () => clearTimeout(t)
-  }, [gamePhase, movePath, moveStep, currentPlayer, movePlayer, advanceTurn, board, enterRoom, isAiTurn, ms, isPaused])
+  useEffect(() => { if (gs.diceRolling) playDiceRoll() }, [gs.diceRolling, playDiceRoll])
+  useEffect(() => { if (gs.moveStep > 0) playStep() }, [gs.moveStep, playStep])
+  useEffect(() => { if (gs.gamePhase === 'interrogation') playInterrogation() }, [gs.gamePhase, playInterrogation])
+  useEffect(() => { if (gs.gamePhase === 'accusation') playAccusation() }, [gs.gamePhase, playAccusation])
+  useEffect(() => { if (gs.revealResult) playReveal() }, [gs.revealResult, playReveal])
 
   // ── Derived values ────────────────────────────────────────────────────────
   const currentRoomId = currentPlayer?.currentLocation ?? null
 
   const disabledActions = useMemo(() => {
     const d: string[] = []
-    const status = playerStatus[currentTurnIndex]
+    const status = gs.playerStatus[gs.currentTurnIndex]
     if (!currentRoomId) d.push('interrogation')
     if (status?.hasAccused || status?.eliminated) d.push('accusation')
     if (status?.eliminated) { d.push('roll'); d.push('interrogation') }
     return d
-  }, [currentRoomId, playerStatus, currentTurnIndex])
+  }, [currentRoomId, gs.playerStatus, gs.currentTurnIndex])
 
   const lockedLocationCard = useMemo(() => {
     if (!currentRoomId) return undefined
@@ -918,13 +348,28 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
     return LOCATIONS_CARDS.find(c => c.id === cardId)
   }, [currentRoomId])
 
-  // ── Camera ────────────────────────────────────────────────────────────────
-  const isZoomed = gamePhase === 'idle' && !!currentPlayer
+  const isZoomed = gs.gamePhase === 'idle' && !!currentPlayer
 
   const charColors: Record<string, string> = {}
   boardPlayers.forEach(p => { charColors[p.id] = p.accentColor })
 
   const lfs = Math.max(5, Math.floor(cellSize * 0.23))
+
+  // Inline passage-dot click handler (duplicates handleGridClick for direct dot clicks)
+  const handlePassageDotClick = useCallback((col: number, row: number) => {
+    const destRoomId = Object.entries(DOOR_POSITIONS).find(([, doors]) =>
+      doors.some(([dc, dr]) => dc === col && dr === row)
+    )?.[0]
+    if (destRoomId && currentPlayer) {
+      movePlayer(currentPlayer.id, [col, row])
+      enterRoom(currentPlayer.id, destRoomId)
+      gs.setPassageCells([])
+      gs.setPathCells([])
+      gs.remainingMovesRef.current = 0
+      gs.setRemainingMoves(0)
+      actions.advanceTurn()
+    }
+  }, [currentPlayer, movePlayer, enterRoom, gs, actions])
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -950,20 +395,19 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
           MURDER IN KUET
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Speed selector + Pause — visible when any AI player exists */}
           {players.some(p => p.type === 'computer') && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               {([1, 4, 16] as const).map(s => (
                 <motion.button
                   key={s}
                   className="font-pixel"
-                  onClick={() => setSimSpeed(s)}
+                  onClick={() => gs.setSimSpeed(s)}
                   style={{
                     fontSize: '6px', letterSpacing: '0.5px',
                     padding: '3px 7px', cursor: 'pointer',
-                    background: simSpeed === s ? '#cc8844' : 'transparent',
-                    border: `1px solid ${simSpeed === s ? '#cc8844' : '#3a2200'}`,
-                    color: simSpeed === s ? '#000' : '#664400',
+                    background: gs.simSpeed === s ? '#cc8844' : 'transparent',
+                    border: `1px solid ${gs.simSpeed === s ? '#cc8844' : '#3a2200'}`,
+                    color: gs.simSpeed === s ? '#000' : '#664400',
                   }}
                   whileHover={{ borderColor: '#cc8844', color: '#cc8844' }}
                   transition={{ duration: 0.06 }}
@@ -974,39 +418,53 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
               <motion.button
                 className="font-pixel"
                 onClick={() => {
-                  if (isPaused) {
-                    setIsPaused(false)
+                  if (gs.isPaused) {
+                    gs.setIsPaused(false)
                   } else {
-                    setIsPaused(true)
-                    setPauseViewIdx(currentTurnIndex)
+                    gs.setIsPaused(true)
+                    gs.setPauseViewIdx(gs.currentTurnIndex)
                   }
                 }}
                 style={{
                   fontSize: '6px', letterSpacing: '0.5px',
                   padding: '3px 9px', cursor: 'pointer',
-                  background: isPaused ? '#cc4488' : 'transparent',
-                  border: `1px solid ${isPaused ? '#cc4488' : '#550033'}`,
-                  color: isPaused ? '#000' : '#884466',
+                  background: gs.isPaused ? '#cc4488' : 'transparent',
+                  border: `1px solid ${gs.isPaused ? '#cc4488' : '#550033'}`,
+                  color: gs.isPaused ? '#000' : '#884466',
                 }}
-                whileHover={{ borderColor: '#cc4488', color: isPaused ? '#000' : '#cc4488' }}
+                whileHover={{ borderColor: '#cc4488', color: gs.isPaused ? '#000' : '#cc4488' }}
                 transition={{ duration: 0.06 }}
               >
-                {isPaused ? '▶ RESUME' : '⏸ PAUSE'}
+                {gs.isPaused ? '▶ RESUME' : '⏸ PAUSE'}
               </motion.button>
             </div>
           )}
+          <motion.button
+            className="font-pixel"
+            onClick={toggleMute}
+            title={muted ? 'Unmute' : 'Mute'}
+            style={{
+              fontSize: '7px', padding: '3px 8px', cursor: 'pointer',
+              background: 'transparent', border: '1px solid #3a1a00',
+              color: muted ? '#444' : '#cc8844', letterSpacing: '0.5px',
+            }}
+            whileHover={{ borderColor: '#cc8844', color: muted ? '#888' : '#ffaa44' }}
+            transition={{ duration: 0.06 }}
+          >
+            {muted ? '♪ OFF' : '♪ ON'}
+          </motion.button>
           <div className="font-pixel" style={{ fontSize: '7px', color: '#cc8844', letterSpacing: '1px' }}>
-            {gamePhase === 'idle'          && (isAiTurn ? 'AI THINKING...' : 'SELECT ACTION')}
-            {gamePhase === 'rolling'       && 'ROLLING...'}
-            {gamePhase === 'dice'          && diceValue !== null && `ROLLED: ${diceValue} — ${isAiTurn ? 'AI MOVING' : 'USE ARROWS'}`}
-            {gamePhase === 'moving'        && 'MOVING...'}
-            {gamePhase === 'interrogation' && 'INTERROGATION'}
-            {gamePhase === 'accusation'    && 'ACCUSATION'}
-            {gamePhase === 'story'         && 'CRIME THEORY'}
-            {gamePhase === 'reveal_result' && 'RESULT'}
-            {gamePhase === 'game_over'     && (
-              gameWinner !== null
-                ? `${boardPlayers[gameWinner]?.name ?? 'PLAYER'} WINS!`
+            {gs.gamePhase === 'idle'          && (isAiTurn ? 'AI THINKING...' : 'SELECT ACTION')}
+            {gs.gamePhase === 'rolling'       && 'ROLLING...'}
+            {gs.gamePhase === 'dice'          && gs.diceValue !== null && `ROLLED: ${gs.diceValue} — ${isAiTurn ? 'AI MOVING' : 'USE ARROWS'}`}
+            {gs.gamePhase === 'moving'        && 'MOVING...'}
+            {gs.gamePhase === 'interrogation' && 'INTERROGATION'}
+            {gs.gamePhase === 'accusation'    && 'ACCUSATION'}
+            {gs.gamePhase === 'story'         && 'CRIME THEORY'}
+            {gs.gamePhase === 'reveal_result' && 'RESULT'}
+            {gs.gamePhase === 'game_over'     && (
+              gs.gameWinner !== null
+                ? `${boardPlayers[gs.gameWinner]?.name ?? 'PLAYER'} WINS!`
                 : 'GAME OVER'
             )}
           </div>
@@ -1021,7 +479,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
           className="flex-1 flex items-center justify-center overflow-hidden relative"
           style={{ padding: PAD, background: '#040a04' }}
         >
-          {/* Camera wrap */}
           <CameraController
             playerCol={currentPlayer?.position[0] ?? 12}
             playerRow={currentPlayer?.position[1] ?? 12}
@@ -1030,7 +487,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             boardH={boardH}
             isZoomed={isZoomed}
           >
-            {/* Board container */}
             <div
               className="relative shrink-0"
               style={{ width: boardW, height: boardH, overflow: 'visible' }}
@@ -1057,7 +513,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 ))}
               </div>
 
-
               {/* SVG overlay */}
               <svg
                 style={{
@@ -1065,7 +520,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   width: boardW, height: boardH, pointerEvents: 'none', zIndex: 2,
                 }}
               >
-
                 {/* Door arch bars */}
                 {Object.entries(DOOR_POSITIONS).flatMap(([roomId, doors]) =>
                   doors.map(([dc, dr], di) => {
@@ -1153,24 +607,17 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 ))}
               </svg>
 
-              {/* Location images — fill each room completely */}
+              {/* Location images */}
               {locationCardLayers.map(({ roomId, src, left, top, cardW, cardH }) => (
                 <img
                   key={`loccard-${roomId}`}
                   src={src}
                   draggable={false}
                   style={{
-                    position: 'absolute',
-                    left,
-                    top,
-                    width: cardW,
-                    height: cardH,
-                    imageRendering: 'pixelated',
-                    objectFit: 'cover',
-                    opacity: 0.78,
-                    pointerEvents: 'none',
-                    userSelect: 'none',
-                    zIndex: 1,
+                    position: 'absolute', left, top,
+                    width: cardW, height: cardH,
+                    imageRendering: 'pixelated', objectFit: 'cover',
+                    opacity: 0.78, pointerEvents: 'none', userSelect: 'none', zIndex: 1,
                   }}
                 />
               ))}
@@ -1189,15 +636,14 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                     letterSpacing: '0.6px', textAlign: 'center',
                     lineHeight: 1.55, whiteSpace: 'pre-line',
                     textShadow: '1px 1px 0 #000, 0 0 10px #000000dd',
-                    opacity: 0.97,
-                    zIndex: 3, userSelect: 'none',
+                    opacity: 0.97, zIndex: 3, userSelect: 'none',
                   }}
                 >
                   {ROOM_DISPLAY_NAMES[roomId]}
                 </div>
               ))}
 
-              {/* Center staircase */}
+              {/* Center staircase / void decoration */}
               <div
                 className="pointer-events-none"
                 style={{
@@ -1235,30 +681,17 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
               }} />
 
               {/* Path dots */}
-              {gamePhase === 'dice' && !isAiTurn && (
-                <PathDots cells={pathCells} cellSize={cellSize} />
+              {gs.gamePhase === 'dice' && !isAiTurn && (
+                <PathDots cells={gs.pathCells} cellSize={cellSize} />
               )}
 
-              {/* Secret passage dots — gold, clickable, shown for human during dice phase */}
-              {gamePhase === 'dice' && !isAiTurn && passageCells.map(([col, row]) => {
+              {/* Secret passage dots — gold, shown for human during dice phase */}
+              {gs.gamePhase === 'dice' && !isAiTurn && gs.passageCells.map(([col, row]) => {
                 const dotSize = Math.max(6, Math.round(cellSize * 0.35))
                 return (
                   <motion.div
                     key={`passage-${col}-${row}`}
-                    onClick={() => {
-                      const destRoomId = Object.entries(DOOR_POSITIONS).find(([, doors]) =>
-                        doors.some(([dc, dr]) => dc === col && dr === row)
-                      )?.[0]
-                      if (destRoomId && currentPlayer) {
-                        movePlayer(currentPlayer.id, [col, row])
-                        enterRoom(currentPlayer.id, destRoomId)
-                        setPassageCells([])
-                        setPathCells([])
-                        remainingMovesRef.current = 0
-                        setRemainingMoves(0)
-                        advanceTurn()
-                      }
-                    }}
+                    onClick={() => handlePassageDotClick(col, row)}
                     style={{
                       position: 'absolute',
                       left: (col + 0.5) * cellSize - dotSize / 2,
@@ -1266,8 +699,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                       width: dotSize, height: dotSize,
                       borderRadius: '50%',
                       background: '#ffcc00',
-                      cursor: 'pointer',
-                      zIndex: 9,
+                      cursor: 'pointer', zIndex: 9,
                       boxShadow: '0 0 8px #ffcc0099',
                     }}
                     initial={{ opacity: 0, scale: 0 }}
@@ -1281,14 +713,14 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 )
               })}
 
-              {/* Player tokens — hidden while player is inside a room */}
+              {/* Player tokens */}
               {boardPlayers.map((p, i) =>
                 p.currentLocation === null ? (
                   <PlayerToken
                     key={p.id}
                     player={p}
                     cellSize={cellSize}
-                    isSelected={i === currentTurnIndex}
+                    isSelected={i === gs.currentTurnIndex}
                     playerIndex={i}
                     onClick={() => {}}
                   />
@@ -1297,17 +729,17 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             </div>
           </CameraController>
 
-          {/* Turn overlay — only for human turns */}
+          {/* Turn overlay (human) */}
           <AnimatePresence>
-            {gamePhase === 'idle' && currentPlayer && !isAiTurn && (
+            {gs.gamePhase === 'idle' && currentPlayer && !isAiTurn && (
               <TurnOverlay
-                key={currentTurnIndex}
+                key={gs.currentTurnIndex}
                 playerName={currentPlayer.name}
                 playerIcon={currentPlayer.icon}
                 playerImageSrc={currentPlayer.imageSrc}
                 playerColor={currentPlayer.accentColor}
-                playerIndex={currentTurnIndex}
-                onAction={handleAction}
+                playerIndex={gs.currentTurnIndex}
+                onAction={actions.handleAction}
                 disabledActions={disabledActions as ('roll' | 'interrogation' | 'accusation' | 'cards')[]}
               />
             )}
@@ -1315,9 +747,9 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
 
           {/* AI turn indicator */}
           <AnimatePresence>
-            {gamePhase === 'idle' && currentPlayer && isAiTurn && (
+            {gs.gamePhase === 'idle' && currentPlayer && isAiTurn && (
               <motion.div
-                key={`ai-indicator-${currentTurnIndex}`}
+                key={`ai-indicator-${gs.currentTurnIndex}`}
                 style={{
                   position: 'absolute', bottom: 20, left: '50%',
                   transform: 'translateX(-50%)',
@@ -1345,53 +777,55 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             )}
           </AnimatePresence>
 
-          {/* Selection flow — interrogation or accusation (human turns only) */}
+          {/* Selection flow (human) */}
           <AnimatePresence>
-            {(gamePhase === 'interrogation' || gamePhase === 'accusation') && !isAiTurn && (
+            {(gs.gamePhase === 'interrogation' || gs.gamePhase === 'accusation') && !isAiTurn && (
               <SelectionFlow
-                key={gamePhase}
-                mode={gamePhase}
-                onComplete={gamePhase === 'interrogation' ? handleInterrogationComplete : handleAccusationComplete}
-                onCancel={handleSelectionCancel}
-                lockedLocationCard={gamePhase === 'interrogation' ? lockedLocationCard : undefined}
+                key={gs.gamePhase}
+                mode={gs.gamePhase}
+                onComplete={gs.gamePhase === 'interrogation'
+                  ? actions.handleInterrogationComplete
+                  : actions.handleAccusationComplete}
+                onCancel={actions.handleSelectionCancel}
+                lockedLocationCard={gs.gamePhase === 'interrogation' ? lockedLocationCard : undefined}
               />
             )}
           </AnimatePresence>
 
           {/* Story screen */}
           <AnimatePresence>
-            {gamePhase === 'story' && pendingReveal && (
+            {gs.gamePhase === 'story' && gs.pendingReveal && (
               <StoryScreen
                 key="story"
-                story={storyText}
-                suspectId={pendingReveal.suspectId}
-                weaponId={pendingReveal.weaponId}
-                locationId={pendingReveal.locationId}
-                onContinue={handleStoryComplete}
+                story={gs.storyText}
+                suspectId={gs.pendingReveal.suspectId}
+                weaponId={gs.pendingReveal.weaponId}
+                locationId={gs.pendingReveal.locationId}
+                onContinue={actions.handleStoryComplete}
               />
             )}
           </AnimatePresence>
 
           {/* Reveal result overlay */}
           <AnimatePresence>
-            {(gamePhase === 'reveal_result' ||
-              (gamePhase === 'game_over' && gameWinner !== null)
-            ) && revealResult && (
+            {(gs.gamePhase === 'reveal_result' ||
+              (gs.gamePhase === 'game_over' && gs.gameWinner !== null)
+            ) && gs.revealResult && (
               <RevealResultOverlay
-                result={revealResult}
+                result={gs.revealResult}
                 caseFile={{
                   suspect:  { id: deal.caseFile.suspect.id,  icon: deal.caseFile.suspect.icon,  name: deal.caseFile.suspect.name  },
                   weapon:   { id: deal.caseFile.weapon.id,   icon: deal.caseFile.weapon.icon,   name: deal.caseFile.weapon.name   },
                   location: { id: deal.caseFile.location.id, icon: deal.caseFile.location.icon, name: deal.caseFile.location.name },
                 }}
-                onContinue={handleRevealContinue}
+                onContinue={actions.handleRevealContinue}
               />
             )}
           </AnimatePresence>
 
           {/* Game over popup */}
           <AnimatePresence>
-            {gamePhase === 'game_over' && gameWinner === null && (
+            {gs.gamePhase === 'game_over' && gs.gameWinner === null && (
               <GameOverPopup
                 key="game-over"
                 caseFile={deal.caseFile}
@@ -1401,52 +835,52 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             )}
           </AnimatePresence>
 
-          {/* Clue notebook overlay (human) */}
+          {/* Clue notebook (human) */}
           <AnimatePresence>
-            {showNotebook && !isAiTurn && (
+            {nb.showNotebook && !isAiTurn && (
               <ClueNotebook
                 key="notebook"
-                data={notebooks[currentTurnIndex] ?? notebooks[0]}
-                hand={deal.playerHands[currentTurnIndex] ?? []}
+                data={nb.notebooks[gs.currentTurnIndex] ?? nb.notebooks[0]}
+                hand={deal.playerHands[gs.currentTurnIndex] ?? []}
                 onChange={(cat, cardId, state) =>
-                  updateNotebookBox(currentTurnIndex, cat, cardId, state)
+                  nb.updateNotebookBox(gs.currentTurnIndex, cat, cardId, state)
                 }
-                onClose={() => setShowNotebook(false)}
+                onClose={() => nb.setShowNotebook(false)}
               />
             )}
           </AnimatePresence>
 
           {/* AI probability notebook overlay */}
           <AnimatePresence>
-            {showAiNotebook && (
+            {nb.showAiNotebook && (
               <ProbabilityNotebook
                 key="ai-notebook"
-                data={probNotebooks[currentTurnIndex]}
+                data={nb.probNotebooks[gs.currentTurnIndex]}
                 algorithm={currentSetup?.aiAlgorithm ?? 'rule_based'}
-                onClose={() => setShowAiNotebook(false)}
+                onClose={() => nb.setShowAiNotebook(false)}
               />
             )}
           </AnimatePresence>
 
-          {/* Cards overlay — full-screen hold-to-reveal */}
+          {/* Cards overlay */}
           <AnimatePresence>
-            {showCards && (
+            {nb.showCards && (
               <CardsOverlay
                 key="cards-overlay"
-                hand={deal.playerHands[currentTurnIndex] ?? []}
+                hand={deal.playerHands[gs.currentTurnIndex] ?? []}
                 playerName={currentPlayer?.name ?? ''}
                 playerIcon={currentPlayer?.icon ?? ''}
                 playerImageSrc={currentPlayer?.imageSrc}
                 playerColor={currentPlayer?.accentColor ?? '#cc3355'}
-                playerIndex={currentTurnIndex}
-                onClose={() => setShowCards(false)}
+                playerIndex={gs.currentTurnIndex}
+                onClose={() => nb.setShowCards(false)}
               />
             )}
           </AnimatePresence>
 
-          {/* ── Pause inspector overlay ─────────────────────────────────── */}
+          {/* Pause inspector */}
           <AnimatePresence>
-            {isPaused && (
+            {gs.isPaused && (
               <motion.div
                 key="pause-inspector"
                 style={{
@@ -1459,7 +893,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
               >
-                {/* Header bar */}
                 <div style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '10px 16px', borderBottom: '1px solid #330022',
@@ -1470,7 +903,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   </div>
                   <motion.button
                     className="font-pixel"
-                    onClick={() => setIsPaused(false)}
+                    onClick={() => gs.setIsPaused(false)}
                     style={{
                       background: '#2a0018', border: '2px solid #cc4488',
                       color: '#cc4488', fontSize: '7px',
@@ -1483,21 +916,20 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   </motion.button>
                 </div>
 
-                {/* Player tab row */}
                 <div style={{
                   display: 'flex', gap: 4, padding: '8px 12px',
                   background: '#060006', borderBottom: '1px solid #220014',
                   flexShrink: 0, flexWrap: 'wrap',
                 }}>
                   {boardPlayers.map((p, i) => {
-                    const isActive = i === pauseViewIdx
-                    const isElim   = playerStatus[i]?.eliminated
+                    const isActive = i === gs.pauseViewIdx
+                    const isElim   = gs.playerStatus[i]?.eliminated
                     const pSetup   = players[i]
                     return (
                       <motion.button
                         key={p.id}
                         className="font-pixel"
-                        onClick={() => setPauseViewIdx(i)}
+                        onClick={() => gs.setPauseViewIdx(i)}
                         style={{
                           background: isActive ? p.accentColor : 'transparent',
                           border: `1px solid ${isActive ? p.accentColor : p.accentColor + '44'}`,
@@ -1517,20 +949,17 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   })}
                 </div>
 
-                {/* Inspector body */}
                 <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
                   {(() => {
-                    const pi    = pauseViewIdx
-                    const p     = boardPlayers[pi]
+                    const pi     = gs.pauseViewIdx
+                    const p      = boardPlayers[pi]
                     const pSetup = players[pi]
-                    const isElim = playerStatus[pi]?.eliminated
+                    const isElim = gs.playerStatus[pi]?.eliminated
                     const roomName = p?.currentLocation
                       ? (ROOM_DISPLAY_NAMES[p.currentLocation] ?? p.currentLocation).replace('\n', ' ')
                       : 'HALLWAY'
-
                     return (
                       <div style={{ maxWidth: 700, margin: '0 auto' }}>
-                        {/* Player header */}
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: 12,
                           marginBottom: 18, paddingBottom: 12,
@@ -1556,20 +985,18 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                             <div className="font-pixel" style={{ fontSize: '5px', color: '#664444', letterSpacing: '0.8px' }}>
                               [{String(p?.position[0] ?? 0).padStart(2,'0')},{String(p?.position[1] ?? 0).padStart(2,'0')}] {roomName}
                               {' · '}{deal.playerHands[pi]?.length ?? 0} CARDS
-                              {playerStatus[pi]?.hasAccused ? ' · ACCUSED' : ''}
+                              {gs.playerStatus[pi]?.hasAccused ? ' · ACCUSED' : ''}
                             </div>
                           </div>
                         </div>
 
                         {pSetup?.type === 'computer' && pSetup.aiAlgorithm ? (
-                          /* AI player — show full probability notebook */
                           <ProbabilityNotebook
-                            data={probNotebooks[pi]}
+                            data={nb.probNotebooks[pi]}
                             algorithm={pSetup.aiAlgorithm}
                             compact={false}
                           />
                         ) : (
-                          /* Human player — show their hand */
                           <div>
                             <div className="font-pixel" style={{
                               fontSize: '6px', color: '#44cc88', letterSpacing: '1.5px',
@@ -1622,29 +1049,29 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
 
           {/* Hand overlay (human dice roll) */}
           <AnimatePresence>
-            {gamePhase === 'rolling' && !isAiTurn && (
+            {gs.gamePhase === 'rolling' && !isAiTurn && (
               <HandOverlay onRelease={handleDiceRelease} />
             )}
           </AnimatePresence>
 
-          {/* Dice — top-left of board area */}
-          {(gamePhase === 'dice' || gamePhase === 'moving') && diceValue !== null && (
+          {/* Dice */}
+          {(gs.gamePhase === 'dice' || gs.gamePhase === 'moving') && gs.diceValue !== null && (
             <motion.div
               style={{ position: 'absolute', top: 14, left: 14, zIndex: 20 }}
               initial={{ opacity: 0, scale: 0.6 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.15, ease: 'linear' }}
             >
-              <Dice value={diceValue} rolling={diceRolling} onSettled={handleDiceSettled} />
-              {!diceRolling && diceValue !== null && (
+              <Dice value={gs.diceValue} rolling={gs.diceRolling} onSettled={handleDiceSettled} />
+              {!gs.diceRolling && gs.diceValue !== null && (
                 <>
                   <div className="font-pixel" style={{
                     marginTop: 6, fontSize: '7px', color: '#ffdd00',
                     letterSpacing: '1px', textAlign: 'center',
                   }}>
-                    STEPS: {remainingMoves}
+                    STEPS: {gs.remainingMoves}
                   </div>
-                  {gamePhase === 'dice' && remainingMoves > 0 && !isAiTurn && (
+                  {gs.gamePhase === 'dice' && gs.remainingMoves > 0 && !isAiTurn && (
                     <motion.div
                       className="font-pixel"
                       style={{
@@ -1658,12 +1085,10 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                       <div>[SPC] SKIP</div>
                     </motion.div>
                   )}
-
-                  {/* Pause button — visible whenever any AI player exists */}
                   {players.some(p => p.type === 'computer') && (
                     <motion.button
                       className="font-pixel"
-                      onClick={() => { setIsPaused(true); setPauseViewIdx(currentTurnIndex) }}
+                      onClick={() => { gs.setIsPaused(true); gs.setPauseViewIdx(gs.currentTurnIndex) }}
                       style={{
                         marginTop: 8, width: '100%',
                         background: '#1a0010', border: '1px solid #660044',
@@ -1697,12 +1122,12 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {boardPlayers.map((p, i) => {
-              const isTurn = i === currentTurnIndex
+              const isTurn   = i === gs.currentTurnIndex
               const roomName = p.currentLocation
                 ? (ROOM_DISPLAY_NAMES[p.currentLocation] ?? p.currentLocation).replace('\n', ' ')
                 : 'HALLWAY'
               const pSetup = players[i]
-              const isElim = playerStatus[i]?.eliminated
+              const isElim = gs.playerStatus[i]?.eliminated
               const isAi   = pSetup?.type === 'computer'
               const algo   = pSetup?.aiAlgorithm
               return (
@@ -1758,7 +1183,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             margin: '14px 0',
           }} />
 
-          {/* AI Probability Notebook — compact sidebar view for current AI player */}
           {isAiTurn && currentSetup?.aiAlgorithm && (
             <>
               <div style={{ marginBottom: 8 }}>
@@ -1777,13 +1201,13 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                       padding: '2px 6px', cursor: 'pointer', letterSpacing: '0.5px',
                     }}
                     whileHover={{ background: '#44cc8822' }}
-                    onClick={() => setShowAiNotebook(true)}
+                    onClick={() => nb.setShowAiNotebook(true)}
                   >
                     EXPAND ▸
                   </motion.button>
                 </div>
                 <ProbabilityNotebook
-                  data={probNotebooks[currentTurnIndex]}
+                  data={nb.probNotebooks[gs.currentTurnIndex]}
                   algorithm={currentSetup.aiAlgorithm}
                   compact
                 />
@@ -1796,23 +1220,22 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             </>
           )}
 
-          {/* Phase info */}
           <div style={{ marginBottom: 14 }}>
             <div style={{ fontSize: '6px', color: '#bb3355', letterSpacing: '1px', marginBottom: 8 }}>
               PHASE
             </div>
             <div style={{ fontSize: '6px', color: '#ff9944', letterSpacing: '1px' }}>
-              {gamePhase === 'idle'          && '⬥ AWAITING ACTION'}
-              {gamePhase === 'rolling'       && '⬥ ROLLING DICE'}
-              {gamePhase === 'dice'          && `⬥ MOVING (${remainingMoves} LEFT)`}
-              {gamePhase === 'moving'        && '⬥ MOVING'}
-              {gamePhase === 'interrogation' && '⬥ INTERROGATION'}
-              {gamePhase === 'accusation'    && '⬥ ACCUSATION'}
-              {gamePhase === 'story'         && '⬥ CRIME THEORY'}
-              {gamePhase === 'reveal_result' && '⬥ RESULT'}
-              {gamePhase === 'game_over'     && '⬥ GAME OVER'}
+              {gs.gamePhase === 'idle'          && '⬥ AWAITING ACTION'}
+              {gs.gamePhase === 'rolling'       && '⬥ ROLLING DICE'}
+              {gs.gamePhase === 'dice'          && `⬥ MOVING (${gs.remainingMoves} LEFT)`}
+              {gs.gamePhase === 'moving'        && '⬥ MOVING'}
+              {gs.gamePhase === 'interrogation' && '⬥ INTERROGATION'}
+              {gs.gamePhase === 'accusation'    && '⬥ ACCUSATION'}
+              {gs.gamePhase === 'story'         && '⬥ CRIME THEORY'}
+              {gs.gamePhase === 'reveal_result' && '⬥ RESULT'}
+              {gs.gamePhase === 'game_over'     && '⬥ GAME OVER'}
             </div>
-            {gamePhase === 'dice' && remainingMoves > 0 && !isAiTurn && (
+            {gs.gamePhase === 'dice' && gs.remainingMoves > 0 && !isAiTurn && (
               <div style={{ fontSize: '5px', color: '#cc9933', marginTop: 6, letterSpacing: '0.5px' }}>
                 ↑↓←→ TO MOVE · SPC TO SKIP
               </div>

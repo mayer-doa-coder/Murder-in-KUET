@@ -106,13 +106,11 @@ class BayesianNotebook:
             raise ValueError("card cannot be empty")
 
         found = False
-        updated = False
         if normalized in self.suspects:
             found = True
             if self.suspects[normalized] != 0.0:
                 self.suspects[normalized] = 0.0
                 self.normalize(self.suspects)
-                updated = True
             self.possible_suspects.discard(normalized)
 
         if normalized in self.weapons:
@@ -120,7 +118,6 @@ class BayesianNotebook:
             if self.weapons[normalized] != 0.0:
                 self.weapons[normalized] = 0.0
                 self.normalize(self.weapons)
-                updated = True
             self.possible_weapons.discard(normalized)
 
         if normalized in self.locations:
@@ -128,7 +125,6 @@ class BayesianNotebook:
             if self.locations[normalized] != 0.0:
                 self.locations[normalized] = 0.0
                 self.normalize(self.locations)
-                updated = True
             self.possible_locations.discard(normalized)
 
         if not found:

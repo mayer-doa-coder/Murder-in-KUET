@@ -38,7 +38,6 @@ from ai.minimax_ai import MinimaxAI
 from ai.negamax_ai import NegamaxAI
 from ai.random_ai import RandomAI
 from ai.rule_based_ai import RuleBasedAI
-from engine.dice import roll_dice
 from engine.game_state import GameState
 from models.player import AIPlayer, HumanPlayer
 
@@ -70,7 +69,7 @@ app = Flask(__name__)
 
 # Allow the Vercel frontend to call this API.
 # Override ALLOWED_ORIGIN env var for local dev (e.g. ALLOWED_ORIGIN=*).
-import os as _os
+import os as _os  # noqa: E402
 _allowed_origin = _os.environ.get(
     "ALLOWED_ORIGIN", "https://murder-in-kuet.vercel.app"
 )

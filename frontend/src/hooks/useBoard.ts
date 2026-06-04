@@ -58,6 +58,19 @@ export function getPassageDoors(fromRoomId: string): [number, number][] {
   return (DOOR_POSITIONS[destRoom] ?? []) as [number, number][]
 }
 
+// Maps board room IDs → LOCATIONS_CARDS IDs (shared by board rendering and suggestion logic)
+export const ROOM_TO_LOCATION_CARD: Record<string, string> = {
+  auditorium:    'auditorium',
+  swc:           'student_welfare',
+  ae_hall:       'amar_ekushey',
+  cafeteria:     'cafeteria',
+  central_field: 'central_field',
+  it_park:       'it_park',
+  br_hall:       'begum_rokeya',
+  lotus_pond:    'lotus_pond',
+  pocket_gate:   'pocket_gate',
+}
+
 export const ROOM_DISPLAY_NAMES: Record<string, string> = {
   auditorium:    'AUDITORIUM',
   swc:           'STUDENT\nWELFARE CTR',
