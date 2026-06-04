@@ -120,7 +120,6 @@ class BayesianNotebook:
             if self.weapons[normalized] != 0.0:
                 self.weapons[normalized] = 0.0
                 self.normalize(self.weapons)
-                updated = True
             self.possible_weapons.discard(normalized)
 
         if normalized in self.locations:
