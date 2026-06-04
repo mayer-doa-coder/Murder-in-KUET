@@ -3,7 +3,7 @@ flask-cors>=4.0.0
 flask-limiter>=3.5.0
 gunicorn>=21.2.0
 annotated-types==0.7.0
-altair==6.0.0
+altair==5.5.0
 anyio==4.12.1
 blinker==1.9.0
 cachetools==7.0.5

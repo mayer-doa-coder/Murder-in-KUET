@@ -27,7 +27,7 @@ interface Params {
 
 export function useMovement({
   gs, nb,
-  board, boardPlayers, currentPlayer, isAiTurn, currentSetup,
+  board, currentPlayer, isAiTurn, currentSetup,
   cellSize, movePlayer, enterRoom, exitRoom, advanceTurn,
 }: Params): {
   handleDiceRelease: () => void

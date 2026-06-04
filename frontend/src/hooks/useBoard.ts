@@ -2,6 +2,8 @@ import { useMemo, useState, useCallback } from 'react'
 import type { Cell, CellType, BoardPlayer } from '../types'
 import type { PlayerSetup } from '../types'
 
+export type { Cell, BoardPlayer }
+
 export const ROWS = 25
 export const COLS = 24
 

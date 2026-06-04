@@ -28,7 +28,7 @@ jobs:
           cache: pip
 
       - name: Install runtime dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-backend.txt
 
       - name: Install dev-only test tools
         run: pip install pytest pytest-cov ruff
@@ -116,4 +116,4 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: npx vercel --prod --token "$VERCEL_TOKEN" --yes
+        run: npx vercel --prod --yes

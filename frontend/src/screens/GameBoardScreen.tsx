@@ -9,7 +9,6 @@ import {
   COLS,
   ROWS,
   ROOM_TO_LOCATION_CARD,
-  getPassageDoors,
 } from '../hooks/useBoard'
 import { ROOM_ACCENT } from '../components/GridCell'
 import GridCell from '../components/GridCell'
@@ -217,14 +216,13 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
       <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', gap: GAP, alignItems: 'center' }}>
         {rows.map((rowCards, ri) => (
           <div key={ri} style={{ display: 'flex', gap: GAP }}>
-            {rowCards.map((card, ci) => (
+            {rowCards.map((card) => (
               <GameCard
                 key={card.id}
                 card={card}
                 width={cardW}
                 height={cardH}
                 faceUp={revealed}
-                index={ri * 3 + ci}
               />
             ))}
           </div>
@@ -319,7 +317,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
     advanceTurn: actions.advanceTurn,
   })
 
-  useAITurn({ gs, boardPlayers, actions, currentSetup, isAiTurn })
+  useAITurn({ gs, nb, boardPlayers, actions, currentSetup, isAiTurn })
 
   // ── Audio ─────────────────────────────────────────────────────────────────
   const { muted, toggleMute, playDiceRoll, playStep, playInterrogation, playAccusation, playReveal } = useAudio()

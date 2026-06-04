@@ -4,22 +4,25 @@ import { ROOM_TO_LOCATION_CARD } from './useBoard'
 import type { PlayerSetup } from '../types'
 import { aiDecideAccusation, aiMakeSuggestion, AI_IDLE_DELAY } from '../lib/aiEngine'
 import type { GameStateValues } from './useGameState'
+import type { NotebooksValues } from './useNotebooks'
 import type { TurnActionsValues } from './useTurnActions'
 
 interface Params {
   gs: GameStateValues
+  nb: NotebooksValues
   boardPlayers: BoardPlayer[]
   actions: TurnActionsValues
   currentSetup: PlayerSetup | undefined
   isAiTurn: boolean
 }
 
-export function useAITurn({ gs, boardPlayers, actions, currentSetup, isAiTurn }: Params): void {
+export function useAITurn({ gs, nb, boardPlayers, actions, currentSetup, isAiTurn }: Params): void {
   const {
     gamePhase, setGamePhase, setDiceValue, setDiceRolling,
     currentTurnIndex, isPaused, ms,
-    probNotebooksRef, playerStatusRef,
+    playerStatusRef,
   } = gs
+  const { probNotebooksRef } = nb
   const {
     handleInterrogationRef, handleAccusationRef,
     handleStoryCompleteRef, handleRevealContinueRef,
