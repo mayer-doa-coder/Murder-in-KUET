@@ -114,78 +114,6 @@ function GroupHeader({ label, x, color, active = false }: { label: string; x: nu
   )
 }
 
-// ── Scan progress panel (center-bottom indicator) ─────────────────────────────
-function ScanProgressPanel({
-  suspectDone, weaponDone, locationDone,
-  suspectScanning, weaponScanning, locationScanning,
-}: {
-  suspectDone: boolean; weaponDone: boolean; locationDone: boolean
-  suspectScanning: boolean; weaponScanning: boolean; locationScanning: boolean
-}) {
-  const cats = [
-    { name: 'SUSPECT',  color: '#ff6633', done: suspectDone,  scanning: suspectScanning },
-    { name: 'WEAPON',   color: '#cccccc', done: weaponDone,   scanning: weaponScanning },
-    { name: 'LOCATION', color: '#44cccc', done: locationDone, scanning: locationScanning },
-  ]
-  return (
-    <motion.div
-      style={{
-        position: 'absolute',
-        bottom: 22,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        display: 'flex',
-        gap: '32px',
-        zIndex: 200,
-        padding: '16px 36px',
-        background: 'rgba(4,2,0,0.92)',
-        border: '2px solid #3d2200',
-        boxShadow: '0 0 30px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.5)',
-        whiteSpace: 'nowrap',
-      }}
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4, duration: 0.4 }}
-    >
-      {cats.map(cat => {
-        const isActive  = cat.scanning
-        const isDone    = cat.done
-        return (
-          <div key={cat.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <motion.div
-              className="font-pixel"
-              style={{
-                fontSize: isActive ? '22px' : isDone ? '18px' : '14px',
-                color: isDone ? cat.color : isActive ? cat.color : '#664422',
-                textShadow: isActive
-                  ? `0 0 20px ${cat.color}, 0 0 40px ${cat.color}88`
-                  : isDone
-                  ? `0 0 10px ${cat.color}88`
-                  : 'none',
-              }}
-              animate={isActive ? { opacity: [1, 0.25, 1] } : {}}
-              transition={isActive ? { duration: 0.45, repeat: Infinity, ease: 'linear' } : {}}
-            >
-              {isDone ? '✓' : isActive ? '▶' : '○'}
-            </motion.div>
-            <div
-              className="font-pixel"
-              style={{
-                fontSize: isActive ? '10px' : '8px',
-                color: isDone ? cat.color : isActive ? cat.color : '#664422',
-                letterSpacing: '2px',
-                textShadow: isActive ? `0 0 10px ${cat.color}88` : 'none',
-              }}
-            >
-              {cat.name}
-            </div>
-          </div>
-        )
-      })}
-    </motion.div>
-  )
-}
-
 // ── Phase label overlay ───────────────────────────────────────────────────────
 function PhaseLabel({ text, sub }: { text: string; sub?: string }) {
   return (
@@ -483,7 +411,6 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
     : phase === 'case_file_flip' ? 'EVIDENCE SEALED'
     : 'FORMING DECK...'
 
-  const dk = () => deckPos(vw, vh)
   const pp = (pi: number) => playerPos(pi, playerCount, vw, vh)
 
   // Cards received by player pi after dealStep total cards dealt (round-robin)
