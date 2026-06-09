@@ -6,13 +6,21 @@ interface Props {
   onSkip: () => void
 }
 
-// ── Floating particle data (stable, not regenerated on render) ──────────────
-const PARTICLES = Array.from({ length: 14 }, (_, i) => ({
+// ── Screen-local atmospheric particles ──────────────────────────────────────
+const SHARD_SHAPES = [
+  'polygon(50% 0%, 0% 100%, 100% 100%)',
+  'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+  'polygon(15% 0%, 85% 8%, 100% 72%, 50% 100%, 0% 68%)',
+]
+const PARTICLES = Array.from({ length: 10 }, (_, i) => ({
   id: i,
-  left: `${6 + i * 6.5}%`,
-  size: i % 3 === 0 ? 3 : 2,
-  delay: i * 0.55,
-  duration: 7 + (i % 4) * 2,
+  left: `${5 + i * 9.5}%`,
+  bottom: `${(i * 15) % 60}%`,
+  size: 7 + (i % 4) * 5,
+  shape: SHARD_SHAPES[i % 3],
+  color: ['#1e0000', '#3a0000', '#ffffff11', '#8b0000'][i % 4],
+  delay: -((i * 2.1) % 16),
+  duration: 14 + (i % 5) * 3,
 }))
 
 const SECTIONS = [
@@ -249,14 +257,24 @@ export default function HowToPlayScreen({ onSkip }: Props) {
         transition={{ duration: 3.5, repeat: Infinity }}
       />
 
-      {/* ── Floating dust particles ── */}
+      {/* ── Rotating dark shards ── */}
       {PARTICLES.map(p => (
-        <motion.div
+        <div
           key={p.id}
-          className="absolute bottom-0 pointer-events-none"
-          style={{ left: p.left, width: p.size, height: p.size, background: '#5c3d00', borderRadius: 0 }}
-          animate={{ y: [0, '-110vh'], opacity: [0, 0.7, 0.5, 0] }}
-          transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'linear' }}
+          className="absolute pointer-events-none"
+          style={{
+            left: p.left,
+            bottom: p.bottom,
+            width: p.size,
+            height: p.size,
+            background: p.color,
+            clipPath: p.shape,
+            animationName: 'shard-rise',
+            animationDuration: `${p.duration}s`,
+            animationDelay: `${p.delay}s`,
+            animationTimingFunction: 'linear',
+            animationIterationCount: 'infinite',
+          }}
         />
       ))}
 
@@ -339,9 +357,9 @@ export default function HowToPlayScreen({ onSkip }: Props) {
               style={{
                 background: isActive ? 'rgba(40,25,0,0.95)' : 'rgba(12,8,0,0.7)',
                 border: `2px solid ${isActive ? s.color : '#2a1800'}`,
-                color: isActive ? s.color : '#443322',
-                padding: '9px 4px',
-                fontSize: '7px',
+                color: isActive ? s.color : '#665544',
+                padding: '10px 4px',
+                fontSize: '9px',
                 letterSpacing: '0.5px',
                 cursor: 'pointer',
                 outline: 'none',
@@ -355,13 +373,6 @@ export default function HowToPlayScreen({ onSkip }: Props) {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
             >
-              <motion.div
-                style={{ fontSize: '14px', marginBottom: 5 }}
-                animate={isActive ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-                transition={{ duration: 1.8, repeat: Infinity }}
-              >
-                {s.icon}
-              </motion.div>
               {s.label}
             </motion.button>
           )
@@ -370,8 +381,17 @@ export default function HowToPlayScreen({ onSkip }: Props) {
 
       {/* ══════════════════ CONTENT AREA ══════════════════ */}
       <div
-        className="relative z-10 flex-1 w-full"
-        style={{ maxWidth: 780, padding: '0 20px', minHeight: 0, overflowY: 'auto' }}
+        className="relative z-10 flex-1 w-full tab-scrollbar"
+        style={{
+          maxWidth: 780,
+          padding: '0 20px',
+          minHeight: 0,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          '--tab-color': section.color,
+          '--tab-color-bright': section.accent,
+          scrollbarColor: `${section.color} #090000`,
+        } as React.CSSProperties}
         ref={contentRef}
       >
         <AnimatePresence mode="wait">
@@ -397,7 +417,6 @@ export default function HowToPlayScreen({ onSkip }: Props) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.35 }}
             >
-              <span style={{ fontSize: 22, color: section.color, lineHeight: 1 }}>{section.icon}</span>
               <div>
                 <div
                   className="font-pixel"
@@ -454,7 +473,6 @@ export default function HowToPlayScreen({ onSkip }: Props) {
 
                 {/* Heading row */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>{item.icon}</span>
                   <div
                     className="font-pixel"
                     style={{
@@ -518,8 +536,8 @@ export default function HowToPlayScreen({ onSkip }: Props) {
         {/* Hint text */}
         <motion.div
           className="font-pixel"
-          style={{ fontSize: '7px', color: '#3a2200', letterSpacing: '1px' }}
-          animate={{ opacity: [0.5, 1, 0.5] }}
+          style={{ fontSize: '9px', color: '#cc8833', letterSpacing: '2px', textShadow: '0 0 8px #cc883366' }}
+          animate={{ opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 2.2, repeat: Infinity }}
         >
           ◄► SWITCH TABS · ESC TO SKIP

@@ -9,10 +9,10 @@ interface DifficultyScreenProps {
   onSelect: (difficulty: Difficulty) => void
 }
 
-const LEVELS: { key: Difficulty; label: string; desc: string; color: string }[] = [
-  { key: 'easy',   label: 'EASY',   desc: 'Random AI  — beginner',       color: '#5c8a2a' },
-  { key: 'medium', label: 'MEDIUM', desc: 'Rule-based — balanced',        color: '#b8860b' },
-  { key: 'hard',   label: 'HARD',   desc: 'MCTS — unforgiving',           color: '#8b0000' },
+const LEVELS: { key: Difficulty; label: string; color: string }[] = [
+  { key: 'easy',   label: 'EASY',   color: '#5c8a2a' },
+  { key: 'medium', label: 'MEDIUM', color: '#b8860b' },
+  { key: 'hard',   label: 'HARD',   color: '#8b0000' },
 ]
 
 /* Background card grid data */
@@ -138,7 +138,7 @@ export default function DifficultyScreen({ onSelect }: DifficultyScreenProps) {
             className="font-pixel"
             style={{
               color: '#e8c060',
-              fontSize: 'clamp(12px, 2.5vw, 18px)',
+              fontSize: 'clamp(18px, 3vw, 26px)',
               letterSpacing: '4px',
               textShadow: '3px 3px 0 #3d2200',
             }}
@@ -210,19 +210,6 @@ export default function DifficultyScreen({ onSelect }: DifficultyScreenProps) {
                 >
                   {level.label}
                 </motion.span>
-
-                {/* Description */}
-                <span
-                  className="font-pixel"
-                  style={{
-                    fontSize: '6px',
-                    color: isSelected ? '#8b6b3a' : '#3d2a00',
-                    letterSpacing: '1px',
-                    transition: 'color 0.2s',
-                  }}
-                >
-                  {level.desc}
-                </span>
 
                 {/* Right indicator for selected */}
                 {isSelected && (

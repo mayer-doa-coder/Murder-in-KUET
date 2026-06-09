@@ -5,8 +5,9 @@ import type { Character } from '../types'
 import { CHARACTERS } from '../types'
 
 interface CharacterSelectScreenProps {
-  playerIndex: number        // 0-based
-  takenIds: string[]         // character ids already chosen
+  playerIndex: number
+  playerCount: number
+  takenIds: string[]
   onSelect: (char: Character) => void
   onBack: () => void
 }
@@ -16,11 +17,11 @@ const ROWS = 2
 
 export default function CharacterSelectScreen({
   playerIndex,
+  playerCount,
   takenIds,
   onSelect,
   onBack,
 }: CharacterSelectScreenProps) {
-  // Grid cursor: [row, col]
   const [cursor, setCursor] = useState<[number, number]>([0, 0])
 
   const flatIndex = cursor[0] * COLS + cursor[1]
@@ -31,20 +32,17 @@ export default function CharacterSelectScreen({
     [takenIds]
   )
 
-  // Move cursor, skipping taken characters
   const moveCursor = useCallback(
     (dr: number, dc: number) => {
       setCursor(([r, c]) => {
         let nr = Math.max(0, Math.min(ROWS - 1, r + dr))
         let nc = Math.max(0, Math.min(COLS - 1, c + dc))
-        // If landed on a taken card, try to skip further
         let attempts = 0
         while (!isAvailable(CHARACTERS[nr * COLS + nc]) && attempts < 6) {
           nr = Math.max(0, Math.min(ROWS - 1, nr + dr || 0))
           nc = Math.max(0, Math.min(COLS - 1, nc + dc || 0))
           attempts++
         }
-        // If still taken, revert
         if (!isAvailable(CHARACTERS[nr * COLS + nc])) return [r, c]
         return [nr, nc]
       })
@@ -57,7 +55,6 @@ export default function CharacterSelectScreen({
   }, [highlighted, isAvailable, onSelect])
 
   useEffect(() => {
-    // Ensure initial cursor is on an available card
     const firstAvailable = CHARACTERS.findIndex(isAvailable)
     if (firstAvailable >= 0 && takenIds.includes(CHARACTERS[0].id)) {
       setCursor([Math.floor(firstAvailable / COLS), firstAvailable % COLS])
@@ -77,15 +74,12 @@ export default function CharacterSelectScreen({
     return () => window.removeEventListener('keydown', handler)
   }, [moveCursor, handleConfirm, onBack])
 
-  const playerColors = ['#4477ff', '#33aa33', '#cc2200']
-  const accentColor = playerColors[playerIndex] ?? '#b8860b'
-
   return (
     <div
-      className="relative w-full h-full flex flex-col overflow-hidden"
+      className="relative w-full h-full flex overflow-hidden"
       style={{ background: '#060608' }}
     >
-      {/* Subtle grid texture */}
+      {/* Background grid */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -95,72 +89,121 @@ export default function CharacterSelectScreen({
         }}
       />
 
-      {/* ── TITLE BAR ── */}
+      {/* ── LEFT PANEL: title + info ── */}
       <motion.div
-        className="relative z-10 text-center pt-5 pb-3 flex-shrink-0"
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
+        className="relative z-10 flex flex-col justify-center shrink-0"
+        style={{ width: '40%', padding: '40px 36px' }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="font-pixel" style={{ fontSize: '8px', color: '#3d2800', letterSpacing: '3px', marginBottom: '6px' }}>
-          ─── SETUP ───
-        </div>
-        <motion.h2
+        {/* Supertitle */}
+        <motion.div
+          className="font-pixel"
+          style={{ fontSize: '9px', color: '#aa6622', letterSpacing: '4px', marginBottom: 14, textShadow: '0 0 10px #aa662244' }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          ─── MURDER IN KUET ───
+        </motion.div>
+
+        {/* Main title */}
+        <div
           className="font-pixel"
           style={{
-            fontSize: 'clamp(10px, 1.8vw, 14px)',
+            fontSize: 'clamp(18px, 3vw, 26px)',
+            color: '#e8c060',
             letterSpacing: '3px',
-            textShadow: `3px 3px 0 #000`,
+            textShadow: '3px 3px 0 #3d2200, 0 0 24px #b8860b55',
+            lineHeight: 1.4,
+            marginBottom: 14,
           }}
-          animate={{ color: [accentColor, '#e8c060', accentColor] }}
-          transition={{ duration: 2.5, repeat: Infinity }}
         >
-          PLAYER {playerIndex + 1}: SELECT A CHARACTER
-        </motion.h2>
+          PLAYER {playerIndex + 1}:<br />SELECT A CHARACTER
+        </div>
 
-        {/* Player progress indicator */}
-        <div className="flex justify-center gap-3 mt-3">
-          {[0, 1, 2].map((i) => (
+        {/* Player progress */}
+        <div style={{ display: 'flex', gap: '16px', marginBottom: 18 }}>
+          {Array.from({ length: playerCount }, (_, i) => (
             <div
               key={i}
               className="font-pixel"
               style={{
-                fontSize: '6px',
-                color: i === playerIndex ? accentColor : i < playerIndex ? '#5c5c5c' : '#1e1e1e',
+                fontSize: '9px',
+                color: i === playerIndex ? '#e8c060' : i < playerIndex ? '#5c5c5c' : '#1e1e1e',
                 letterSpacing: '1px',
-                textShadow: i === playerIndex ? `0 0 6px ${accentColor}` : 'none',
+                textShadow: i === playerIndex ? '0 0 8px #e8c06077' : 'none',
               }}
             >
               P{i + 1}{i < playerIndex ? ' ✓' : i === playerIndex ? ' ◀' : ''}
             </div>
           ))}
         </div>
+
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+          <div style={{ flex: 1, height: 2, background: 'repeating-linear-gradient(90deg, #b8860b44 0, #b8860b44 6px, transparent 6px, transparent 12px)' }} />
+          <span className="font-pixel" style={{ color: '#b8860b', fontSize: '10px' }}>✦</span>
+          <div style={{ flex: 1, height: 2, background: 'repeating-linear-gradient(90deg, #b8860b44 0, #b8860b44 6px, transparent 6px, transparent 12px)' }} />
+        </div>
+
+        {/* Selected character name */}
+        <div
+          className="font-pixel"
+          style={{
+            fontSize: '10px',
+            letterSpacing: '1.5px',
+            marginBottom: 24,
+            minHeight: '20px',
+            color: isAvailable(highlighted) ? '#e8c060' : '#333',
+            textShadow: isAvailable(highlighted) ? '0 0 10px #e8c06066' : 'none',
+            transition: 'color 0.2s, text-shadow 0.2s',
+          }}
+        >
+          {isAvailable(highlighted)
+            ? `▶  ${highlighted.name}  ◀`
+            : '— ALREADY TAKEN —'}
+        </div>
+
+        {/* Navigation hint */}
+        <motion.div
+          className="font-pixel"
+          style={{ width: '100%', fontSize: '9px', color: '#cc8833', letterSpacing: '1.5px', textShadow: '0 0 8px #cc883344', marginBottom: 20 }}
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 2.2, repeat: Infinity }}
+        >
+          ↑↓←→ NAVIGATE · ENTER TO SELECT
+        </motion.div>
+
       </motion.div>
 
-      {/* ── DASHED DIVIDER ── */}
-      <motion.div
-        className="relative z-10 mx-6 flex-shrink-0"
+      {/* Vertical separator */}
+      <div
+        className="relative z-10 shrink-0"
         style={{
-          height: '2px',
-          background: `repeating-linear-gradient(90deg, ${accentColor}44 0, ${accentColor}44 8px, transparent 8px, transparent 16px)`,
-          marginBottom: '10px',
+          width: '2px',
+          margin: '32px 0',
+          background: 'repeating-linear-gradient(180deg, #b8860b44 0, #b8860b44 8px, transparent 8px, transparent 16px)',
         }}
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ delay: 0.3, duration: 0.4 }}
       />
 
-      {/* ── CHARACTER GRID ── */}
-      <div className="relative z-10 flex-1 px-6 overflow-hidden">
-        <div
+      {/* ── RIGHT PANEL: character cards ── */}
+      <div
+        className="relative z-10 flex-1 flex items-center justify-center"
+        style={{ padding: '24px 32px 24px 24px', overflow: 'hidden' }}
+      >
+        <motion.div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
-            gridTemplateRows: 'repeat(2, 1fr)',
-            gap: '10px',
+            gridAutoRows: 'clamp(150px, 33vh, 260px)',
+            gap: '12px',
             width: '100%',
-            height: '100%',
+            maxWidth: '520px',
           }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
         >
           {CHARACTERS.map((char, i) => {
             const row = Math.floor(i / COLS)
@@ -171,10 +214,9 @@ export default function CharacterSelectScreen({
             return (
               <motion.div
                 key={char.id}
-                style={{ minHeight: 0 }}
-                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                initial={{ opacity: 0, scale: 0.85, y: 16 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.35 + i * 0.06, duration: 0.35, ease: 'easeOut' }}
+                transition={{ delay: 0.3 + i * 0.06, duration: 0.35, ease: 'easeOut' }}
               >
                 <CharacterCard
                   character={char}
@@ -185,47 +227,8 @@ export default function CharacterSelectScreen({
               </motion.div>
             )
           })}
-        </div>
+        </motion.div>
       </div>
-
-      {/* ── SELECTED CARD PREVIEW LABEL ── */}
-      <motion.div
-        className="relative z-10 text-center py-2 flex-shrink-0 font-pixel"
-        style={{ fontSize: 'clamp(6px, 1vw, 8px)', letterSpacing: '2px' }}
-        animate={{
-          color: isAvailable(highlighted) ? accentColor : '#2a2a2a',
-          textShadow: isAvailable(highlighted) ? `0 0 8px ${accentColor}66` : 'none',
-        }}
-        transition={{ duration: 0.2 }}
-      >
-        {isAvailable(highlighted) ? `▶  ${highlighted.name}  ◀` : 'ALREADY TAKEN'}
-      </motion.div>
-
-      {/* ── BOTTOM HINTS ── */}
-      <motion.div
-        className="relative z-10 flex justify-between items-center px-6 pb-3 flex-shrink-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-      >
-        <button
-          onClick={onBack}
-          className="font-pixel"
-          style={{
-            fontSize: '6px',
-            color: '#3d2800',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            letterSpacing: '1px',
-          }}
-        >
-          ◄ BACK
-        </button>
-        <span className="font-pixel" style={{ fontSize: '6px', color: '#2e1e00', letterSpacing: '1px' }}>
-          ↑↓←→ NAVIGATE  |  ENTER SELECT
-        </span>
-      </motion.div>
     </div>
   )
 }

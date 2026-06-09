@@ -102,7 +102,7 @@ export default function PlayerTypeScreen({
             <h2
               className="font-pixel"
               style={{
-                fontSize: 'clamp(10px, 1.8vw, 14px)',
+                fontSize: 'clamp(18px, 3vw, 26px)',
                 color: '#e8c060',
                 letterSpacing: '3px',
                 textShadow: '3px 3px 0 #3d2200',

@@ -20,20 +20,23 @@ const BG_POSITIONS = Array.from({ length: 24 }, (_, i) => ({
 export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onStart }: PlayerCardsMenuScreenProps) {
   const [selected, setSelected] = useState(0)
 
+  // players.length index = START GAME row
+  const maxIdx = onStart ? players.length : players.length - 1
+
   const handleConfirm = useCallback(() => {
-    onViewPlayer(selected)
-  }, [selected, onViewPlayer])
+    if (selected === players.length && onStart) onStart()
+    else onViewPlayer(selected)
+  }, [selected, players.length, onViewPlayer, onStart])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp')   setSelected(s => Math.max(0, s - 1))
-      if (e.key === 'ArrowDown') setSelected(s => Math.min(players.length - 1, s + 1))
+      if (e.key === 'ArrowDown') setSelected(s => Math.min(maxIdx, s + 1))
       if (e.key === 'Enter' || e.key === ' ') handleConfirm()
-      if ((e.key === 's' || e.key === 'S') && onStart) onStart()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [handleConfirm, players.length, onStart])
+  }, [handleConfirm, maxIdx])
 
   return (
     <div
@@ -119,7 +122,7 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onS
           <motion.h2
             className="font-pixel"
             style={{
-              fontSize: 'clamp(11px, 2vw, 16px)',
+              fontSize: 'clamp(18px, 3vw, 26px)',
               color: '#e8c060',
               letterSpacing: '4px',
               textShadow: '3px 3px 0 #3d2200',
@@ -147,14 +150,16 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onS
             return (
               <motion.div
                 key={i}
-                className="flex items-center gap-3 cursor-pointer px-3 py-3"
+                className="flex items-center gap-3 cursor-pointer px-3"
                 style={{
+                  height: '52px',
                   background: isSelected ? 'rgba(92,60,0,0.35)' : 'transparent',
-                  border: isSelected ? `2px solid ${player.character.accentColor}44` : '2px solid transparent',
-                  transition: 'background 0.15s, border 0.15s',
+                  border: `2px solid ${isSelected ? player.character.accentColor + '44' : 'transparent'}`,
+                  transition: 'background 0.15s, border-color 0.15s',
+                  boxSizing: 'border-box',
                 }}
                 onMouseEnter={() => setSelected(i)}
-                onClick={handleConfirm}
+                onClick={() => { setSelected(i); onViewPlayer(i) }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + i * 0.1, duration: 0.4 }}
@@ -164,23 +169,11 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onS
                   <PixelCursor visible={isSelected} />
                 </div>
 
-                {/* Character icon */}
-                <span style={{
-                  fontFamily: 'monospace',
-                  fontSize: '18px',
-                  color: player.character.accentColor,
-                  textShadow: isSelected ? `0 0 8px ${player.character.accentColor}88` : 'none',
-                  transition: 'text-shadow 0.2s',
-                  flexShrink: 0,
-                }}>
-                  {player.character.icon}
-                </span>
-
                 {/* Label */}
                 <div className="flex flex-col flex-1">
                   <motion.span
                     className="font-pixel"
-                    style={{ fontSize: 'clamp(7px, 1.4vw, 10px)', letterSpacing: '1.5px' }}
+                    style={{ fontSize: 'clamp(8px, 1.4vw, 11px)', letterSpacing: '1.5px' }}
                     animate={isSelected
                       ? { color: ['#ffdd00', '#ffaa00', '#ffdd00'] }
                       : { color: '#6b5030' }
@@ -190,26 +183,24 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onS
                     SHOW {player.character.name}&apos;S CARDS
                   </motion.span>
                   <span className="font-pixel" style={{
-                    fontSize: '5px',
+                    fontSize: '7px',
                     color: isSelected ? '#8b6b3a' : '#3d2a00',
-                    marginTop: '3px',
+                    marginTop: '4px',
                     letterSpacing: '1px',
                   }}>
                     P{i + 1}  ·  {player.type.toUpperCase()}  ·  {handSize} CARDS
                   </span>
                 </div>
 
-                {/* Right indicator */}
-                {isSelected && (
-                  <motion.span
-                    className="font-pixel"
-                    style={{ color: '#ffdd00', fontSize: '10px', flexShrink: 0 }}
-                    animate={{ opacity: [1, 0, 1] }}
-                    transition={{ duration: 0.8, repeat: Infinity }}
-                  >
-                    ◀
-                  </motion.span>
-                )}
+                {/* Right indicator — always in layout, opacity controls visibility */}
+                <motion.span
+                  className="font-pixel"
+                  style={{ color: '#ffdd00', fontSize: '10px', flexShrink: 0 }}
+                  animate={isSelected ? { opacity: [1, 0, 1] } : { opacity: 0 }}
+                  transition={isSelected ? { duration: 0.8, repeat: Infinity } : { duration: 0.1 }}
+                >
+                  ◀
+                </motion.span>
               </motion.div>
             )
           })}
@@ -222,35 +213,50 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onS
           margin: '24px 0 20px',
         }} />
 
-        {/* START GAME button */}
-        {onStart && (
-          <motion.div
-            className="flex items-center justify-center gap-3 cursor-pointer px-3 py-4 mt-2"
-            style={{
-              background: '#1a0000',
-              border: '2px solid #660000',
-              boxShadow: '4px 4px 0 #0d0000',
-            }}
-            onClick={onStart}
-            whileHover={{ background: '#280000', borderColor: '#aa0000', boxShadow: '4px 4px 0 #1a0000, 0 0 16px #880000' }}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.4 }}
-          >
-            <motion.span
-              className="font-pixel"
-              style={{ fontSize: '9px', color: '#cc2222', letterSpacing: '3px' }}
-              animate={{ color: ['#cc2222', '#ff4444', '#cc2222'] }}
-              transition={{ duration: 1.4, repeat: Infinity }}
+        {/* START GAME button — keyboard-navigable */}
+        {onStart && (() => {
+          const isStartSelected = selected === players.length
+          return (
+            <motion.div
+              className="flex items-center justify-center gap-3 cursor-pointer px-3"
+              style={{
+                height: '52px',
+                background: isStartSelected ? '#280000' : '#1a0000',
+                border: `2px solid ${isStartSelected ? '#aa0000' : '#660000'}`,
+                boxShadow: isStartSelected ? '4px 4px 0 #1a0000, 0 0 16px #880000' : '4px 4px 0 #0d0000',
+                transition: 'background 0.15s, border-color 0.15s, box-shadow 0.15s',
+                boxSizing: 'border-box',
+                marginTop: '8px',
+              }}
+              onClick={onStart}
+              onMouseEnter={() => setSelected(players.length)}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.4 }}
             >
-              ▶ START GAME
-            </motion.span>
-          </motion.div>
-        )}
+              <motion.span
+                className="font-pixel"
+                style={{ fontSize: '11px', color: '#cc2222', letterSpacing: '3px' }}
+                animate={{ color: ['#cc2222', '#ff4444', '#cc2222'] }}
+                transition={{ duration: 1.4, repeat: Infinity }}
+              >
+                ▶ START GAME
+              </motion.span>
+              <motion.span
+                className="font-pixel"
+                style={{ color: '#ff4444', fontSize: '10px', marginLeft: '8px' }}
+                animate={isStartSelected ? { opacity: [1, 0, 1] } : { opacity: 0 }}
+                transition={isStartSelected ? { duration: 0.8, repeat: Infinity } : { duration: 0.1 }}
+              >
+                ◀
+              </motion.span>
+            </motion.div>
+          )
+        })()}
 
         {/* Key hints */}
-        <div className="font-pixel text-center mt-3" style={{ fontSize: '5px', color: '#2a1a00', letterSpacing: '1px' }}>
-          ↑ ↓  SELECT  &nbsp;|&nbsp;  ENTER  VIEW  &nbsp;|&nbsp;  [S]  START
+        <div className="font-pixel text-center mt-8" style={{ fontSize: '10px', color: '#8a6030', letterSpacing: '1px' }}>
+          ↑ ↓  SELECT  &nbsp;|&nbsp;  ENTER  CONFIRM
         </div>
       </motion.div>
 

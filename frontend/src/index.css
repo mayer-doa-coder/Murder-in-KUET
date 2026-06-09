@@ -1,5 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @import "tailwindcss";
+
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('/fonts/PressStart2P.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
 
 * {
   box-sizing: border-box;
@@ -167,6 +174,53 @@ html, body, #root {
   50%       { opacity: 0.032; }
 }
 
+/* Blood drop falling */
+@keyframes blood-fall {
+  0%   { transform: translateY(-10px) scaleY(0.8); opacity: 0; }
+  6%   { opacity: 0.9; }
+  88%  { opacity: 0.6; }
+  100% { transform: translateY(110vh) scaleY(1.3); opacity: 0; }
+}
+
+/* Dark polygon / shard rising with rotation */
+@keyframes shard-rise {
+  0%   { transform: translateY(0)      rotate(0deg);   opacity: 0; }
+  8%   { opacity: 0.6; }
+  85%  { opacity: 0.25; }
+  100% { transform: translateY(-110vh) rotate(280deg); opacity: 0; }
+}
+
+/* Mystery symbol drifting upward */
+@keyframes symbol-rise {
+  0%   { transform: translateY(0)      translateX(0px);  opacity: 0; }
+  10%  { opacity: 0.55; }
+  50%  { transform: translateY(-52vh)  translateX(10px); opacity: 0.35; }
+  90%  { opacity: 0.06; }
+  100% { transform: translateY(-110vh) translateX(-8px); opacity: 0; }
+}
+
+/* DNA strand A — counter-clockwise X wave */
+@keyframes dna-rise-a {
+  0%   { transform: translateY(0vh)    translateX(0px);  opacity: 0; }
+  6%   { opacity: 0.6; }
+  25%  { transform: translateY(-26vh)  translateX(11px); }
+  50%  { transform: translateY(-54vh)  translateX(0px);  }
+  75%  { transform: translateY(-80vh)  translateX(-11px); }
+  93%  { opacity: 0.3; }
+  100% { transform: translateY(-110vh) translateX(0px);  opacity: 0; }
+}
+
+/* DNA strand B — clockwise X wave (mirror of A) */
+@keyframes dna-rise-b {
+  0%   { transform: translateY(0vh)    translateX(0px);   opacity: 0; }
+  6%   { opacity: 0.6; }
+  25%  { transform: translateY(-26vh)  translateX(-11px); }
+  50%  { transform: translateY(-54vh)  translateX(0px);   }
+  75%  { transform: translateY(-80vh)  translateX(11px);  }
+  93%  { opacity: 0.3; }
+  100% { transform: translateY(-110vh) translateX(0px);   opacity: 0; }
+}
+
 /* Glitch burst flash */
 @keyframes glitch-burst {
   0%,  86%, 100% { opacity: 0; transform: translate(0, 0);   filter: none; }
@@ -176,4 +230,135 @@ html, body, #root {
   90%             { opacity: 0;    transform: translate(0, 0);   filter: none; }
   91%             { opacity: 0.07; transform: translate(0, 1px);  filter: hue-rotate(45deg); }
   92%             { opacity: 0; }
+}
+
+/* ── Pixel Game UI Scrollbar ─────────────────────────────────────────────── */
+
+/* Thumb slide pulse */
+@keyframes scrollbar-glow {
+  0%, 100% { box-shadow: inset 2px 2px 0 #c43030, inset -2px -2px 0 #2a0000; }
+  50%       { box-shadow: inset 2px 2px 0 #ff5555, inset -2px -2px 0 #3a0000, 0 0 8px rgba(180, 0, 0, 0.5); }
+}
+
+/* Webkit scrollbars (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090000;
+  border-left: 2px solid #1e0000;
+  border-right: 2px solid #1e0000;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7a0000;
+  border: 2px solid #090000;
+  box-shadow:
+    inset 2px 2px 0 #c43030,
+    inset -2px -2px 0 #2a0000;
+  min-height: 32px;
+  image-rendering: pixelated;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aa0000;
+  box-shadow:
+    inset 2px 2px 0 #ff5555,
+    inset -2px -2px 0 #3a0000,
+    0 0 10px rgba(200, 0, 0, 0.45);
+  animation: scrollbar-glow 1.4s ease-in-out infinite;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #4a0000;
+  box-shadow:
+    inset 2px 2px 0 #2a0000,
+    inset -2px -2px 0 #7a0000;
+}
+
+/* Up/down arrow buttons */
+::-webkit-scrollbar-button {
+  background: #100000;
+  border: 2px solid #2a0000;
+  height: 16px;
+  display: block;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 60, 60, 0.12),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.7);
+}
+
+::-webkit-scrollbar-button:vertical:decrement {
+  background-color: #100000;
+  /* ▲ pixel triangle via clip-path on a pseudo border trick */
+  background-image: linear-gradient(
+    to bottom right,
+    transparent 40%, #8b0000 40%, #8b0000 60%, transparent 60%
+  ),
+  linear-gradient(
+    to bottom left,
+    transparent 40%, #8b0000 40%, #8b0000 60%, transparent 60%
+  );
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:vertical:increment {
+  background-color: #100000;
+  background-image: linear-gradient(
+    to top right,
+    transparent 40%, #8b0000 40%, #8b0000 60%, transparent 60%
+  ),
+  linear-gradient(
+    to top left,
+    transparent 40%, #8b0000 40%, #8b0000 60%, transparent 60%
+  );
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:vertical:decrement:hover,
+::-webkit-scrollbar-button:vertical:increment:hover {
+  background-color: #1e0000;
+}
+
+::-webkit-scrollbar-corner {
+  background: #090000;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #7a0000 #090000;
+}
+
+/* Dynamic per-element scrollbar colour (set --tab-color on the element) */
+.tab-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--tab-color, #7a0000);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.15),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.45);
+}
+
+.tab-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--tab-color-bright, var(--tab-color, #aa0000));
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.22),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.55),
+    0 0 10px var(--tab-color, #aa0000);
+}
+
+.tab-scrollbar::-webkit-scrollbar-thumb:active {
+  background: var(--tab-color, #4a0000);
+  filter: brightness(0.65);
+}
+
+.tab-scrollbar::-webkit-scrollbar-track {
+  background: #090000;
+  border-left: 2px solid rgba(255, 255, 255, 0.03);
+  border-right: 2px solid rgba(255, 255, 255, 0.03);
 }

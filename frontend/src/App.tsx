@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import LayoutWrapper from './components/LayoutWrapper'
 import IntroScreen from './screens/IntroScreen'
@@ -15,6 +15,7 @@ import PlayerCardViewScreen from './screens/PlayerCardViewScreen'
 import GameBoardScreen from './screens/GameBoardScreen'
 import HowToPlayScreen from './screens/HowToPlayScreen'
 import type { Difficulty, PlayerType, Screen, Character, PlayerSetup, GameDeal, GameMode, AIAlgorithm } from './types'
+import { ALL_CARDS } from './types'
 
 const pageVariants = {
   initial: { opacity: 0, y: 28 },
@@ -35,6 +36,15 @@ function difficultyToAlgorithm(d: Difficulty): AIAlgorithm {
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
+  useEffect(() => {
+    ALL_CARDS.forEach(card => {
+      if (card.imageSrc) {
+        const img = new Image()
+        img.src = card.imageSrc
+      }
+    })
+  }, [])
+
   const [screen, setScreen]                         = useState<Screen>('intro')
   const [gameMode, setGameMode]                     = useState<GameMode>('human_vs_ai')
   const [difficulty, setDifficulty]                 = useState<Difficulty | null>(null)
@@ -191,6 +201,25 @@ export default function App() {
     setScreen('playerCardsMenu')
   }, [])
 
+  // ── back navigation ──────────────────────────────────────────────────────
+  const handleBack = useCallback(() => {
+    switch (screen) {
+      case 'howToPlay':       setScreen('intro'); break
+      case 'gameMode':        setScreen('howToPlay'); break
+      case 'difficulty':      setScreen('gameMode'); break
+      case 'playerCount':
+        difficulty ? setScreen('difficulty') : setScreen('gameMode')
+        break
+      case 'algorithmSelect': setScreen('playerCount'); break
+      case 'characterSelect': handleCharacterSelectBack(); break
+      case 'playerType':      handlePlayerTypeBack(); break
+      case 'confirmation':    handleConfirmBack(); break
+      case 'cardShuffle':     resetSetup(); setScreen('playerCount'); break
+      case 'playerCardsMenu': resetSetup(); setScreen('gameMode'); break
+      case 'playerCardView':  handleCardViewBack(); break
+    }
+  }, [screen, difficulty, handleCharacterSelectBack, handlePlayerTypeBack, handleConfirmBack, handleCardViewBack, resetSetup])
+
   // ── restart ───────────────────────────────────────────────────────────────
   const handleStartGame = useCallback(() => {
     setScreen('gameBoard')
@@ -257,6 +286,7 @@ export default function App() {
             variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
             <CharacterSelectScreen
               playerIndex={currentPlayerIndex}
+              playerCount={playerCount}
               takenIds={takenCharacterIds}
               onSelect={handleCharacterSelect}
               onBack={handleCharacterSelectBack}
@@ -341,6 +371,42 @@ export default function App() {
         )}
 
       </AnimatePresence>
+
+      {/* ── Global back button — top-left, all screens except intro & gameBoard ── */}
+      {screen !== 'intro' && screen !== 'gameBoard' && (
+        <motion.button
+          key={screen}
+          className="absolute font-pixel z-200"
+          style={{
+            top: '14px',
+            left: '16px',
+            background: '#0d0800',
+            border: '2px solid #5c3d00',
+            color: '#b8860b',
+            padding: '8px 14px',
+            fontSize: '9px',
+            letterSpacing: '2px',
+            cursor: 'pointer',
+            boxShadow: '3px 3px 0 #000',
+          }}
+          onClick={handleBack}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.2 }}
+          whileHover={{
+            borderColor: '#b8860b',
+            color: '#ffdd00',
+            boxShadow: '3px 3px 0 #000, 0 0 14px #b8860b44',
+          }}
+          whileTap={{ scale: 0.94 }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', lineHeight: 1 }}>
+            <span style={{ fontSize: '11px', lineHeight: 1, position: 'relative', top: '0px' }}>◄</span>
+            <span>BACK</span>
+          </span>
+        </motion.button>
+      )}
 
       {/* Persistent HUD */}
       {screen !== 'intro' && (

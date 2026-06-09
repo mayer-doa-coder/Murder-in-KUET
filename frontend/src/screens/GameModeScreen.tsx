@@ -7,13 +7,13 @@ interface Props {
 }
 
 const MODES: { id: GameMode; label: string; sub: string; icon: string; color: string }[] = [
-  { id: 'human_vs_human', label: 'HUMAN VS HUMAN', sub: 'local multiplayer',      icon: '◇◇', color: '#33cc55' },
-  { id: 'human_vs_ai',    label: 'HUMAN VS AI',    sub: 'challenge the machine',  icon: '◇⊛', color: '#ccaa00' },
-  { id: 'ai_vs_ai',       label: 'AI VS AI',        sub: 'observe & analyze',     icon: '⊛⊛', color: '#cc4422' },
+  { id: 'human_vs_human', label: 'HUMAN VS HUMAN', sub: 'LOCAL MULTIPLAYER — ALL PLAYERS ARE HUMAN, PASS & PLAY',      icon: '◇◇', color: '#33cc55' },
+  { id: 'human_vs_ai',    label: 'HUMAN VS AI',    sub: 'CHALLENGE THE MACHINE — HUMANS COMPETE AGAINST AI OPPONENTS',  icon: '◇⊛', color: '#ccaa00' },
+  { id: 'ai_vs_ai',       label: 'AI VS AI',        sub: 'OBSERVE & ANALYZE — WATCH AI AGENTS SOLVE THE MYSTERY',      icon: '⊛⊛', color: '#cc4422' },
 ]
 
 export default function GameModeScreen({ onSelect }: Props) {
-  const [cursor, setCursor] = useState(1) // default: Human vs AI
+  const [cursor, setCursor] = useState(1)
 
   const handleConfirm = useCallback(() => {
     onSelect(MODES[cursor].id)
@@ -28,8 +28,6 @@ export default function GameModeScreen({ onSelect }: Props) {
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [handleConfirm])
-
-  const active = MODES[cursor]
 
   return (
     <div
@@ -54,21 +52,40 @@ export default function GameModeScreen({ onSelect }: Props) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55 }}
       >
-        <div className="font-pixel" style={{ fontSize: '7px', color: '#5c3d00', letterSpacing: '3px', marginBottom: 10 }}>
+        {/* Supertitle — matches HowToPlayScreen style */}
+        <motion.div
+          className="font-pixel"
+          style={{ fontSize: '9px', color: '#5c3d00', letterSpacing: '4px', marginBottom: 12 }}
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
           ─── MURDER IN KUET ───
-        </div>
+        </motion.div>
+
         <div className="font-pixel" style={{
-          fontSize: 'clamp(11px,2vw,16px)',
+          fontSize: 'clamp(18px, 3vw, 26px)',
           color: '#e8c060',
           letterSpacing: '4px',
-          textShadow: '3px 3px 0 #3d2200',
+          textShadow: '3px 3px 0 #3d2200, 0 0 24px #b8860b55',
         }}>
           SELECT GAME MODE
         </div>
+
+        {/* Decorative divider */}
+        <motion.div
+          style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, padding: '0 8px' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div style={{ flex: 1, height: 2, background: 'repeating-linear-gradient(90deg, #5c3d00 0, #5c3d00 6px, transparent 6px, transparent 12px)' }} />
+          <span className="font-pixel" style={{ color: '#8b0000', fontSize: '10px' }}>✦</span>
+          <div style={{ flex: 1, height: 2, background: 'repeating-linear-gradient(90deg, #5c3d00 0, #5c3d00 6px, transparent 6px, transparent 12px)' }} />
+        </motion.div>
       </motion.div>
 
       {/* Mode list */}
-      <div className="relative z-10 flex flex-col gap-4" style={{ width: '100%', maxWidth: 480, padding: '0 24px' }}>
+      <div className="relative z-10 flex flex-col gap-5" style={{ width: '100%', maxWidth: 640, padding: '0 28px' }}>
         {MODES.map((m, i) => {
           const isSel = i === cursor
           return (
@@ -77,13 +94,13 @@ export default function GameModeScreen({ onSelect }: Props) {
               onClick={() => { setCursor(i); onSelect(m.id) }}
               onMouseEnter={() => setCursor(i)}
               style={{
-                background: isSel ? 'rgba(40,25,0,0.85)' : 'rgba(20,12,0,0.6)',
+                background: isSel ? 'rgba(40,25,0,0.90)' : 'rgba(20,12,0,0.65)',
                 border: `2px solid ${isSel ? m.color : '#2a1800'}`,
-                boxShadow: isSel ? `0 0 22px ${m.color}33, 4px 4px 0 #000` : '3px 3px 0 #000',
-                padding: '14px 20px',
+                boxShadow: isSel ? `0 0 28px ${m.color}33, 4px 4px 0 #000` : '3px 3px 0 #000',
+                padding: '22px 28px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 16,
+                gap: 20,
                 cursor: 'pointer',
                 transition: 'border-color 0.12s, box-shadow 0.12s',
               }}
@@ -93,21 +110,24 @@ export default function GameModeScreen({ onSelect }: Props) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              {/* Cursor arrow */}
+              {/* Cursor arrow — blinks only when row is selected/hovered */}
               <motion.span
                 className="font-pixel"
-                style={{ fontSize: '10px', color: '#ffdd00', width: 14, flexShrink: 0 }}
-                animate={isSel ? { opacity: [1, 0.3, 1] } : { opacity: 0 }}
-                transition={{ duration: 0.55, repeat: Infinity, ease: 'linear' }}
+                style={{ fontSize: '14px', color: '#ffdd00', width: 18, flexShrink: 0 }}
+                animate={isSel ? { opacity: [1, 0.2, 1] } : { opacity: 0 }}
+                transition={isSel
+                  ? { duration: 0.55, repeat: Infinity, ease: 'linear' }
+                  : { duration: 0.15 }
+                }
               >
                 ▶
               </motion.span>
 
               {/* Icon */}
               <span style={{
-                fontFamily: 'monospace', fontSize: 20,
+                fontFamily: 'monospace', fontSize: 30,
                 color: isSel ? m.color : '#554422',
-                textShadow: isSel ? `0 0 10px ${m.color}88` : 'none',
+                textShadow: isSel ? `0 0 14px ${m.color}88` : 'none',
                 lineHeight: 1, flexShrink: 0,
               }}>
                 {m.icon}
@@ -116,53 +136,48 @@ export default function GameModeScreen({ onSelect }: Props) {
               {/* Labels */}
               <div style={{ flex: 1 }}>
                 <div className="font-pixel" style={{
-                  fontSize: '9px',
+                  fontSize: '11px',
                   color: isSel ? m.color : '#886633',
-                  letterSpacing: '1.5px',
-                  marginBottom: 5,
+                  letterSpacing: '2px',
+                  marginBottom: 8,
                 }}>
                   {m.label}
                 </div>
                 <div className="font-pixel" style={{
-                  fontSize: '5px',
-                  color: isSel ? '#997744' : '#554422',
+                  fontSize: '7px',
+                  color: isSel ? '#bb9944' : '#664433',
                   letterSpacing: '0.8px',
+                  lineHeight: 1.8,
                 }}>
                   {m.sub}
                 </div>
               </div>
 
-              {/* Select badge */}
-              {isSel && (
-                <motion.div
-                  className="font-pixel"
-                  style={{ fontSize: '5px', color: m.color, letterSpacing: '1px', flexShrink: 0 }}
-                  animate={{ opacity: [1, 0.4, 1] }}
-                  transition={{ duration: 1.2, repeat: Infinity }}
-                >
-                  [ENTER]
-                </motion.div>
-              )}
+              {/* Select badge — always in DOM so layout never shifts */}
+              <motion.div
+                className="font-pixel"
+                style={{ fontSize: '8px', color: m.color, letterSpacing: '1px', flexShrink: 0 }}
+                animate={isSel ? { opacity: [1, 0.4, 1] } : { opacity: 0 }}
+                transition={isSel
+                  ? { duration: 1.2, repeat: Infinity }
+                  : { duration: 0.15 }
+                }
+              >
+                [ENTER]
+              </motion.div>
             </motion.div>
           )
         })}
       </div>
 
-      {/* Active mode description */}
+      {/* Navigate hint */}
       <motion.div
-        key={active.id}
         className="relative z-10 font-pixel text-center"
-        style={{ marginTop: 28, fontSize: '6px', letterSpacing: '1px' }}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
+        style={{ marginTop: 28, fontSize: '9px', letterSpacing: '2px', color: '#cc8833', textShadow: '0 0 8px #cc883355' }}
+        animate={{ opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 2.2, repeat: Infinity }}
       >
-        <div style={{ color: active.color, marginBottom: 6 }}>
-          {active.id === 'human_vs_human' && 'ALL PLAYERS ARE HUMAN — PASS & PLAY'}
-          {active.id === 'human_vs_ai'    && 'HUMANS COMPETE AGAINST AI OPPONENTS'}
-          {active.id === 'ai_vs_ai'       && 'WATCH AI AGENTS SOLVE THE MYSTERY'}
-        </div>
-        <div style={{ color: '#2e1e00' }}>↑↓ NAVIGATE · ENTER OR CLICK TO SELECT</div>
+        ↑↓ NAVIGATE · ENTER OR CLICK TO SELECT
       </motion.div>
     </div>
   )

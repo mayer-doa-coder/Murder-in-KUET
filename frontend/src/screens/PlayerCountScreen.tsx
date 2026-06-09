@@ -9,18 +9,6 @@ interface PlayerCountScreenProps {
 
 const COUNT_OPTIONS: (3 | 4 | 5 | 6)[] = [3, 4, 5, 6]
 
-function CornerPixels() {
-  return (
-    <>
-      {['top-1.5 left-1.5', 'top-1.5 right-1.5', 'bottom-1.5 left-1.5', 'bottom-1.5 right-1.5'].map(
-        (pos, i) => (
-          <div key={i} className={`absolute ${pos} w-2 h-2`} style={{ background: '#b8860b' }} />
-        )
-      )}
-    </>
-  )
-}
-
 export default function PlayerCountScreen({ onSelect }: PlayerCountScreenProps) {
   const [selectedCount, setSelectedCount] = useState<3 | 4 | 5 | 6>(3)
 
@@ -52,10 +40,10 @@ export default function PlayerCountScreen({ onSelect }: PlayerCountScreenProps) 
 
   return (
     <div
-      className="relative w-full h-full flex flex-col overflow-hidden"
+      className="relative w-full h-full flex overflow-hidden"
       style={{ background: '#080600' }}
     >
-      {/* Subtle background grid */}
+      {/* Background grid */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -65,184 +53,157 @@ export default function PlayerCountScreen({ onSelect }: PlayerCountScreenProps) 
         }}
       />
 
-      {/* ── TITLE BAR ── */}
+      {/* ── LEFT PANEL: title + controls ── */}
       <motion.div
-        className="relative z-10 text-center pt-6 pb-4 flex-shrink-0"
-        initial={{ opacity: 0, y: -14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        className="relative z-10 flex flex-col justify-center shrink-0"
+        style={{ width: '40%', padding: '40px 36px' }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        <div className="font-pixel" style={{ color: '#5c3d00', fontSize: '8px', letterSpacing: '3px', marginBottom: '8px' }}>
+        {/* Supertitle */}
+        <motion.div
+          className="font-pixel"
+          style={{ fontSize: '9px', color: '#aa6622', letterSpacing: '4px', marginBottom: 14, textShadow: '0 0 10px #aa662244' }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
           ─── MURDER IN KUET ───
-        </div>
-        <h2
+        </motion.div>
+
+        {/* Main title */}
+        <div
           className="font-pixel"
           style={{
-            fontSize: 'clamp(10px, 2vw, 16px)',
+            fontSize: 'clamp(18px, 3vw, 26px)',
             color: '#e8c060',
-            letterSpacing: '4px',
-            textShadow: '3px 3px 0 #3d2200',
+            letterSpacing: '3px',
+            textShadow: '3px 3px 0 #3d2200, 0 0 24px #b8860b55',
+            lineHeight: 1.4,
+            marginBottom: 18,
           }}
         >
           SELECT NUMBER OF PLAYERS
-        </h2>
-      </motion.div>
+        </div>
 
-      {/* ── NUMBER SELECTOR ROW ── */}
-      <motion.div
-        className="relative z-10 flex justify-center gap-6 px-8 py-4 flex-shrink-0"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-      >
-        {COUNT_OPTIONS.map((n) => {
-          const isSelected = selectedCount === n
+        {/* Divider */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24,
+        }}>
+          <div style={{ flex: 1, height: 2, background: 'repeating-linear-gradient(90deg, #5c3d00 0, #5c3d00 6px, transparent 6px, transparent 12px)' }} />
+          <span className="font-pixel" style={{ color: '#8b0000', fontSize: '10px' }}>✦</span>
+          <div style={{ flex: 1, height: 2, background: 'repeating-linear-gradient(90deg, #5c3d00 0, #5c3d00 6px, transparent 6px, transparent 12px)' }} />
+        </div>
 
-          return (
-            <div key={n} className="flex flex-col items-center gap-1">
-              {/* Cursor above selected option */}
+        {/* Number selector */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: 24 }}>
+          {COUNT_OPTIONS.map((n) => {
+            const isSelected = selectedCount === n
+            return (
               <motion.div
-                className="font-pixel"
-                style={{
-                  fontSize: '10px',
-                  color: '#ffdd00',
-                  height: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-                animate={
-                  isSelected
-                    ? { opacity: [1, 0.4, 1], y: [0, -2, 0] }
-                    : { opacity: 0 }
-                }
-                transition={{ duration: 0.8, repeat: Infinity }}
-              >
-                ▲
-              </motion.div>
-
-              {/* Number box */}
-              <motion.div
+                key={n}
                 onClick={() => { setSelectedCount(n); onSelect(n) }}
                 onMouseEnter={() => setSelectedCount(n)}
                 style={{
-                  width: '72px',
-                  height: '72px',
+                  width: '58px',
+                  height: '58px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
                   background: isSelected ? '#2a1a00' : '#1a1000',
-                  border: isSelected
-                    ? '3px solid #b8860b'
-                    : '3px solid #5c3d00',
+                  border: isSelected ? '3px solid #b8860b' : '3px solid #3d2200',
                   cursor: 'pointer',
-                  boxShadow: isSelected
-                    ? '0 0 16px #b8860b88, 4px 4px 0 #000'
-                    : '3px 3px 0 #000',
+                  boxShadow: isSelected ? '0 0 18px #b8860b88, 4px 4px 0 #000' : '3px 3px 0 #000',
                   transition: 'background 0.15s, border-color 0.15s, box-shadow 0.15s',
+                  flexShrink: 0,
                 }}
-                animate={isSelected ? { scale: 1.06 } : { scale: 1 }}
+                animate={isSelected ? { scale: 1.1 } : { scale: 1 }}
                 transition={{ duration: 0.12 }}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <span
-                  className="font-pixel"
-                  style={{
-                    fontSize: '24px',
-                    color: isSelected ? '#ffdd00' : '#b8860b',
-                    textShadow: isSelected ? '0 0 10px #ffdd00aa' : 'none',
-                    letterSpacing: 0,
-                  }}
-                >
+                <span className="font-pixel" style={{
+                  fontSize: '18px',
+                  color: isSelected ? '#ffdd00' : '#b8860b',
+                  textShadow: isSelected ? '0 0 10px #ffdd00aa' : 'none',
+                }}>
                   {n}
                 </span>
-                <span
-                  className="font-pixel"
-                  style={{ fontSize: '5px', color: isSelected ? '#cc9933' : '#3d2800', marginTop: '3px', letterSpacing: '0.5px' }}
-                >
+                <span className="font-pixel" style={{
+                  fontSize: '5px', color: isSelected ? '#cc9933' : '#3d2800',
+                  marginTop: '2px', letterSpacing: '0.3px',
+                }}>
                   PLAYERS
                 </span>
               </motion.div>
-            </div>
-          )
-        })}
-      </motion.div>
-
-      {/* ── DASHED DIVIDER ── */}
-      <motion.div
-        className="relative z-10 mx-8 flex-shrink-0"
-        style={{
-          height: '2px',
-          background:
-            'repeating-linear-gradient(90deg, #3d2200 0, #3d2200 8px, transparent 8px, transparent 16px)',
-          marginBottom: '12px',
-        }}
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-      />
-
-      {/* ── CHARACTER PREVIEW GRID ── */}
-      <motion.div
-        className="relative z-10 flex-1 flex flex-col overflow-hidden px-8 pb-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.55, duration: 0.6 }}
-      >
-        {/* Grid label */}
-        <div
-          className="font-pixel text-center mb-3 flex-shrink-0"
-          style={{ fontSize: '7px', color: '#5c3d00', letterSpacing: '3px' }}
-        >
-          AVAILABLE SUSPECTS ({selectedCount} OF 6 WILL PLAY)
+            )
+          })}
         </div>
 
-        {/* Pixel-bordered container */}
-        <div
-          className="relative flex-1"
-          style={{
-            border: '3px solid #3d2200',
-            boxShadow: '4px 4px 0 #0d0800, inset 0 0 30px rgba(0,0,0,0.6)',
-            padding: '10px',
-            background: '#0a0800',
-          }}
-        >
-          <CornerPixels />
-          {/* 3-column × 2-row grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gridTemplateRows: 'repeat(2, 1fr)',
-              gap: '8px',
-              width: '100%',
-              height: '100%',
-            }}
-          >
-            {CHARACTERS.map((char, i) => (
-              <motion.div
-                key={char.id}
-                style={{ minHeight: 0, opacity: i < selectedCount ? 1 : 0.2 }}
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: i < selectedCount ? 1 : 0.2, scale: 1 }}
-                transition={{ delay: 0.6 + i * 0.07, duration: 0.35 }}
-              >
-                <CharacterCard character={char} cardState={i < selectedCount ? 'normal' : 'normal'} compact />
-              </motion.div>
-            ))}
+        {/* Info rows — each fills full panel width */}
+        <div style={{ width: '100%', marginBottom: 28, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="font-pixel" style={{ width: '100%', fontSize: '9px', color: '#886633', letterSpacing: '2px' }}>
+            AVAILABLE SUSPECTS
+          </div>
+          <div className="font-pixel" style={{ width: '100%', fontSize: '11px', letterSpacing: '2px' }}>
+            <span style={{ color: '#ffdd00', textShadow: '0 0 8px #ffdd0066' }}>{selectedCount}</span>
+            <span style={{ color: '#b8860b' }}> OF 6 WILL PLAY</span>
           </div>
         </div>
+
+        {/* Navigation hint */}
+        <motion.div
+          className="font-pixel"
+          style={{ width: '100%', fontSize: '9px', color: '#cc8833', letterSpacing: '1.5px', lineHeight: 2, textShadow: '0 0 8px #cc883344' }}
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 2.2, repeat: Infinity }}
+        >
+          <div style={{ width: '100%' }}>←→ CHOOSE</div>
+          <div style={{ width: '100%' }}>ENTER TO CONFIRM</div>
+        </motion.div>
       </motion.div>
 
-      {/* ── BOTTOM HINTS ── */}
-      <motion.div
-        className="relative z-10 text-center pb-3 flex-shrink-0 font-pixel"
-        style={{ fontSize: '6px', color: '#2e1e00', letterSpacing: '1px' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
+      {/* Vertical separator */}
+      <div
+        className="relative z-10 shrink-0"
+        style={{
+          width: '2px',
+          margin: '32px 0',
+          background: 'repeating-linear-gradient(180deg, #3d2200 0, #3d2200 8px, transparent 8px, transparent 16px)',
+        }}
+      />
+
+      {/* ── RIGHT PANEL: character cards ── */}
+      <div
+        className="relative z-10 flex-1 flex items-center justify-center"
+        style={{ padding: '24px 32px 24px 24px', overflow: 'hidden' }}
       >
-        ←→ CHOOSE · CLICK OR ENTER TO CONFIRM
-      </motion.div>
+        <motion.div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridAutoRows: 'clamp(150px, 33vh, 260px)',
+            gap: '12px',
+            width: '100%',
+            maxWidth: '520px',
+          }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          {CHARACTERS.map((char, i) => (
+            <motion.div
+              key={char.id}
+              initial={{ opacity: 0, scale: 0.85, y: 16 }}
+              animate={{ opacity: i < selectedCount ? 1 : 0.22, scale: 1, y: 0 }}
+              transition={{ delay: 0.3 + i * 0.07, duration: 0.35 }}
+            >
+              <CharacterCard character={char} cardState="normal" />
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
     </div>
   )
 }

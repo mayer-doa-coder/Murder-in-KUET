@@ -29,14 +29,14 @@ export default function PlayerCardViewScreen({ playerIndex, players, deal, onBac
 
   useEffect(() => {
     const onDown = (e: KeyboardEvent) => {
-      if (e.key === 'a' || e.key === 'A' || e.key === ' ') {
+      if (e.key === 'Enter') {
         e.preventDefault()
         setRevealed(true)
       }
-      if (e.key === 'Enter') handleBack()
+      if (e.key === 'Escape') handleBack()
     }
     const onUp = (e: KeyboardEvent) => {
-      if (e.key === 'a' || e.key === 'A' || e.key === ' ') setRevealed(false)
+      if (e.key === 'Enter') setRevealed(false)
     }
     window.addEventListener('keydown', onDown)
     window.addEventListener('keyup', onUp)
@@ -87,7 +87,7 @@ export default function PlayerCardViewScreen({ playerIndex, players, deal, onBac
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="font-pixel" style={{ fontSize: '6px', color: '#4a3010', letterSpacing: '3px', marginBottom: '6px' }}>
+        <div className="font-pixel" style={{ fontSize: '9px', color: '#4a3010', letterSpacing: '3px', marginBottom: '8px' }}>
           ─── PRIVATE FILES ───
         </div>
         <div className="flex items-center justify-center gap-3">
@@ -113,7 +113,7 @@ export default function PlayerCardViewScreen({ playerIndex, players, deal, onBac
             </span>
           )}
           <h2 className="font-pixel" style={{
-            fontSize: 'clamp(10px, 1.6vw, 15px)',
+            fontSize: 'clamp(18px, 3vw, 26px)',
             color: '#e8c060',
             letterSpacing: '3px',
             textShadow: '3px 3px 0 #3d2200',
@@ -186,44 +186,41 @@ export default function PlayerCardViewScreen({ playerIndex, players, deal, onBac
             <motion.div
               key="hint-hold"
               className="font-pixel"
-              style={{ fontSize: 'clamp(6px, 1vw, 8px)', color: '#5c3d00', letterSpacing: '2px', lineHeight: 2 }}
+              style={{ fontSize: 'clamp(9px, 1.2vw, 11px)', color: '#d4982a', letterSpacing: '2px' }}
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 1.4, repeat: Infinity }}
               initial={{ opacity: 0 }}
               exit={{ opacity: 0 }}
             >
-              HOLD  [A]  TO  REVEAL  ALL
+              HOLD  [ENTER]  TO  REVEAL  ALL  &nbsp;|&nbsp;  ESC  —  BACK
             </motion.div>
           ) : (
             <motion.div
               key="hint-revealed"
               className="font-pixel"
-              style={{ fontSize: 'clamp(6px, 1vw, 8px)', color: '#cc8833', letterSpacing: '2px', lineHeight: 2 }}
+              style={{ fontSize: 'clamp(9px, 1.2vw, 11px)', color: '#cc8833', letterSpacing: '2px' }}
               initial={{ opacity: 0, scale: 1.08 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              ★  CARDS  REVEALED  ★
+              ★  CARDS  REVEALED  ★  &nbsp;|&nbsp;  ESC  —  BACK
             </motion.div>
           )}
         </AnimatePresence>
-
-        <div className="font-pixel" style={{ fontSize: 'clamp(4px,0.8vw,6px)', color: '#2a1600', letterSpacing: '1.5px', marginTop: '6px' }}>
-          ENTER / START  —  BACK
-        </div>
       </motion.div>
 
       {/* Player badge — top right */}
       <motion.div
         className="absolute top-3 right-3 z-20 font-pixel"
         style={{
-          background: '#0d0800',
-          border: `2px solid ${player.character.accentColor}44`,
+          background: '#1a0e00',
+          border: `2px solid ${player.character.accentColor}bb`,
           padding: '5px 9px',
-          fontSize: '5px',
+          fontSize: '8px',
           color: player.character.accentColor,
           letterSpacing: '1px',
+          textShadow: `0 0 8px ${player.character.accentColor}99`,
         }}
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
@@ -239,8 +236,8 @@ export default function PlayerCardViewScreen({ playerIndex, players, deal, onBac
           background: '#1a0800',
           border: '2px solid #3d2000',
           color: '#6b4020',
-          padding: '5px 9px',
-          fontSize: '5px',
+          padding: '6px 10px',
+          fontSize: '8px',
           letterSpacing: '1px',
           cursor: 'pointer',
         }}

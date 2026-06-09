@@ -188,7 +188,7 @@ export default function CharacterCard({
         style={{
           background: isTaken ? '#080808' : '#0a0700',
           borderTop: `2px solid ${isTaken ? '#1a1a1a' : character.borderColor + '88'}`,
-          padding: compact ? '3px 2px' : '5px 4px',
+          padding: compact ? '5px 4px' : '8px 6px',
           textAlign: 'center',
           flexShrink: 0,
         }}
@@ -196,7 +196,7 @@ export default function CharacterCard({
         <span
           className="font-pixel"
           style={{
-            fontSize: compact ? 'clamp(4px, 0.55vw, 6px)' : 'clamp(5px, 0.7vw, 8px)',
+            fontSize: compact ? 'clamp(7px, 0.9vw, 10px)' : 'clamp(8px, 1vw, 11px)',
             color: isTaken ? '#2a2a2a' : '#b8860b',
             letterSpacing: '0.5px',
             display: 'block',
@@ -207,20 +207,6 @@ export default function CharacterCard({
         >
           {character.name}
         </span>
-        {!compact && (
-          <span
-            className="font-pixel"
-            style={{
-              fontSize: 'clamp(3px, 0.5vw, 5px)',
-              color: isTaken ? '#1a1a1a' : `${character.accentColor}66`,
-              letterSpacing: '0.3px',
-              display: 'block',
-              marginTop: '2px',
-            }}
-          >
-            {character.title}
-          </span>
-        )}
       </div>
     </motion.div>
   )

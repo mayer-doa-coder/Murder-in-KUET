@@ -22,9 +22,9 @@ export default function GameCard({
   height = 68,
   style,
 }: GameCardProps) {
-  const nameSize  = compact ? 'clamp(3px, 0.5vw, 5px)'  : 'clamp(4px, 0.6vw, 7px)'
+  const nameSize  = compact ? 'clamp(3px, 0.5vw, 5px)'  : 'clamp(6px, 0.85vw, 9px)'
   const iconSize  = compact ? 'clamp(12px, 2vw, 22px)'   : 'clamp(16px, 2.5vw, 28px)'
-  const catSize   = compact ? 'clamp(2px, 0.35vw, 4px)'  : 'clamp(3px, 0.45vw, 5px)'
+  const catSize   = compact ? 'clamp(2px, 0.35vw, 4px)'  : 'clamp(4px, 0.55vw, 6px)'
 
   const borderColor = selected
     ? '#b8860b'
@@ -41,12 +41,11 @@ export default function GameCard({
     : `2px 2px 0 #000`
 
   return (
-    <div
+    <motion.div
       style={{
         width,
         height,
         border: `${borderWidth} solid ${borderColor}`,
-        boxShadow: glow,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -56,6 +55,18 @@ export default function GameCard({
         flexShrink: 0,
         ...style,
       }}
+      animate={{ boxShadow: selected
+        ? [
+            `0 0 18px #b8860bcc, 0 0 6px #ffdd0066, 3px 3px 0 #000`,
+            `0 0 44px #ffdd00ee, 0 0 70px #b8860bbb, 3px 3px 0 #000`,
+            `0 0 18px #b8860bcc, 0 0 6px #ffdd0066, 3px 3px 0 #000`,
+          ]
+        : glow
+      }}
+      transition={selected
+        ? { duration: 0.75, repeat: Infinity, ease: 'easeInOut' }
+        : { duration: 0.2 }
+      }
     >
       {faceUp ? (
         <>
@@ -208,6 +219,6 @@ export default function GameCard({
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }
