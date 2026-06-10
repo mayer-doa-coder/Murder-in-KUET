@@ -29,34 +29,49 @@ export function useAudio() {
     setMuted(prev => {
       const next = !prev
       localStorage.setItem(MUTE_KEY, String(next))
+      window.dispatchEvent(new StorageEvent('storage', { key: MUTE_KEY, newValue: String(next) }))
       return next
     })
   }, [])
 
-  // Dice roll: rapid noise bursts simulating rattling dice
+  // Sync when mute is toggled from the global button in App (or useBgMusic)
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === MUTE_KEY) setMuted(e.newValue === 'true')
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
+  // Dice roll: distinct click transients simulating a die bouncing to rest
   const playDiceRoll = useCallback(() => {
     if (muted) return
     const ac = ctx(); if (!ac) return
-    const duration = 0.55
-    const bufSize = ac.sampleRate * duration
-    const buf = ac.createBuffer(1, bufSize, ac.sampleRate)
-    const data = buf.getChannelData(0)
-    for (let i = 0; i < bufSize; i++) {
-      // Gated noise: 8 bursts simulating dice clicks
-      const t = i / ac.sampleRate
-      const burst = Math.sin(t * 50) > 0.6 ? 1 : 0
-      data[i] = (Math.random() * 2 - 1) * burst * Math.max(0, 1 - t / duration)
-    }
-    const src = ac.createBufferSource()
-    src.buffer = buf
-    const gain = ac.createGain()
-    gain.gain.setValueAtTime(0.18, ac.currentTime)
-    const filter = ac.createBiquadFilter()
-    filter.type = 'bandpass'
-    filter.frequency.value = 1800
-    filter.Q.value = 0.8
-    src.connect(filter).connect(gain).connect(ac.destination)
-    src.start()
+    const now = ac.currentTime
+    // Each entry is [time, amplitude] — faster bounces at first, slowing to rest
+    const bounces: [number, number][] = [
+      [0,    1.0], [0.055, 0.85], [0.105, 0.70], [0.150, 0.58],
+      [0.19, 0.46], [0.225, 0.35], [0.252, 0.25], [0.272, 0.17], [0.286, 0.10],
+    ]
+    bounces.forEach(([t, amp], i) => {
+      const dur = Math.max(0.012, 0.042 * amp)
+      const bufSize = Math.floor(ac.sampleRate * dur)
+      const buf = ac.createBuffer(1, bufSize, ac.sampleRate)
+      const data = buf.getChannelData(0)
+      for (let j = 0; j < bufSize; j++) {
+        data[j] = (Math.random() * 2 - 1) * (1 - j / bufSize)
+      }
+      const src = ac.createBufferSource()
+      src.buffer = buf
+      const gain = ac.createGain()
+      gain.gain.setValueAtTime(0.32 * amp, now + t)
+      const filter = ac.createBiquadFilter()
+      filter.type = 'bandpass'
+      filter.frequency.value = 1000 + i * 120
+      filter.Q.value = 1.2
+      src.connect(filter).connect(gain).connect(ac.destination)
+      src.start(now + t)
+    })
   }, [muted, ctx])
 
   // Movement step: soft wooden tap

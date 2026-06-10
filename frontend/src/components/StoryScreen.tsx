@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ALL_CARDS } from '../types'
 
@@ -15,6 +15,7 @@ interface Props {
 export default function StoryScreen({ story, suspectId, weaponId, locationId, onContinue }: Props) {
   const [displayed, setDisplayed] = useState('')
   const [done, setDone] = useState(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const suspect  = BY_ID[suspectId]
   const weapon   = BY_ID[weaponId]
@@ -24,18 +25,25 @@ export default function StoryScreen({ story, suspectId, weaponId, locationId, on
     setDisplayed('')
     setDone(false)
     let i = 0
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       i++
       setDisplayed(story.slice(0, i))
       if (i >= story.length) {
-        clearInterval(interval)
+        clearInterval(intervalRef.current!)
+        intervalRef.current = null
         setDone(true)
       }
     }, 38)
-    return () => clearInterval(interval)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [story])
 
   const skip = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
     setDisplayed(story)
     setDone(true)
   }
@@ -85,41 +93,68 @@ export default function StoryScreen({ story, suspectId, weaponId, locationId, on
           </motion.div>
         </div>
 
-        {/* Card icons row */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 24 }}>
-          {[suspect, weapon, location].map((card, i) =>
+        {/* Card row — portrait cards with real images */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 24 }}>
+          {([
+            { card: suspect,  label: 'SUSPECT'  },
+            { card: weapon,   label: 'WEAPON'   },
+            { card: location, label: 'LOCATION' },
+          ] as const).map(({ card, label }, i) =>
             card ? (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+                {/* Mini portrait card */}
                 <div style={{
+                  width: 72, height: 104,
                   background: card.bgColor,
-                  border: `1px solid ${card.accentColor}44`,
-                  padding: '9px 13px',
+                  border: `2px solid ${card.accentColor}66`,
+                  overflow: 'hidden',
+                  display: 'flex', flexDirection: 'column',
+                  position: 'relative',
+                  boxShadow: `0 0 10px ${card.accentColor}33`,
                 }}>
-                  <span style={{
-                    fontFamily: 'monospace', fontSize: 22,
-                    color: card.accentColor,
-                    textShadow: `0 0 8px ${card.accentColor}55`,
-                    display: 'block', lineHeight: 1,
+                  {/* Scan-line overlay */}
+                  <div style={{
+                    position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1,
+                    background: 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.07) 3px,rgba(0,0,0,0.07) 4px)',
+                  }} />
+                  {/* Image */}
+                  <div style={{ flex: 1, overflow: 'hidden', position: 'relative', zIndex: 0 }}>
+                    {card.imageSrc ? (
+                      <img src={card.imageSrc} style={{
+                        width: '100%', height: '100%',
+                        objectFit: 'cover', imageRendering: 'pixelated', display: 'block',
+                      }} />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontFamily: 'monospace', fontSize: 26, color: card.accentColor, lineHeight: 1 }}>
+                          {card.icon}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Name strip */}
+                  <div style={{
+                    background: 'rgba(0,0,0,0.82)',
+                    borderTop: `1px solid ${card.accentColor}33`,
+                    padding: '3px 4px',
+                    flexShrink: 0, zIndex: 2, position: 'relative',
                   }}>
-                    {card.icon}
-                  </span>
+                    <div className="font-pixel" style={{
+                      fontSize: '4px', color: card.accentColor,
+                      textAlign: 'center', letterSpacing: '0.3px',
+                      whiteSpace: 'pre-line', lineHeight: 1.4,
+                    }}>
+                      {card.name.toUpperCase()}
+                    </div>
+                  </div>
                 </div>
-                <div className="font-pixel" style={{
-                  fontSize: '5px', color: card.accentColor,
-                  letterSpacing: '0.4px', textAlign: 'center',
-                }}>
-                  {card.shortName}
+                {/* Category label */}
+                <div className="font-pixel" style={{ fontSize: '4px', color: '#6a4422', letterSpacing: '0.8px' }}>
+                  {label}
                 </div>
               </div>
             ) : null
           )}
-
-          {/* Category labels */}
-          <div style={{ marginLeft: 10, display: 'flex', flexDirection: 'column', gap: 3, paddingTop: 2 }}>
-            <div className="font-pixel" style={{ fontSize: '5px', color: '#7a4422', letterSpacing: '1px' }}>SUSPECT</div>
-            <div className="font-pixel" style={{ fontSize: '5px', color: '#7a4422', letterSpacing: '1px', marginTop: 6 }}>WEAPON</div>
-            <div className="font-pixel" style={{ fontSize: '5px', color: '#7a4422', letterSpacing: '1px', marginTop: 6 }}>LOCATION</div>
-          </div>
         </div>
 
         {/* Divider */}

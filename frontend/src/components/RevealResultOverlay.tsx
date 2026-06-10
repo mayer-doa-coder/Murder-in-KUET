@@ -15,33 +15,53 @@ function CardPill({ cardId, dimmed }: { cardId: string; dimmed?: boolean }) {
   if (!card) return null
   return (
     <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: 7,
+      display: 'flex', flexDirection: 'column',
+      width: 88,
       background: dimmed ? '#0a0a0a' : card.bgColor,
-      border: `2px solid ${dimmed ? '#222' : card.accentColor}44`,
-      padding: '6px 10px',
+      border: `2px solid ${dimmed ? '#333' : card.accentColor}66`,
+      overflow: 'hidden',
       opacity: dimmed ? 0.4 : 1,
+      boxShadow: dimmed ? 'none' : `0 0 10px ${card.accentColor}22`,
     }}>
-      {card.imageSrc ? (
-        <img
-          src={card.imageSrc}
-          style={{
-            width: 22,
-            height: 22,
-            imageRendering: 'pixelated',
-            objectFit: 'contain',
-            flexShrink: 0,
-          }}
-        />
-      ) : (
-        <span style={{ fontFamily: 'monospace', fontSize: 16, color: card.accentColor, lineHeight: 1 }}>
-          {card.icon}
-        </span>
-      )}
-      <span className="font-pixel" style={{
-        fontSize: '7px', color: card.accentColor, letterSpacing: '0.5px',
+      {/* Image area */}
+      <div style={{ height: 112, position: 'relative', overflow: 'hidden' }}>
+        {card.imageSrc ? (
+          <img
+            src={card.imageSrc}
+            style={{
+              width: '100%', height: '100%',
+              imageRendering: 'pixelated',
+              objectFit: 'cover',
+              display: 'block',
+            }}
+          />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: card.bgColor }}>
+            <span style={{ fontFamily: 'monospace', fontSize: 28, color: card.accentColor, lineHeight: 1 }}>
+              {card.icon}
+            </span>
+          </div>
+        )}
+        {/* Scan-line overlay */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.07) 3px,rgba(0,0,0,0.07) 4px)',
+        }} />
+      </div>
+      {/* Name strip */}
+      <div style={{
+        background: 'rgba(0,0,0,0.82)',
+        borderTop: `1px solid ${dimmed ? '#333' : card.accentColor}33`,
+        padding: '5px 6px',
       }}>
-        {card.name.toUpperCase()}
-      </span>
+        <span className="font-pixel" style={{
+          fontSize: '6px', color: dimmed ? '#555' : card.accentColor,
+          letterSpacing: '0.4px', display: 'block', textAlign: 'center',
+          whiteSpace: 'pre-line', lineHeight: 1.4,
+        }}>
+          {card.name.toUpperCase()}
+        </span>
+      </div>
     </div>
   )
 }
@@ -73,7 +93,7 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
           border: `2px solid ${accentColor}77`,
           boxShadow: `0 0 50px ${accentColor}33`,
           padding: '32px 40px',
-          maxWidth: 600,
+          maxWidth: 680,
           width: '92%',
           display: 'flex', flexDirection: 'column', gap: 0,
         }}
@@ -85,7 +105,7 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
         {isInterrogation && (
           <>
             <div className="font-pixel" style={{
-              fontSize: '8px', color: '#ee9900',
+              fontSize: '11px', color: '#ee9900',
               letterSpacing: '3px', marginBottom: 22,
             }}>
               ♦ INTERROGATION
@@ -100,7 +120,7 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
             </div>
 
             <div className="font-pixel" style={{
-              fontSize: '6px', color: '#aa6622', letterSpacing: '1px', marginBottom: 20,
+              fontSize: '9px', color: '#aa6622', letterSpacing: '1px', marginBottom: 20,
             }}>
               AT: {result.roomName ?? result.locationId.toUpperCase()}
             </div>
@@ -115,12 +135,12 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
             {result.revealedCardId ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div className="font-pixel" style={{
-                  fontSize: '7px', color: '#cc9900', letterSpacing: '1px',
+                  fontSize: '9px', color: '#cc9900', letterSpacing: '1px',
                 }}>
                   DISPROVED BY: {result.revealedByName?.toUpperCase()}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span className="font-pixel" style={{ fontSize: '6px', color: '#aa7733', letterSpacing: '1px' }}>
+                  <span className="font-pixel" style={{ fontSize: '8px', color: '#aa7733', letterSpacing: '1px' }}>
                     CARD SHOWN:
                   </span>
                   <CardPill cardId={result.revealedCardId} />
@@ -130,14 +150,14 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <motion.div
                   className="font-pixel"
-                  style={{ fontSize: '8px', color: '#ffdd00', letterSpacing: '2px' }}
+                  style={{ fontSize: '11px', color: '#ffdd00', letterSpacing: '2px' }}
                   animate={{ opacity: [1, 0.6, 1] }}
                   transition={{ duration: 1.2, repeat: 3, ease: 'linear' }}
                 >
                   NO DISPROOF
                 </motion.div>
                 <div className="font-pixel" style={{
-                  fontSize: '7px', color: '#cc9900', letterSpacing: '1px',
+                  fontSize: '9px', color: '#cc9900', letterSpacing: '1px',
                 }}>
                   YOUR SUGGESTION STANDS UNCHALLENGED
                 </div>
@@ -150,7 +170,7 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
         {!isInterrogation && (
           <>
             <div className="font-pixel" style={{
-              fontSize: '9px',
+              fontSize: '12px',
               color: isCorrect ? '#44ee66' : '#ee3300',
               letterSpacing: '3px', marginBottom: 10,
             }}>
@@ -165,7 +185,7 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
                 {result.accusingPlayerIcon}
               </span>
               <div className="font-pixel" style={{
-                fontSize: '8px',
+                fontSize: '10px',
                 color: isCorrect ? '#44ee66' : '#ee3300',
                 letterSpacing: '1px',
               }}>
@@ -181,7 +201,7 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
 
             {/* Selected cards */}
             <div className="font-pixel" style={{
-              fontSize: '6px', color: '#aa7733', letterSpacing: '1px', marginBottom: 10,
+              fontSize: '9px', color: '#aa7733', letterSpacing: '1px', marginBottom: 10,
             }}>
               {isCorrect ? 'CASE FILE CONFIRMED:' : 'YOUR GUESS:'}
             </div>
@@ -194,7 +214,7 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
             {isCorrect && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
                 <div className="font-pixel" style={{
-                  fontSize: '6px', color: '#88cc22', letterSpacing: '1px',
+                  fontSize: '9px', color: '#88cc22', letterSpacing: '1px',
                 }}>
                   CASE FILE UNSEALED:
                 </div>
@@ -208,7 +228,7 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
 
             {!isCorrect && (
               <div className="font-pixel" style={{
-                fontSize: '7px', color: '#cc3322', letterSpacing: '1px', lineHeight: 2,
+                fontSize: '9px', color: '#cc3322', letterSpacing: '1px', lineHeight: 2,
               }}>
                 CASE FILE REMAINS SEALED.
                 <br />YOU MAY NO LONGER MOVE OR SUGGEST.
@@ -225,8 +245,8 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
             background: 'transparent',
             border: `2px solid ${accentColor}88`,
             color: accentColor,
-            padding: '10px 26px',
-            fontSize: '8px',
+            padding: '12px 30px',
+            fontSize: '10px',
             letterSpacing: '2px',
             cursor: 'pointer',
             alignSelf: 'center',

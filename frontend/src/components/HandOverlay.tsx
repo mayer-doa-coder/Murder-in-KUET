@@ -40,23 +40,6 @@ export default function HandOverlay({ onRelease }: Props) {
         pointerEvents: 'none',
       }}
     >
-      <motion.div
-        style={{
-          fontSize: 80,
-          lineHeight: 1,
-          userSelect: 'none',
-          filter: holding ? 'brightness(1.5) drop-shadow(0 0 8px #ffdd00)' : 'brightness(1)',
-        }}
-        animate={
-          holding
-            ? { rotate: [-10, 10, -10], y: [0, -10, 0], scale: [1, 1.1, 1] }
-            : { rotate: 0, y: 0, scale: 1 }
-        }
-        transition={{ duration: 0.16, repeat: holding ? Infinity : 0, ease: 'linear' }}
-      >
-        ✊
-      </motion.div>
-
       <div
         className="font-pixel"
         style={{

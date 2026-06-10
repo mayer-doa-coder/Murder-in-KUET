@@ -10,7 +10,6 @@ import {
   ROWS,
   ROOM_TO_LOCATION_CARD,
 } from '../hooks/useBoard'
-import { ROOM_ACCENT } from '../components/GridCell'
 import GridCell from '../components/GridCell'
 import PlayerToken from '../components/PlayerToken'
 import TurnOverlay from '../components/TurnOverlay'
@@ -35,38 +34,16 @@ import type { PlayerSetup, GameDeal, GameMode } from '../types'
 import { LOCATIONS_CARDS } from '../types'
 
 interface Props {
-  players:   PlayerSetup[]
-  deal:      GameDeal
-  gameMode:  GameMode
-  onExit:    () => void
-  onRestart: () => void
+  players:         PlayerSetup[]
+  deal:            GameDeal
+  gameMode:        GameMode
+  onExit:          () => void
+  onRestart:       () => void
+  bgMuted:         boolean
+  onBgMuteToggle:  () => void
 }
 
 // ── Module-level visual constants ─────────────────────────────────────────────
-const ROOM_LABEL_COLORS: Record<string, string> = {
-  auditorium:    '#cc66ee',
-  swc:           '#44cc88',
-  ae_hall:       '#ee5555',
-  cafeteria:     '#ee9944',
-  central_field: '#55cc55',
-  it_park:       '#4488ee',
-  br_hall:       '#cc66ee',
-  lotus_pond:    '#44cccc',
-  pocket_gate:   '#aaaaaa',
-}
-
-const ROOM_LABEL_ANCHORS: Record<string, [number, number]> = {
-  auditorium:    [3,    1.5],
-  swc:           [11.5, 3  ],
-  ae_hall:       [20,   2.5],
-  cafeteria:     [3,    8  ],
-  central_field: [2.5,  14 ],
-  it_park:       [2.5,  21.5],
-  br_hall:       [11.5, 20.5],
-  lotus_pond:    [20.5, 21.5],
-  pocket_gate:   [19.5, 12 ],
-}
-
 // ROOM_TO_CARD_ID used only for location card image layers (same values as ROOM_TO_LOCATION_CARD)
 const ROOM_TO_CARD_ID = ROOM_TO_LOCATION_CARD
 
@@ -89,7 +66,7 @@ const SECRET_PASSAGES = [
   { col: 14.5,row: 23.5,arrow: '↘', label: 'SECRET' },
 ]
 
-const SIDEBAR_W = 252
+const SIDEBAR_W = 290
 const HEADER_H  = 54
 const PAD       = 6
 
@@ -256,7 +233,7 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function GameBoardScreen({ players, deal, gameMode, onExit, onRestart }: Props) {
+export default function GameBoardScreen({ players, deal, gameMode, onExit, onRestart, bgMuted, onBgMuteToggle }: Props) {
   const [vw, setVw] = useState(window.innerWidth)
   const [vh, setVh] = useState(window.innerHeight)
 
@@ -284,14 +261,28 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
       const bounds = ROOM_BOUNDS[roomId]
       if (!bounds) return []
       const [c0, c1, r0, r1] = bounds
+      const s = cellSize
+      const W = (c1 - c0 + 1) * s
+      const H = (r1 - r0 + 1) * s
+
+      // Build a clip-path that covers the full room but punches out each door cell.
+      // Outer rectangle is CW; each door cutout is CCW (non-zero winding rule subtracts it).
+      let clipPath = `M0,0 H${W} V${H} H0 Z`
+      for (const [dc, dr] of (DOOR_POSITIONS[roomId] ?? [])) {
+        const dx = (dc - c0) * s
+        const dy = (dr - r0) * s
+        clipPath += ` M${dx},${dy} V${dy + s} H${dx + s} V${dy} H${dx} Z`
+      }
+
       return [{
         roomId,
         src: card.imageSrc,
-        left: c0 * cellSize,
-        top: r0 * cellSize,
-        cardW: (c1 - c0 + 1) * cellSize,
-        cardH: (r1 - r0 + 1) * cellSize,
+        left: c0 * s,
+        top: r0 * s,
+        cardW: W,
+        cardH: H,
         accentColor: card.accentColor,
+        clipPath: `path('${clipPath}')`,
       }]
     })
   }, [cellSize])
@@ -320,7 +311,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
   useAITurn({ gs, nb, boardPlayers, actions, currentSetup, isAiTurn })
 
   // ── Audio ─────────────────────────────────────────────────────────────────
-  const { muted, toggleMute, playDiceRoll, playStep, playInterrogation, playAccusation, playReveal } = useAudio()
+  const { playDiceRoll, playStep, playInterrogation, playAccusation, playReveal } = useAudio()
 
   useEffect(() => { if (gs.diceRolling) playDiceRoll() }, [gs.diceRolling, playDiceRoll])
   useEffect(() => { if (gs.moveStep > 0) playStep() }, [gs.moveStep, playStep])
@@ -381,13 +372,15 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
         <motion.button
           className="font-pixel"
           style={{
-            fontSize: '8px', color: '#aa3355', background: 'transparent',
-            border: '1px solid #661130', padding: '4px 11px', cursor: 'pointer', letterSpacing: '1px',
+            fontSize: '8px', color: '#ff3333', background: '#2a0000',
+            border: '2px solid #880000', padding: '6px 10px', cursor: 'pointer', letterSpacing: '1px',
+            opacity: 1,
           }}
-          whileHover={{ color: '#ee2266', borderColor: '#aa0044' }}
+          whileHover={{ backgroundColor: '#3a0000', color: '#ff5555', borderColor: '#bb0000' }}
+          whileTap={{ scale: 0.95 }}
           onClick={onExit}
         >
-          ← EXIT
+          ◀ EXIT
         </motion.button>
         <div style={{ fontSize: '9px', color: '#dd3366', letterSpacing: '4px' }}>
           MURDER IN KUET
@@ -438,18 +431,19 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             </div>
           )}
           <motion.button
-            className="font-pixel"
-            onClick={toggleMute}
-            title={muted ? 'Unmute' : 'Mute'}
+            onClick={onBgMuteToggle}
+            title={bgMuted ? 'Unmute music' : 'Mute music'}
             style={{
-              fontSize: '7px', padding: '3px 8px', cursor: 'pointer',
-              background: 'transparent', border: '1px solid #3a1a00',
-              color: muted ? '#444' : '#cc8844', letterSpacing: '0.5px',
+              fontSize: '16px', padding: '4px 8px', cursor: 'pointer', lineHeight: 1,
+              background: '#0d0800', border: `2px solid ${bgMuted ? '#3a1a00' : '#5c3d00'}`,
+              color: bgMuted ? '#4a3010' : '#b8860b',
+              boxShadow: '2px 2px 0 #000', opacity: 1,
             }}
-            whileHover={{ borderColor: '#cc8844', color: muted ? '#888' : '#ffaa44' }}
+            whileHover={{ borderColor: bgMuted ? '#5c3d00' : '#b8860b' }}
+            whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.06 }}
           >
-            {muted ? '♪ OFF' : '♪ ON'}
+            {bgMuted ? '🔇' : '🔊'}
           </motion.button>
           <div className="font-pixel" style={{ fontSize: '7px', color: '#cc8844', letterSpacing: '1px' }}>
             {gs.gamePhase === 'idle'          && (isAiTurn ? 'AI THINKING...' : 'SELECT ACTION')}
@@ -524,7 +518,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                     const bounds = ROOM_BOUNDS[roomId]
                     if (!bounds) return null
                     const [c0, c1, r0] = bounds
-                    const accent = ROOM_ACCENT[roomId] ?? '#666'
                     const x0 = dc * cellSize, y0 = dr * cellSize
                     const gap = Math.max(1, cellSize * 0.18)
                     const thick = Math.max(2, cellSize * 0.18)
@@ -536,7 +529,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                     return (
                       <rect key={`door-${roomId}-${di}`}
                         x={rx} y={ry} width={rw} height={rh}
-                        fill={accent} opacity={0.9} rx={1}
+                        fill="#ffffff" opacity={0.9} rx={1}
                       />
                     )
                   })
@@ -605,8 +598,8 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 ))}
               </svg>
 
-              {/* Location images */}
-              {locationCardLayers.map(({ roomId, src, left, top, cardW, cardH }) => (
+              {/* Location images — clipped to exclude door cells */}
+              {locationCardLayers.map(({ roomId, src, left, top, cardW, cardH, clipPath }) => (
                 <img
                   key={`loccard-${roomId}`}
                   src={src}
@@ -616,30 +609,11 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                     width: cardW, height: cardH,
                     imageRendering: 'pixelated', objectFit: 'cover',
                     opacity: 0.78, pointerEvents: 'none', userSelect: 'none', zIndex: 1,
+                    clipPath,
                   }}
                 />
               ))}
 
-              {/* Room name labels */}
-              {Object.entries(ROOM_LABEL_ANCHORS).map(([roomId, [cx, cy]]) => (
-                <div
-                  key={roomId}
-                  className="font-pixel pointer-events-none"
-                  style={{
-                    position: 'absolute',
-                    left: cx * cellSize, top: cy * cellSize,
-                    transform: 'translate(-50%, -50%)',
-                    fontSize: Math.max(8, Math.floor(cellSize * 0.3)),
-                    color: ROOM_LABEL_COLORS[roomId] ?? '#aaaaaa',
-                    letterSpacing: '0.6px', textAlign: 'center',
-                    lineHeight: 1.55, whiteSpace: 'pre-line',
-                    textShadow: '1px 1px 0 #000, 0 0 10px #000000dd',
-                    opacity: 0.97, zIndex: 3, userSelect: 'none',
-                  }}
-                >
-                  {ROOM_DISPLAY_NAMES[roomId]}
-                </div>
-              ))}
 
               {/* Center staircase / void decoration */}
               <div
@@ -711,19 +685,17 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 )
               })}
 
-              {/* Player tokens */}
-              {boardPlayers.map((p, i) =>
-                p.currentLocation === null ? (
-                  <PlayerToken
-                    key={p.id}
-                    player={p}
-                    cellSize={cellSize}
-                    isSelected={i === gs.currentTurnIndex}
-                    playerIndex={i}
-                    onClick={() => {}}
-                  />
-                ) : null
-              )}
+              {/* Player tokens — always visible, including when inside a room (position stays at door cell) */}
+              {boardPlayers.map((p, i) => (
+                <PlayerToken
+                  key={p.id}
+                  player={p}
+                  cellSize={cellSize}
+                  isSelected={i === gs.currentTurnIndex}
+                  playerIndex={i}
+                  onClick={() => {}}
+                />
+              ))}
             </div>
           </CameraController>
 
@@ -1064,7 +1036,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
               {!gs.diceRolling && gs.diceValue !== null && (
                 <>
                   <div className="font-pixel" style={{
-                    marginTop: 6, fontSize: '7px', color: '#ffdd00',
+                    marginTop: 8, fontSize: '11px', color: '#ffdd00',
                     letterSpacing: '1px', textAlign: 'center',
                   }}>
                     STEPS: {gs.remainingMoves}
@@ -1073,8 +1045,8 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                     <motion.div
                       className="font-pixel"
                       style={{
-                        marginTop: 4, fontSize: '5px', color: '#cc9933',
-                        letterSpacing: '0.5px', textAlign: 'center', lineHeight: 1.8,
+                        marginTop: 6, fontSize: '8px', color: '#cc9933',
+                        letterSpacing: '0.5px', textAlign: 'center', lineHeight: 2,
                       }}
                       animate={{ opacity: [1, 0.5, 1] }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -1114,7 +1086,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             padding: '14px 10px 12px', overflowY: 'auto',
           }}
         >
-          <div style={{ fontSize: '7px', color: '#cc3355', letterSpacing: '2px', marginBottom: 14 }}>
+          <div style={{ fontSize: '11px', color: '#cc3355', letterSpacing: '2px', marginBottom: 16 }}>
             ── SUSPECTS ──
           </div>
 
@@ -1138,35 +1110,30 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                     opacity: isElim ? 0.5 : 1,
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-                    <span style={{
-                      fontFamily: 'monospace', fontSize: 15, color: isElim ? '#444' : p.accentColor,
-                      textShadow: isTurn && !isElim ? `0 0 7px ${p.accentColor}88` : 'none',
-                      lineHeight: 1, flexShrink: 0,
-                    }}>{p.icon}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
-                        fontSize: '6px',
+                        fontSize: '10px',
                         color: isElim ? '#553333' : isTurn ? '#ffdd00' : '#cc9944',
-                        letterSpacing: '1.2px', marginBottom: 2,
+                        letterSpacing: '1.2px', marginBottom: 3,
                       }}>P{i + 1} · {p.name}</div>
-                      <div style={{ fontSize: '5px', color: '#aa7733', letterSpacing: '0.5px' }}>
-                        {isAi ? `AI${algo ? ` · ${algo.toUpperCase().replace('_','-')}` : ''}` : 'HUMAN'} · {deal.playerHands[i]?.length ?? 0}♠
+                      <div style={{ fontSize: '8px', color: '#aa7733', letterSpacing: '0.5px' }}>
+                        {isAi ? `AI${algo ? ` · ${algo.toUpperCase().replace('_','-')}` : ''}` : 'HUMAN'} · {deal.playerHands[i]?.length ?? 0} cards
                       </div>
                     </div>
                     {isTurn && !isElim && (
                       <motion.span
-                        style={{ fontSize: '7px', color: '#ff3344', flexShrink: 0 }}
+                        style={{ fontSize: '10px', color: '#ff3344', flexShrink: 0 }}
                         animate={{ opacity: [1, 0, 1] }}
                         transition={{ duration: 0.65, repeat: Infinity }}
                       >●</motion.span>
                     )}
                   </div>
-                  <div style={{ fontSize: '5px', color: isTurn ? '#998844' : '#776633', letterSpacing: '0.5px' }}>
-                    [{String(p.position[0]).padStart(2,'0')},{String(p.position[1]).padStart(2,'0')}] {roomName}
+                  <div style={{ fontSize: '8px', color: isTurn ? '#998844' : '#776633', letterSpacing: '0.5px' }}>
+                    {roomName}
                   </div>
                   {isElim && (
-                    <div style={{ fontSize: '5px', color: '#ee3333', letterSpacing: '0.5px', marginTop: 3 }}>
+                    <div style={{ fontSize: '8px', color: '#ee3333', letterSpacing: '0.5px', marginTop: 4 }}>
                       ✗ ELIMINATED
                     </div>
                   )}
@@ -1188,13 +1155,13 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   marginBottom: 6,
                 }}>
-                  <div style={{ fontSize: '6px', color: '#44cc88', letterSpacing: '1px' }}>
+                  <div style={{ fontSize: '10px', color: '#44cc88', letterSpacing: '1px' }}>
                     AI NOTEBOOK
                   </div>
                   <motion.button
                     className="font-pixel"
                     style={{
-                      fontSize: '4px', color: '#44cc88',
+                      fontSize: '8px', color: '#44cc88',
                       background: 'transparent', border: '1px solid #44cc8833',
                       padding: '2px 6px', cursor: 'pointer', letterSpacing: '0.5px',
                     }}
@@ -1218,31 +1185,31 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             </>
           )}
 
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: '6px', color: '#bb3355', letterSpacing: '1px', marginBottom: 8 }}>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: '10px', color: '#bb3355', letterSpacing: '1px', marginBottom: 10 }}>
               PHASE
             </div>
-            <div style={{ fontSize: '6px', color: '#ff9944', letterSpacing: '1px' }}>
-              {gs.gamePhase === 'idle'          && '⬥ AWAITING ACTION'}
-              {gs.gamePhase === 'rolling'       && '⬥ ROLLING DICE'}
-              {gs.gamePhase === 'dice'          && `⬥ MOVING (${gs.remainingMoves} LEFT)`}
-              {gs.gamePhase === 'moving'        && '⬥ MOVING'}
-              {gs.gamePhase === 'interrogation' && '⬥ INTERROGATION'}
-              {gs.gamePhase === 'accusation'    && '⬥ ACCUSATION'}
-              {gs.gamePhase === 'story'         && '⬥ CRIME THEORY'}
-              {gs.gamePhase === 'reveal_result' && '⬥ RESULT'}
-              {gs.gamePhase === 'game_over'     && '⬥ GAME OVER'}
+            <div style={{ fontSize: '10px', color: '#ff9944', letterSpacing: '1px' }}>
+              {gs.gamePhase === 'idle'          && 'AWAITING ACTION'}
+              {gs.gamePhase === 'rolling'       && 'ROLLING DICE'}
+              {gs.gamePhase === 'dice'          && `MOVING (${gs.remainingMoves} LEFT)`}
+              {gs.gamePhase === 'moving'        && 'MOVING'}
+              {gs.gamePhase === 'interrogation' && 'INTERROGATION'}
+              {gs.gamePhase === 'accusation'    && 'ACCUSATION'}
+              {gs.gamePhase === 'story'         && 'CRIME THEORY'}
+              {gs.gamePhase === 'reveal_result' && 'RESULT'}
+              {gs.gamePhase === 'game_over'     && 'GAME OVER'}
             </div>
             {gs.gamePhase === 'dice' && gs.remainingMoves > 0 && !isAiTurn && (
-              <div style={{ fontSize: '5px', color: '#cc9933', marginTop: 6, letterSpacing: '0.5px' }}>
+              <div style={{ fontSize: '9px', color: '#cc9933', marginTop: 8, letterSpacing: '0.5px' }}>
                 ↑↓←→ TO MOVE · SPC TO SKIP
               </div>
             )}
           </div>
 
           {!isAiTurn && (
-            <div style={{ fontSize: '6px', color: '#8a5566', letterSpacing: '0.5px', lineHeight: 2.2 }}>
-              <div style={{ color: '#bb4466', marginBottom: 4 }}>── CONTROLS ──</div>
+            <div style={{ fontSize: '10px', color: '#8a5566', letterSpacing: '0.5px', lineHeight: 2.4 }}>
+              <div style={{ color: '#bb4466', marginBottom: 6 }}>── CONTROLS ──</div>
               <div>[ENTER]  CONFIRM</div>
               <div>[↑↓←→]  MOVE</div>
               <div>[SPC]   SKIP MOVE</div>
@@ -1250,8 +1217,8 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
           )}
 
           {gameMode === 'ai_vs_ai' && (
-            <div style={{ fontSize: '5px', color: '#334433', letterSpacing: '0.5px', lineHeight: 2, marginTop: 8 }}>
-              <div style={{ color: '#446644', marginBottom: 4 }}>── OBSERVATION MODE ──</div>
+            <div style={{ fontSize: '9px', color: '#446644', letterSpacing: '0.5px', lineHeight: 2, marginTop: 8 }}>
+              <div style={{ color: '#55aa66', marginBottom: 6 }}>── OBSERVATION MODE ──</div>
               <div>AI VS AI — WATCH & ANALYZE</div>
               <div>PROBABILITY UPDATES LIVE</div>
             </div>
@@ -1260,8 +1227,8 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
           <div style={{ flex: 1 }} />
 
           <div style={{
-            borderTop: '1px solid #331120', paddingTop: 10,
-            fontSize: '6px', color: '#7a4422', letterSpacing: '0.5px', lineHeight: 2,
+            borderTop: '1px solid #331120', paddingTop: 12,
+            fontSize: '9px', color: '#7a4422', letterSpacing: '0.5px', lineHeight: 2.2,
           }}>
             <div>FIND THE KILLER</div>
             <div>SOLVE THE CASE</div>

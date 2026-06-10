@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import LayoutWrapper from './components/LayoutWrapper'
+import { useBgMusic } from './hooks/useBgMusic'
 import IntroScreen from './screens/IntroScreen'
 import GameModeScreen from './screens/GameModeScreen'
 import DifficultyScreen from './screens/DifficultyScreen'
@@ -36,6 +37,7 @@ function difficultyToAlgorithm(d: Difficulty): AIAlgorithm {
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { muted, toggleMute } = useBgMusic()
   useEffect(() => {
     ALL_CARDS.forEach(card => {
       if (card.imageSrc) {
@@ -359,6 +361,7 @@ export default function App() {
 
         {screen === 'gameBoard' && deal && (
           <motion.div key="gameBoard" className="absolute inset-0"
+            style={{ zIndex: 60 }}
             variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
             <GameBoardScreen
               players={players}
@@ -366,6 +369,8 @@ export default function App() {
               gameMode={gameMode}
               onExit={() => setScreen('playerCardsMenu')}
               onRestart={handleRestart}
+              bgMuted={muted}
+              onBgMuteToggle={toggleMute}
             />
           </motion.div>
         )}
@@ -421,6 +426,31 @@ export default function App() {
             ? `  P${currentPlayerIndex + 1}/${playerCount}`
             : ''}
         </motion.div>
+      )}
+
+      {/* Global mute icon — hidden on gameBoard (that screen has its own ♪ button) */}
+      {screen !== 'gameBoard' && (
+        <motion.button
+          className="absolute z-50 font-pixel"
+          style={{
+            top: '14px', right: '16px',
+            background: '#0d0800',
+            border: `2px solid ${muted ? '#3a1a00' : '#5c3d00'}`,
+            color: muted ? '#4a3010' : '#b8860b',
+            padding: '6px 10px',
+            fontSize: '16px',
+            lineHeight: 1,
+            cursor: 'pointer',
+            boxShadow: '3px 3px 0 #000',
+          }}
+          onClick={toggleMute}
+          title={muted ? 'Unmute music' : 'Mute music'}
+          whileHover={{ borderColor: '#b8860b', color: muted ? '#886030' : '#ffdd00' }}
+          whileTap={{ scale: 0.92 }}
+          transition={{ duration: 0.08 }}
+        >
+          {muted ? '🔇' : '🔊'}
+        </motion.button>
       )}
 
       {/* Restart button on playerCardsMenu */}

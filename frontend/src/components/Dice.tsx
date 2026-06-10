@@ -10,8 +10,8 @@ const DOT_POSITIONS: Record<number, [number, number][]> = {
   6: [[0.28, 0.22], [0.72, 0.22], [0.28, 0.5], [0.72, 0.5], [0.28, 0.78], [0.72, 0.78]],
 }
 
-const SIZE = 54
-const DOT_HALF = 4
+const SIZE = 72
+const DOT_HALF = 5
 
 interface Props {
   value: number

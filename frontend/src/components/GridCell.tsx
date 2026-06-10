@@ -134,21 +134,19 @@ function GridCell({ cell, cellSize, col, row }: GridCellProps) {
     )
   }
 
-  // door — room pattern + thick accent border on hallway-facing side
+  // door — hallway background + thick accent border on hallway-facing side (looks like an opening)
   if (cell.type === 'door') {
-    const rid     = cell.roomId!
-    const pattern = ROOM_PATTERN[rid]
-    const border  = ROOM_BORDER[rid] ?? '#1a1a1a'
-    const accent  = ROOM_ACCENT[rid] ?? '#666'
-    const facing  = doorFacing(col, row, rid)
-    const thin    = `1px solid ${border}`
-    const thick   = `3px solid ${accent}`
+    const rid    = cell.roomId!
+    const border = ROOM_BORDER[rid] ?? '#1a1a1a'
+    const facing = doorFacing(col, row, rid)
+    const thin   = `1px solid ${border}`
+    const thick  = `3px solid #ffffff`
 
     return (
       <div
         style={{
           width: s, height: s,
-          background: pattern ?? ROOM_BG[rid] ?? '#0a0a0a',
+          background: '#181400',
           borderTop:    facing === 'top'    ? thick : thin,
           borderBottom: facing === 'bottom' ? thick : thin,
           borderLeft:   facing === 'left'   ? thick : thin,
