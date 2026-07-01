@@ -32,6 +32,8 @@ export interface GameStateValues {
   setPendingReveal: (v: RevealResult | null) => void
   pendingPhaseAfterStory: 'reveal_result' | 'game_over'
   setPendingPhaseAfterStory: (v: 'reveal_result' | 'game_over') => void
+  turnCount: number
+  setTurnCount: React.Dispatch<React.SetStateAction<number>>
   simSpeed: 1 | 4 | 16
   setSimSpeed: (v: 1 | 4 | 16) => void
   isPaused: boolean
@@ -70,6 +72,7 @@ export function useGameState(players: PlayerSetup[]): GameStateValues {
   const positionRef       = useRef<[number, number]>([12, 12])
   const remainingMovesRef = useRef(0)
 
+  const [turnCount, setTurnCount] = useState(0)
   const [simSpeed, setSimSpeed] = useState<1 | 4 | 16>(1)
   const ms = useCallback((base: number) => Math.max(0, Math.round(base / simSpeed)), [simSpeed])
   const [isPaused,     setIsPaused]     = useState(false)
@@ -91,6 +94,7 @@ export function useGameState(players: PlayerSetup[]): GameStateValues {
     storyText, setStoryText,
     pendingReveal, setPendingReveal,
     pendingPhaseAfterStory, setPendingPhaseAfterStory,
+    turnCount, setTurnCount,
     simSpeed, setSimSpeed,
     isPaused, setIsPaused,
     pauseViewIdx, setPauseViewIdx,

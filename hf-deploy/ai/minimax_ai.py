@@ -14,7 +14,7 @@ from math import inf, log
 from typing import Any, Sequence
 
 from ai.base_ai import BaseAI
-from config.settings import AI_CONFIG, GAME_CONFIG, get_positive_int
+from config.settings import AI_CONFIG, EVAL_CONFIG, GAME_CONFIG, get_positive_int
 from utils.helpers import safe_random_choice
 
 
@@ -255,16 +255,10 @@ class StrategicEvaluationMixin:
         if state is None:
             raise ValueError("State cannot be None")
 
-        if not hasattr(state, "possible_suspects") or not hasattr(state, "possible_weapons") or not hasattr(state, "possible_locations"):
-            return 0.0
+        suspects, weapons, locations = self._resolve_possibility_space(state)
 
-        suspects = self._as_set(getattr(state, "possible_suspects", None))
-        weapons = self._as_set(getattr(state, "possible_weapons", None))
-        locations = self._as_set(getattr(state, "possible_locations", None))
-
-        # Optional configurable constants for easy tuning.
-        weight = 2.0
-        max_score = 30.0
+        weight = float(EVAL_CONFIG.get("INFO_GAIN_WEIGHT", 2.0))
+        max_score = float(EVAL_CONFIG.get("INFO_GAIN_MAX_SCORE", 30.0))
         use_entropy = bool(AI_CONFIG.get("USE_ENTROPY_EVAL", False))
 
         suspects_n = len(suspects or set())
@@ -299,16 +293,10 @@ class StrategicEvaluationMixin:
         if state is None:
             raise ValueError("State cannot be None")
 
-        if not hasattr(state, "possible_suspects") or not hasattr(state, "possible_weapons") or not hasattr(state, "possible_locations"):
-            return 0.0
+        suspects, weapons, locations = self._resolve_possibility_space(state)
 
-        suspects = self._as_set(getattr(state, "possible_suspects", None))
-        weapons = self._as_set(getattr(state, "possible_weapons", None))
-        locations = self._as_set(getattr(state, "possible_locations", None))
-
-        # Optional configurable certainty rewards.
-        reward = 10.0
-        partial_bonus = 5.0
+        reward = float(EVAL_CONFIG.get("CERTAINTY_REWARD", 10.0))
+        partial_bonus = float(EVAL_CONFIG.get("CERTAINTY_PARTIAL_BONUS", 5.0))
 
         score = 0.0
         for options in (suspects or set(), weapons or set(), locations or set()):
@@ -332,15 +320,12 @@ class StrategicEvaluationMixin:
         if state is None:
             raise ValueError("State cannot be None")
 
-        if not hasattr(state, "possible_suspects") or not hasattr(state, "possible_weapons") or not hasattr(state, "possible_locations"):
-            return 0.0
+        suspects, weapons, locations = self._resolve_possibility_space(state)
 
-        suspects = self._as_set(getattr(state, "possible_suspects", None)) or set()
-        weapons = self._as_set(getattr(state, "possible_weapons", None)) or set()
-        locations = self._as_set(getattr(state, "possible_locations", None)) or set()
-
+        penalty = float(EVAL_CONFIG.get("RISK_PENALTY", 20.0))
+        threshold = int(EVAL_CONFIG.get("RISK_THRESHOLD", 10))
         remaining = len(suspects) * len(weapons) * len(locations)
-        return -20.0 if remaining > 10 else 0.0
+        return -penalty if remaining > threshold else 0.0
 
     def score_opponent(self, state: Any) -> float:
         """Penalize states where opponents appear to have card advantage.
@@ -725,11 +710,12 @@ class MinimaxAI(StrategicEvaluationMixin, BaseAI):
         if state is None:
             raise ValueError("Invalid state provided")
 
+        threshold = float(AI_CONFIG.get("MINIMAX_ACCUSATION_THRESHOLD", 0.72))
         search_state = self._coerce_state(state)
         notebook = getattr(search_state, "notebook", None)
         confidence_check = getattr(notebook, "confident_accusation", None)
         if callable(confidence_check):
-            return bool(confidence_check())
+            return bool(confidence_check(threshold))
 
         return False
 

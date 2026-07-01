@@ -10,6 +10,7 @@ import logging
 from typing import Any, Sequence
 
 from ai.base_ai import BaseAI
+from config.settings import AI_CONFIG
 from utils.helpers import safe_random_choice
 
 logger = logging.getLogger(__name__)
@@ -96,23 +97,29 @@ class RuleBasedAI(BaseAI):
         return (best_s, best_w, location)
 
     def decide_accusation(self, state: Any) -> bool | tuple[str, str, str]:
-        """Accuse only when the notebook has narrowed to exactly one solution.
+        """Accuse when Bayesian confidence exceeds the configured threshold.
 
-        Returns the (suspect, weapon, location) tuple when certain, else False.
+        Uses the same probabilistic trigger as other search AIs so all agents
+        compete on information quality rather than different certainty criteria.
+        Returns the most-likely (suspect, weapon, location) tuple when confident.
         """
         self._cache_notebook(state)
         notebook = self._last_notebook
         if notebook is None:
             return False
 
-        is_solved = getattr(notebook, "is_solved", None)
-        if callable(is_solved) and is_solved():
-            solution = getattr(notebook, "get_solution", None)
-            if callable(solution):
-                result = solution()
-                if result is not None:
+        threshold = float(AI_CONFIG.get("RULE_BASED_ACCUSATION_THRESHOLD", 0.70))
+        confidence_check = getattr(notebook, "confident_accusation", None)
+        if callable(confidence_check) and confidence_check(threshold):
+            most_likely = getattr(notebook, "most_likely", None)
+            if callable(most_likely):
+                try:
+                    result = most_likely()
                     logger.debug("RuleBased accusing: %s", result)
                     return result
+                except Exception:
+                    pass
+
         return False
 
     def update_from_clue(self, card: Any) -> None:

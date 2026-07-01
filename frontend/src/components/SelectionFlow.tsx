@@ -279,7 +279,6 @@ export default function SelectionFlow({ mode, onComplete, onCancel, lockedLocati
                 background: `${cfg.color}08`,
               }}
             >
-              <span style={{ fontSize: 20, lineHeight: 1 }}>{cfg.icon}</span>
               <div>
                 <div className="font-pixel" style={{
                   fontSize: '5px', color: '#6a4020', letterSpacing: '1.5px', marginBottom: 2,

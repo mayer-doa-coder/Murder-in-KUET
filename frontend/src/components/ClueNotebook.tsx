@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { NotebookBoxState, NotebookData } from '../types'
 import { SUSPECTS_CARDS, WEAPONS_CARDS, LOCATIONS_CARDS } from '../types'
 
@@ -123,157 +122,129 @@ function Section({
   )
 }
 
-// ── Card reference popup ──────────────────────────────────────────────────────
 const CATEGORY_COLOR: Record<string, string> = {
   suspect:  '#ff7755',
   weapon:   '#aabbff',
   location: '#44ccaa',
 }
-const CATEGORY_LABEL: Record<string, string> = {
-  suspect:  'SUSPECT',
-  weapon:   'WEAPON',
-  location: 'LOCATION',
-}
 
-function CardReferencePopup({ hand, onClose }: { hand: import('../types').Card[]; onClose: () => void }) {
+function HandCardsPanel({ hand }: { hand: import('../types').Card[] }) {
   const grouped: Record<string, import('../types').Card[]> = { suspect: [], weapon: [], location: [] }
   hand.forEach(c => grouped[c.category]?.push(c))
 
   return (
-    <motion.div
-      style={{
-        position: 'absolute', inset: 0,
-        background: 'rgba(0,0,0,0.88)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 10,
-      }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.14, ease: 'linear' }}
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <motion.div
-        style={{
-          background: '#06080a',
-          border: '2px solid #224455',
-          boxShadow: '0 0 40px #22445544',
-          padding: '18px 22px',
-          width: '92%',
-          maxHeight: '82vh',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0,
-        }}
-        initial={{ scale: 0.9, y: 14 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 14 }}
-        transition={{ duration: 0.16, ease: 'linear' }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          marginBottom: 14, paddingBottom: 10,
-          borderBottom: '1px solid #1a2a33',
-        }}>
-          <div>
-            <div className="font-pixel" style={{ fontSize: '8px', color: '#88ccee', letterSpacing: '3px' }}>
-              MY CARDS
-            </div>
-            <div className="font-pixel" style={{ fontSize: '5px', color: '#335566', letterSpacing: '0.8px', marginTop: 4 }}>
-              {hand.length} CARD{hand.length !== 1 ? 'S' : ''} IN YOUR HAND
-            </div>
-          </div>
-          <motion.button
-            className="font-pixel"
-            style={{
-              background: 'transparent', border: '1px solid #224455',
-              color: '#88ccee', fontSize: '7px', padding: '5px 10px',
-              cursor: 'pointer', letterSpacing: '1px', flexShrink: 0,
-            }}
-            whileHover={{ background: '#22445522', borderColor: '#88ccee' }}
-            whileTap={{ scale: 0.94 }}
-            transition={{ duration: 0.06 }}
-            onClick={onClose}
-          >
-            ✕ CLOSE
-          </motion.button>
-        </div>
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 14,
+      padding: '0 2px',
+    }}>
+      <div className="font-pixel" style={{
+        fontSize: '8px', color: '#88ccee', letterSpacing: '3px', marginBottom: 2,
+      }}>
+        MY CARDS
+      </div>
+      <div className="font-pixel" style={{
+        fontSize: '5px', color: '#335566', letterSpacing: '0.8px', marginBottom: 8,
+      }}>
+        {hand.length} CARD{hand.length !== 1 ? 'S' : ''} IN HAND
+      </div>
 
-        {/* Cards grouped by category */}
-        {hand.length === 0 ? (
-          <div className="font-pixel" style={{ fontSize: '6px', color: '#334455', letterSpacing: '1px', textAlign: 'center', padding: '16px 0' }}>
-            NO CARDS IN HAND
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {(['suspect', 'weapon', 'location'] as const).map(cat => {
-              const cards = grouped[cat]
-              if (cards.length === 0) return null
-              const color = CATEGORY_COLOR[cat]
-              return (
-                <div key={cat}>
-                  <div className="font-pixel" style={{
-                    fontSize: '6px', color, letterSpacing: '1.5px',
-                    marginBottom: 6, paddingBottom: 5,
-                    borderBottom: `1px solid ${color}33`,
-                  }}>
-                    ── {CATEGORY_LABEL[cat]}S
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    {cards.map((card, i) => (
-                      <div key={card.id} style={{
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        padding: '5px 8px',
-                        background: '#0a0d10',
-                        border: `1px solid ${color}22`,
-                      }}>
-                        <span style={{
-                          fontFamily: 'monospace', fontSize: 7,
-                          color: `${color}77`, lineHeight: 1, flexShrink: 0,
-                        }}>
-                          {String(i + 1).padStart(2, '0')}
-                        </span>
-                        <span className="font-pixel" style={{
-                          flex: 1,
-                          fontSize: '6px', color: '#ccdde8',
-                          letterSpacing: '0.5px', lineHeight: 1.4,
-                        }}>
-                          {card.name.toUpperCase()}
-                        </span>
-                        <span className="font-pixel" style={{
-                          fontSize: '4px', color: `${color}99`,
-                          letterSpacing: '0.5px', flexShrink: 0,
-                        }}>
-                          {card.shortName}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Footer hint */}
+      {hand.length === 0 ? (
         <div className="font-pixel" style={{
-          marginTop: 14, paddingTop: 10,
-          borderTop: '1px solid #1a2a33',
-          fontSize: '5px', color: '#334455', letterSpacing: '0.8px', textAlign: 'center',
+          fontSize: '6px', color: '#334455', letterSpacing: '1px',
+          textAlign: 'center', padding: '16px 0',
         }}>
-          THESE ARE YOUR PRIVATE CARDS — THEY ARE NOT IN THE CASE FILE
+          NO CARDS IN HAND
         </div>
-      </motion.div>
-    </motion.div>
+      ) : (
+        (['suspect', 'weapon', 'location'] as const).map(cat => {
+          const cards = grouped[cat]
+          if (cards.length === 0) return null
+          const color = CATEGORY_COLOR[cat]
+          return (
+            <div key={cat}>
+              <div className="font-pixel" style={{
+                fontSize: '6px', color, letterSpacing: '1.5px',
+                marginBottom: 6, paddingBottom: 4,
+                borderBottom: `1px solid ${color}33`,
+              }}>
+                ── {cat.toUpperCase()}S
+              </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: 6,
+              }}>
+                {cards.map(card => (
+                  <div key={card.id} style={{
+                    display: 'flex', flexDirection: 'column',
+                    background: card.bgColor,
+                    border: `2px solid ${card.accentColor}66`,
+                    overflow: 'hidden',
+                    boxShadow: `0 0 8px ${card.accentColor}18`,
+                  }}>
+                    <div style={{ height: 70, position: 'relative', overflow: 'hidden' }}>
+                      {card.imageSrc ? (
+                        <img
+                          src={card.imageSrc}
+                          style={{
+                            width: '100%', height: '100%',
+                            imageRendering: 'pixelated',
+                            objectFit: 'cover',
+                            display: 'block',
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '100%', height: '100%',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          background: card.bgColor,
+                        }}>
+                          <span style={{
+                            fontFamily: 'monospace', fontSize: 22,
+                            color: card.accentColor, lineHeight: 1,
+                          }}>
+                            {card.icon}
+                          </span>
+                        </div>
+                      )}
+                      <div style={{
+                        position: 'absolute', inset: 0, pointerEvents: 'none',
+                        background: 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.07) 3px,rgba(0,0,0,0.07) 4px)',
+                      }} />
+                    </div>
+                    <div style={{
+                      background: 'rgba(0,0,0,0.82)',
+                      borderTop: `1px solid ${card.accentColor}33`,
+                      padding: '3px 4px',
+                    }}>
+                      <span className="font-pixel" style={{
+                        fontSize: '5px', color: card.accentColor,
+                        letterSpacing: '0.3px', display: 'block',
+                        textAlign: 'center', whiteSpace: 'pre-line', lineHeight: 1.4,
+                      }}>
+                        {card.name.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })
+      )}
+
+      <div className="font-pixel" style={{
+        marginTop: 8, paddingTop: 8,
+        borderTop: '1px solid #1a2a33',
+        fontSize: '5px', color: '#334455', letterSpacing: '0.8px',
+      }}>
+        PRIVATE — NOT IN CASE FILE
+      </div>
+    </div>
   )
 }
 
 export default function ClueNotebook({ data, hand, onChange, onClose }: Props) {
-  const [showCardList, setShowCardList] = useState(false)
-
   return (
     <motion.div
       style={{
@@ -293,14 +264,12 @@ export default function ClueNotebook({ data, hand, onChange, onClose }: Props) {
           background: '#040a06',
           border: '2px solid #226633',
           boxShadow: '0 0 60px #22663333',
-          padding: '22px 26px',
-          width: '90%',
-          maxWidth: 460,
-          maxHeight: '88vh',
-          overflowY: 'auto',
+          width: '92%',
+          maxWidth: 820,
+          maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
-          position: 'relative',
+          overflow: 'hidden',
         }}
         initial={{ scale: 0.88, y: 20 }}
         animate={{ scale: 1, y: 0 }}
@@ -310,8 +279,9 @@ export default function ClueNotebook({ data, hand, onChange, onClose }: Props) {
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-          marginBottom: 14, paddingBottom: 12,
+          padding: '18px 22px 14px',
           borderBottom: '1px solid #1a3322',
+          flexShrink: 0,
         }}>
           <div>
             <div className="font-pixel" style={{ fontSize: '9px', color: '#44cc88', letterSpacing: '3px' }}>
@@ -324,83 +294,82 @@ export default function ClueNotebook({ data, hand, onChange, onClose }: Props) {
             </div>
           </div>
 
-          {/* Header buttons */}
-          <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-            <motion.button
-              className="font-pixel"
-              style={{
-                background: showCardList ? '#1a2a3322' : 'transparent',
-                border: `1px solid ${showCardList ? '#88ccee' : '#1a3344'}`,
-                color: showCardList ? '#88ccee' : '#336655',
-                fontSize: '6px', padding: '5px 8px',
-                cursor: 'pointer', letterSpacing: '0.8px',
-              }}
-              whileHover={{ background: '#1a2a3322', borderColor: '#88ccee', color: '#88ccee' }}
-              whileTap={{ scale: 0.94 }}
-              transition={{ duration: 0.06 }}
-              onClick={() => setShowCardList(v => !v)}
-            >
-              ◈ CARD LIST
-            </motion.button>
+          <motion.button
+            className="font-pixel"
+            style={{
+              background: 'transparent', border: '1px solid #226633',
+              color: '#44cc88', fontSize: '7px', padding: '5px 10px',
+              cursor: 'pointer', letterSpacing: '1px', flexShrink: 0,
+            }}
+            whileHover={{ background: '#22663322', borderColor: '#44cc88' }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ duration: 0.06 }}
+            onClick={onClose}
+          >
+            ✕ CLOSE
+          </motion.button>
+        </div>
 
-            <motion.button
+        {/* Two-panel body */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          overflow: 'hidden',
+          minHeight: 0,
+        }}>
+          {/* LEFT — notes panel */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '18px 20px',
+            borderRight: '2px solid #0d2016',
+          }}>
+            {/* Legend */}
+            <div
               className="font-pixel"
               style={{
-                background: 'transparent', border: '1px solid #226633',
-                color: '#44cc88', fontSize: '7px', padding: '5px 10px',
-                cursor: 'pointer', letterSpacing: '1px',
+                display: 'flex', gap: 14, marginBottom: 14,
+                fontSize: '5px', letterSpacing: '0.5px',
               }}
-              whileHover={{ background: '#22663322', borderColor: '#44cc88' }}
-              whileTap={{ scale: 0.94 }}
-              transition={{ duration: 0.06 }}
-              onClick={onClose}
             >
-              ✕ CLOSE
-            </motion.button>
+              <span style={{ color: '#444455' }}>· UNKNOWN</span>
+              <span style={{ color: '#ff4444' }}>X ELIMINATED</span>
+              <span style={{ color: '#44ee88' }}>✓ CONFIRMED</span>
+            </div>
+
+            <Section
+              title="SUSPECTS"
+              cards={SUSPECTS_CARDS}
+              states={data.suspects}
+              category="suspects"
+              onChange={onChange}
+            />
+            <Section
+              title="WEAPONS"
+              cards={WEAPONS_CARDS}
+              states={data.weapons}
+              category="weapons"
+              onChange={onChange}
+            />
+            <Section
+              title="LOCATIONS"
+              cards={LOCATIONS_CARDS}
+              states={data.locations}
+              category="locations"
+              onChange={onChange}
+            />
+          </div>
+
+          {/* RIGHT — hand cards panel */}
+          <div style={{
+            width: 280, flexShrink: 0,
+            overflowY: 'auto',
+            padding: '18px 16px',
+            background: '#02080a',
+          }}>
+            <HandCardsPanel hand={hand} />
           </div>
         </div>
-
-        {/* Legend */}
-        <div
-          className="font-pixel"
-          style={{
-            display: 'flex', gap: 14, marginBottom: 14,
-            fontSize: '5px', letterSpacing: '0.5px',
-          }}
-        >
-          <span style={{ color: '#444455' }}>· UNKNOWN</span>
-          <span style={{ color: '#ff4444' }}>X ELIMINATED</span>
-          <span style={{ color: '#44ee88' }}>✓ CONFIRMED</span>
-        </div>
-
-        <Section
-          title="SUSPECTS"
-          cards={SUSPECTS_CARDS}
-          states={data.suspects}
-          category="suspects"
-          onChange={onChange}
-        />
-        <Section
-          title="WEAPONS"
-          cards={WEAPONS_CARDS}
-          states={data.weapons}
-          category="weapons"
-          onChange={onChange}
-        />
-        <Section
-          title="LOCATIONS"
-          cards={LOCATIONS_CARDS}
-          states={data.locations}
-          category="locations"
-          onChange={onChange}
-        />
-
-        {/* Card reference popup — sits inside the notebook panel */}
-        <AnimatePresence>
-          {showCardList && (
-            <CardReferencePopup hand={hand} onClose={() => setShowCardList(false)} />
-          )}
-        </AnimatePresence>
       </motion.div>
     </motion.div>
   )

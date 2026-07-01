@@ -1,43 +1,11 @@
 import { motion } from 'framer-motion'
 import type { Card } from '../types'
+import CardPill from './CardPill'
 
 interface Props {
   caseFile:  { suspect: Card; weapon: Card; location: Card }
   onExit:    () => void
   onRestart: () => void
-}
-
-function RevealCard({ card }: { card: Card }) {
-  return (
-    <motion.div
-      style={{
-        background: card.bgColor,
-        border: `2px solid ${card.accentColor}55`,
-        padding: '10px 14px',
-        display: 'flex', alignItems: 'center', gap: 9,
-      }}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <span style={{
-        fontFamily: 'monospace', fontSize: 20,
-        color: card.accentColor,
-        textShadow: `0 0 8px ${card.accentColor}55`,
-        lineHeight: 1, flexShrink: 0,
-      }}>
-        {card.icon}
-      </span>
-      <div>
-        <div className="font-pixel" style={{ fontSize: '5px', color: '#888', letterSpacing: '0.5px', marginBottom: 3 }}>
-          {card.shortName}
-        </div>
-        <div className="font-pixel" style={{ fontSize: '6px', color: card.accentColor, letterSpacing: '0.5px' }}>
-          {card.name.toUpperCase()}
-        </div>
-      </div>
-    </motion.div>
-  )
 }
 
 export default function GameOverPopup({ caseFile, onExit, onRestart }: Props) {
@@ -58,7 +26,7 @@ export default function GameOverPopup({ caseFile, onExit, onRestart }: Props) {
         style={{
           background: '#040100',
           border: '2px solid #aa110033',
-          boxShadow: '0 0 90px #880000' + '22',
+          boxShadow: '0 0 90px #88000022',
           padding: '42px 52px',
           maxWidth: 560,
           width: '90%',
@@ -69,12 +37,10 @@ export default function GameOverPopup({ caseFile, onExit, onRestart }: Props) {
         animate={{ scale: 1, y: 0 }}
         transition={{ duration: 0.32, ease: 'linear' }}
       >
-        {/* Skull */}
         <div style={{ fontFamily: 'monospace', fontSize: 36, color: '#440000', marginBottom: 14, lineHeight: 1 }}>
           ✕
         </div>
 
-        {/* GAME OVER title */}
         <motion.div
           className="font-pixel"
           style={{
@@ -95,7 +61,6 @@ export default function GameOverPopup({ caseFile, onExit, onRestart }: Props) {
           ALL SUSPECTS ELIMINATED
         </div>
 
-        {/* Divider */}
         <div style={{
           height: 1,
           background: 'repeating-linear-gradient(90deg,#cc220033 0,#cc220033 4px,transparent 4px,transparent 8px)',
@@ -109,11 +74,10 @@ export default function GameOverPopup({ caseFile, onExit, onRestart }: Props) {
           THE MURDERER ESCAPES... THE TRUTH IS REVEALED:
         </div>
 
-        {/* Case file cards */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 32 }}>
-          <RevealCard card={caseFile.suspect}  />
-          <RevealCard card={caseFile.weapon}   />
-          <RevealCard card={caseFile.location} />
+          <CardPill cardId={caseFile.suspect.id}  />
+          <CardPill cardId={caseFile.weapon.id}   />
+          <CardPill cardId={caseFile.location.id} />
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>

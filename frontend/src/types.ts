@@ -62,6 +62,7 @@ export interface RevealResult {
 
 export type Screen =
   | 'intro'
+  | 'quickPlay'
   | 'howToPlay'
   | 'gameMode'
   | 'difficulty'

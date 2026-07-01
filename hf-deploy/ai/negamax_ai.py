@@ -332,9 +332,10 @@ class NegamaxAI(StrategicEvaluationMixin, BaseAI):
         if state is None:
             raise ValueError("State cannot be None")
 
+        threshold = float(AI_CONFIG.get("NEGAMAX_ACCUSATION_THRESHOLD", 0.72))
         notebook = self._get_current_notebook(state)
         confidence_check = getattr(notebook, "confident_accusation", None)
         if callable(confidence_check):
-            return bool(confidence_check())
+            return bool(confidence_check(threshold))
 
         return False

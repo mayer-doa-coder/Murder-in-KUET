@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import LayoutWrapper from './components/LayoutWrapper'
 import { useBgMusic } from './hooks/useBgMusic'
 import IntroScreen from './screens/IntroScreen'
+import QuickPlayScreen from './screens/QuickPlayScreen'
 import GameModeScreen from './screens/GameModeScreen'
 import DifficultyScreen from './screens/DifficultyScreen'
 import PlayerCountScreen from './screens/PlayerCountScreen'
@@ -206,8 +207,9 @@ export default function App() {
   // ── back navigation ──────────────────────────────────────────────────────
   const handleBack = useCallback(() => {
     switch (screen) {
+      case 'quickPlay':       setScreen('intro'); break
       case 'howToPlay':       setScreen('intro'); break
-      case 'gameMode':        setScreen('howToPlay'); break
+      case 'gameMode':        setScreen('intro'); break
       case 'difficulty':      setScreen('gameMode'); break
       case 'playerCount':
         difficulty ? setScreen('difficulty') : setScreen('gameMode')
@@ -244,7 +246,17 @@ export default function App() {
         {screen === 'intro' && (
           <motion.div key="intro" className="absolute inset-0"
             variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
-            <IntroScreen onEnter={() => setScreen('howToPlay')} />
+            <IntroScreen
+              onQuickPlay={() => setScreen('quickPlay')}
+              onFullGuide={() => setScreen('howToPlay')}
+            />
+          </motion.div>
+        )}
+
+        {screen === 'quickPlay' && (
+          <motion.div key="quickPlay" className="absolute inset-0"
+            variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
+            <QuickPlayScreen onDone={() => setScreen('gameMode')} />
           </motion.div>
         )}
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   useBoard,
@@ -22,6 +22,7 @@ import SelectionFlow from '../components/SelectionFlow'
 import RevealResultOverlay from '../components/RevealResultOverlay'
 import StoryScreen from '../components/StoryScreen'
 import GameOverPopup from '../components/GameOverPopup'
+import VictoryScreen from '../components/VictoryScreen'
 import ClueNotebook from '../components/ClueNotebook'
 import ProbabilityNotebook from '../components/ProbabilityNotebook'
 import { useGameState } from '../hooks/useGameState'
@@ -94,11 +95,11 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
 
   useEffect(() => {
     const onDown = (e: KeyboardEvent) => {
-      if (e.key === 'a' || e.key === 'A' || e.key === ' ') { e.preventDefault(); setRevealed(true) }
-      if (e.key === 'Escape' || e.key === 'Enter') onClose()
+      if (e.key === 'Enter') { e.preventDefault(); setRevealed(true) }
+      if (e.key === 'Escape') onClose()
     }
     const onUp = (e: KeyboardEvent) => {
-      if (e.key === 'a' || e.key === 'A' || e.key === ' ') setRevealed(false)
+      if (e.key === 'Enter') setRevealed(false)
     }
     window.addEventListener('keydown', onDown)
     window.addEventListener('keyup', onUp)
@@ -213,7 +214,7 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
             animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.4, repeat: Infinity }}
             initial={{ opacity: 0 }} exit={{ opacity: 0 }}
           >
-            HOLD  [A]  TO  REVEAL  ALL
+            HOLD  ENTER  TO  REVEAL  ALL
           </motion.div>
         ) : (
           <motion.div key="revealed" className="font-pixel"
@@ -226,7 +227,7 @@ function CardsOverlay({ hand, playerName, playerIcon, playerImageSrc, playerColo
         )}
       </AnimatePresence>
       <div className="font-pixel" style={{ fontSize: 'clamp(4px, 0.7vw, 6px)', color: '#2a1600', letterSpacing: '1.5px', marginTop: 6 }}>
-        ESC / ENTER  —  CLOSE
+        ESC  —  GO  BACK
       </div>
     </motion.div>
   )
@@ -302,6 +303,16 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
 
   const actions = useTurnActions({ gs, nb, boardPlayers, deal, exitRoom, onRestart })
 
+  const [showVictory, setShowVictory] = useState(false)
+
+  const handleRevealContinue = useCallback(() => {
+    if (gs.gamePhase === 'game_over' && gs.gameWinner !== null) {
+      setShowVictory(true)
+    } else {
+      actions.handleRevealContinue()
+    }
+  }, [gs.gamePhase, gs.gameWinner, actions])
+
   const { handleDiceRelease, handleDiceSettled, handleGridClick } = useMovement({
     gs, nb, board, boardPlayers, currentPlayer, isAiTurn,
     currentSetup, cellSize, movePlayer, enterRoom, exitRoom,
@@ -318,6 +329,29 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
   useEffect(() => { if (gs.gamePhase === 'interrogation') playInterrogation() }, [gs.gamePhase, playInterrogation])
   useEffect(() => { if (gs.gamePhase === 'accusation') playAccusation() }, [gs.gamePhase, playAccusation])
   useEffect(() => { if (gs.revealResult) playReveal() }, [gs.revealResult, playReveal])
+
+  // ── Room entry toast ──────────────────────────────────────────────────────
+  const [roomToast, setRoomToast] = useState<string | null>(null)
+  const prevLocationsRef = useRef<(string | null)[]>([])
+
+  useEffect(() => {
+    const prev = prevLocationsRef.current
+    for (let i = 0; i < boardPlayers.length; i++) {
+      const loc = boardPlayers[i].currentLocation
+      if (prev[i] === null && loc !== null) {
+        const label = (ROOM_DISPLAY_NAMES[loc] ?? loc).replace('\n', ' ')
+        setRoomToast(label)
+        break
+      }
+    }
+    prevLocationsRef.current = boardPlayers.map(p => p.currentLocation)
+  }, [boardPlayers])
+
+  useEffect(() => {
+    if (!roomToast) return
+    const t = setTimeout(() => setRoomToast(null), 1800)
+    return () => clearTimeout(t)
+  }, [roomToast])
 
   // ── Derived values ────────────────────────────────────────────────────────
   const currentRoomId = currentPlayer?.currentLocation ?? null
@@ -692,6 +726,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   player={p}
                   cellSize={cellSize}
                   isSelected={i === gs.currentTurnIndex}
+                  isEliminated={gs.playerStatus[i]?.eliminated}
                   playerIndex={i}
                   onClick={() => {}}
                 />
@@ -788,12 +823,12 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   weapon:   { id: deal.caseFile.weapon.id,   icon: deal.caseFile.weapon.icon,   name: deal.caseFile.weapon.name   },
                   location: { id: deal.caseFile.location.id, icon: deal.caseFile.location.icon, name: deal.caseFile.location.name },
                 }}
-                onContinue={actions.handleRevealContinue}
+                onContinue={handleRevealContinue}
               />
             )}
           </AnimatePresence>
 
-          {/* Game over popup */}
+          {/* Game over popup (all eliminated) */}
           <AnimatePresence>
             {gs.gamePhase === 'game_over' && gs.gameWinner === null && (
               <GameOverPopup
@@ -801,6 +836,22 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 caseFile={deal.caseFile}
                 onExit={onExit}
                 onRestart={onRestart}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Victory screen (correct accusation) */}
+          <AnimatePresence>
+            {showVictory && gs.gameWinner !== null && (
+              <VictoryScreen
+                key="victory"
+                winnerName={boardPlayers[gs.gameWinner]?.name ?? 'PLAYER'}
+                winnerIcon={boardPlayers[gs.gameWinner]?.icon ?? '?'}
+                winnerImageSrc={boardPlayers[gs.gameWinner]?.imageSrc}
+                winnerColor={boardPlayers[gs.gameWinner]?.accentColor ?? '#22cc66'}
+                caseFile={deal.caseFile}
+                onRestart={onRestart}
+                onExit={onExit}
               />
             )}
           </AnimatePresence>
@@ -1075,6 +1126,39 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
               )}
             </motion.div>
           )}
+
+          {/* Room entry toast */}
+          <AnimatePresence>
+            {roomToast && (
+              <motion.div
+                key={roomToast}
+                style={{
+                  position: 'absolute', top: 14,
+                  left: 0, right: 0,
+                  display: 'flex', justifyContent: 'center',
+                  zIndex: 25, pointerEvents: 'none',
+                }}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.14, ease: 'linear' }}
+              >
+                <div style={{
+                  background: 'rgba(0,0,0,0.86)',
+                  border: '1px solid #aa660044',
+                  padding: '6px 16px',
+                  boxShadow: '0 0 20px #cc880022',
+                }}>
+                  <div className="font-pixel" style={{
+                    fontSize: '7px', color: '#cc9933',
+                    letterSpacing: '2px',
+                  }}>
+                    ENTERED {roomToast.toUpperCase()}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Sidebar */}
@@ -1086,8 +1170,19 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             padding: '14px 10px 12px', overflowY: 'auto',
           }}
         >
-          <div style={{ fontSize: '11px', color: '#cc3355', letterSpacing: '2px', marginBottom: 16 }}>
-            ── SUSPECTS ──
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 16,
+          }}>
+            <div style={{ fontSize: '11px', color: '#cc3355', letterSpacing: '2px' }}>
+              ── SUSPECTS ──
+            </div>
+            <div style={{
+              fontSize: '8px', color: '#7a3344',
+              letterSpacing: '1.5px', flexShrink: 0,
+            }}>
+              TURN {String(gs.turnCount + 1).padStart(2, '0')}
+            </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1116,6 +1211,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                         fontSize: '10px',
                         color: isElim ? '#553333' : isTurn ? '#ffdd00' : '#cc9944',
                         letterSpacing: '1.2px', marginBottom: 3,
+                        textDecoration: isElim ? 'line-through' : 'none',
                       }}>P{i + 1} · {p.name}</div>
                       <div style={{ fontSize: '8px', color: '#aa7733', letterSpacing: '0.5px' }}>
                         {isAi ? `AI${algo ? ` · ${algo.toUpperCase().replace('_','-')}` : ''}` : 'HUMAN'} · {deal.playerHands[i]?.length ?? 0} cards

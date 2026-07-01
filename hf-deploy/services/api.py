@@ -23,13 +23,14 @@ Stateless mode (portable, AI-only):
 """
 
 import logging
-import os as _os
 import time
 import uuid
 from typing import Any
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from ai.expectiminimax_ai import ExpectiminimaxAI
 from ai.mcts_ai import MctsAI
@@ -67,9 +68,21 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Allow the Vercel frontend to call this API.
-# Set ALLOWED_ORIGIN to your Vercel URL in the hosting platform's env vars.
-_allowed_origin = _os.environ.get("ALLOWED_ORIGIN", "*")
-CORS(app, origins=_allowed_origin)
+# Override ALLOWED_ORIGIN env var for local dev (e.g. ALLOWED_ORIGIN=*).
+import os as _os  # noqa: E402
+_allowed_origin = _os.environ.get(
+    "ALLOWED_ORIGIN", "https://murder-in-kuet.vercel.app"
+)
+CORS(app, origins=_allowed_origin, supports_credentials=False)
+
+# ── Rate limiting ─────────────────────────────────────────────────────────────
+# Keyed by remote IP. Default limits apply to every route unless overridden.
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "60 per hour"],
+    storage_uri="memory://",
+)
 
 # ── In-memory session store ───────────────────────────────────────────────────
 # Maps session_id (str UUID) → {"state": GameState, "created_at": float}
@@ -245,6 +258,7 @@ def health():
 
 
 @app.route("/game/start", methods=["POST"])
+@limiter.limit("10 per minute")
 def game_start():
     """Create a new game session with any mix of AI and human players.
 
@@ -308,6 +322,7 @@ def game_start():
 
 
 @app.route("/turn", methods=["POST"])
+@limiter.limit("120 per minute")
 def turn():
     """Execute one turn, handling AI and human players automatically.
 
@@ -455,6 +470,7 @@ def turn():
 
 
 @app.route("/human/turn", methods=["POST"])
+@limiter.limit("120 per minute")
 def human_turn():
     """Submit a human player's choices to execute their pending turn.
 

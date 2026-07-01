@@ -70,9 +70,10 @@ export function useTurnActions({
     gamePhase, pendingReveal, pendingPhaseAfterStory,
     currentTurnIndex, setPlayerStatus, setGameWinner,
     setPendingReveal, setPendingPhaseAfterStory, setStoryText,
+    setTurnCount,
   } = gs
   const {
-    setProbNotebooks, setNotebooks, setShowCards, setShowNotebook, updateNotebookBox,
+    setProbNotebooks, setNotebooks, setShowCards, setShowNotebook,
   } = nb
 
   // ── advanceTurn ─────────────────────────────────────────────────────────────
@@ -96,12 +97,14 @@ export function useTurnActions({
       }
       return next
     })
+    setTurnCount(prev => prev + 1)
     setGamePhase('idle')
   }, [
     boardPlayers.length,
     setDiceValue, setDiceRolling, setPathCells, setPassageCells,
     setMovePath, setMoveStep, setRevealResult, setRemainingMoves,
     remainingMovesRef, setCurrentTurnIndex, playerStatusRef, setGamePhase,
+    setTurnCount,
   ])
 
   // ── handleAction (TurnOverlay) ───────────────────────────────────────────────
@@ -150,8 +153,6 @@ export function useTurnActions({
       setProbNotebooks(prev => prev.map((nb, i) =>
         i === currentTurnIndex ? eliminateCard(nb, revealedCardId) : nb
       ))
-      const cat = cardCategory(revealedCardId)
-      if (cat) updateNotebookBox(currentTurnIndex, cat, revealedCardId, 'X')
     } else {
       setProbNotebooks(prev => prev.map(nb =>
         updateNoReveal(nb, result.suspect, result.weapon, locationCardId)
@@ -164,7 +165,7 @@ export function useTurnActions({
     setGamePhase('story')
   }, [
     boardPlayers, currentTurnIndex, deal.playerHands,
-    updateNotebookBox, setProbNotebooks,
+    setProbNotebooks,
     setPendingReveal, setPendingPhaseAfterStory, setStoryText, setGamePhase,
   ])
 

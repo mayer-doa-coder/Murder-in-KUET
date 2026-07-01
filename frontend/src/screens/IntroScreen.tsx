@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import PixelButton from '../components/PixelButton'
 
 interface IntroScreenProps {
-  onEnter: () => void
+  onQuickPlay: () => void
+  onFullGuide: () => void
 }
 
 const BLOOD_DRIPS = [
@@ -26,7 +27,7 @@ const SPLATTER_DOTS = Array.from({ length: 24 }, (_, i) => ({
   opacity: Math.random() * 0.4 + 0.1,
 }))
 
-export default function IntroScreen({ onEnter }: IntroScreenProps) {
+export default function IntroScreen({ onQuickPlay, onFullGuide }: IntroScreenProps) {
   const [showSubtitle, setShowSubtitle] = useState(false)
   const [showButton, setShowButton] = useState(false)
   const [glitching, setGlitching] = useState(false)
@@ -210,26 +211,37 @@ export default function IntroScreen({ onEnter }: IntroScreenProps) {
           )}
         </AnimatePresence>
 
-        {/* Enter button */}
+        {/* Entry choices */}
         <AnimatePresence>
           {showButton && (
             <motion.div
+              className="flex flex-col items-center"
+              style={{ gap: '14px' }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="mt-4"
             >
-              <PixelButton onClick={onEnter} color="red">
-                ► ENTER ◄
+              <PixelButton onClick={onQuickPlay} color="red">
+                ► QUICK PLAY ◄
               </PixelButton>
-              <motion.div
-                className="font-pixel mt-4"
-                style={{ color: '#440000', fontSize: '7px', letterSpacing: '2px' }}
-                animate={{ opacity: [0.3, 0.8, 0.3] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
+
+              <button
+                onClick={onFullGuide}
+                className="font-pixel"
+                style={{
+                  marginTop: '6px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#8b5c2a',
+                  fontSize: '9px',
+                  letterSpacing: '2px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '4px',
+                }}
               >
-                PRESS ENTER OR CLICK
-              </motion.div>
+                READ THE FULL RULES INSTEAD
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
