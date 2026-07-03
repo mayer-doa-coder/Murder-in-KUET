@@ -154,7 +154,7 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onS
                 style={{
                   height: '52px',
                   background: isSelected ? 'rgba(92,60,0,0.35)' : 'transparent',
-                  border: `2px solid ${isSelected ? player.character.accentColor + '44' : 'transparent'}`,
+                  border: `2px solid ${isSelected ? player.accentColor + '44' : 'transparent'}`,
                   transition: 'background 0.15s, border-color 0.15s',
                   boxSizing: 'border-box',
                 }}
@@ -180,7 +180,7 @@ export default function PlayerCardsMenuScreen({ players, deal, onViewPlayer, onS
                     }
                     transition={{ duration: 1.2, repeat: isSelected ? Infinity : 0 }}
                   >
-                    SHOW {player.character.name}&apos;S CARDS
+                    SHOW {player.name}&apos;S CARDS
                   </motion.span>
                   <span className="font-pixel" style={{
                     fontSize: '7px',

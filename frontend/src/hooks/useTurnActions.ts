@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react'
 import type { BoardPlayer } from './useBoard'
-import type { GameDeal, NotebookBoxState } from '../types'
+import type { GameDeal, NotebookBoxState, PlayerSetup } from '../types'
 import { ALL_CARDS } from '../types'
 import { ROOM_DISPLAY_NAMES, ROOM_TO_LOCATION_CARD } from './useBoard'
 import { eliminateCard, updateNoReveal } from '../lib/probabilityNotebook'
@@ -39,6 +39,7 @@ function runRevealLoop(
 
 export interface TurnActionsValues {
   advanceTurn: () => void
+  finishMove: () => void
   handleAction: (id: string) => void
   handleInterrogationComplete: (result: SelectionFlowResult) => void
   handleAccusationComplete: (result: SelectionFlowResult) => void
@@ -54,14 +55,15 @@ export interface TurnActionsValues {
 interface Params {
   gs: GameStateValues
   nb: NotebooksValues
-  boardPlayers: BoardPlayer[]
+  players: PlayerSetup[]
+  boardSuspects: BoardPlayer[]
   deal: GameDeal
-  exitRoom: (playerId: string) => void
+  exitRoom: (suspectId: string) => void
   onRestart: () => void
 }
 
 export function useTurnActions({
-  gs, nb, boardPlayers, deal, exitRoom, onRestart,
+  gs, nb, players, boardSuspects, deal, exitRoom, onRestart,
 }: Params): TurnActionsValues {
   const {
     setGamePhase, setDiceValue, setDiceRolling, setPathCells, setPassageCells,
@@ -71,10 +73,35 @@ export function useTurnActions({
     currentTurnIndex, setPlayerStatus, setGameWinner,
     setPendingReveal, setPendingPhaseAfterStory, setStoryText,
     setTurnCount,
+    selectedSuspectId, setSelectedSuspectId, setHasMovedThisTurn,
+    hasMovedThisTurn,
   } = gs
+
+  const movingToken = boardSuspects.find(s => s.id === selectedSuspectId)
   const {
     setProbNotebooks, setNotebooks, setShowCards, setShowNotebook,
   } = nb
+
+  // ── finishMove ──────────────────────────────────────────────────────────────
+  // Ends the movement portion of the turn without advancing. Returns to idle so
+  // the current player may interrogate (if their token is now in a room) or end
+  // the turn.
+  const finishMove = useCallback(() => {
+    setDiceValue(null)
+    setDiceRolling(false)
+    setPathCells([])
+    setPassageCells([])
+    setMovePath([])
+    setMoveStep(0)
+    setRemainingMoves(0)
+    remainingMovesRef.current = 0
+    setHasMovedThisTurn(true)
+    setGamePhase('idle')
+  }, [
+    setDiceValue, setDiceRolling, setPathCells, setPassageCells,
+    setMovePath, setMoveStep, setRemainingMoves, remainingMovesRef,
+    setHasMovedThisTurn, setGamePhase,
+  ])
 
   // ── advanceTurn ─────────────────────────────────────────────────────────────
   const advanceTurn = useCallback(() => {
@@ -87,8 +114,10 @@ export function useTurnActions({
     setRevealResult(null)
     setRemainingMoves(0)
     remainingMovesRef.current = 0
+    setSelectedSuspectId(null)
+    setHasMovedThisTurn(false)
     setCurrentTurnIndex(prev => {
-      const n = boardPlayers.length
+      const n = players.length
       const status = playerStatusRef.current
       let next = (prev + 1) % n
       for (let i = 1; i < n; i++) {
@@ -100,53 +129,61 @@ export function useTurnActions({
     setTurnCount(prev => prev + 1)
     setGamePhase('idle')
   }, [
-    boardPlayers.length,
+    players.length,
     setDiceValue, setDiceRolling, setPathCells, setPassageCells,
     setMovePath, setMoveStep, setRevealResult, setRemainingMoves,
     remainingMovesRef, setCurrentTurnIndex, playerStatusRef, setGamePhase,
-    setTurnCount,
+    setTurnCount, setSelectedSuspectId, setHasMovedThisTurn,
   ])
 
   // ── handleAction (TurnOverlay) ───────────────────────────────────────────────
   const handleAction = useCallback((id: string) => {
     if (id === 'roll') {
+      // Must have picked a suspect token and not already moved this turn.
+      if (hasMovedThisTurn || !selectedSuspectId) return
       setGamePhase('rolling')
     } else if (id === 'interrogation') {
-      const p = boardPlayers[currentTurnIndex]
-      if (!p || !p.currentLocation) return
+      // Only after moving, and only if the moved suspect is standing in a room.
+      if (!hasMovedThisTurn || !movingToken?.currentLocation) return
       setGamePhase('interrogation')
     } else if (id === 'accusation') {
       if (playerStatusRef.current[currentTurnIndex]?.hasAccused) return
       if (playerStatusRef.current[currentTurnIndex]?.eliminated) return
       setGamePhase('accusation')
+    } else if (id === 'endturn') {
+      advanceTurn()
     } else if (id === 'cards') {
       setShowCards(true)
     } else if (id === 'notes') {
       setShowNotebook(true)
     }
-  }, [boardPlayers, currentTurnIndex, playerStatusRef, setGamePhase, setShowCards, setShowNotebook])
+  }, [
+    hasMovedThisTurn, selectedSuspectId, movingToken, currentTurnIndex,
+    playerStatusRef, setGamePhase, advanceTurn, setShowCards, setShowNotebook,
+  ])
 
   // ── handleInterrogationComplete ──────────────────────────────────────────────
   const handleInterrogationComplete = useCallback((result: SelectionFlowResult) => {
-    const p = boardPlayers[currentTurnIndex]
-    if (!p) return
-    const roomId = p.currentLocation
+    // The suspect + location are fixed by the token the player parked; only the
+    // weapon is guessed. Fall back to the result values defensively.
+    const roomId = movingToken?.currentLocation ?? null
+    const suspectId = movingToken?.id ?? result.suspect
     const locationCardId = roomId ? (ROOM_TO_LOCATION_CARD[roomId] ?? roomId) : result.location
     const roomName = roomId
       ? (ROOM_DISPLAY_NAMES[roomId] ?? roomId).replace('\n', ' ')
       : undefined
     const hands = deal.playerHands.map(h => h.map(c => c.id))
     const { revealedCardId, revealedByIdx } = runRevealLoop(
-      hands, currentTurnIndex, result.suspect, result.weapon, locationCardId
+      hands, currentTurnIndex, suspectId, result.weapon, locationCardId
     )
     const rv = {
       type: 'interrogation' as const,
-      suspectId: result.suspect,
+      suspectId,
       weaponId: result.weapon,
       locationId: locationCardId,
       roomName,
       revealedCardId,
-      revealedByName: revealedByIdx !== null ? boardPlayers[revealedByIdx]?.name ?? null : null,
+      revealedByName: revealedByIdx !== null ? players[revealedByIdx]?.name ?? null : null,
     }
 
     if (revealedCardId !== null) {
@@ -155,23 +192,23 @@ export function useTurnActions({
       ))
     } else {
       setProbNotebooks(prev => prev.map(nb =>
-        updateNoReveal(nb, result.suspect, result.weapon, locationCardId)
+        updateNoReveal(nb, suspectId, result.weapon, locationCardId)
       ))
     }
 
     setPendingReveal(rv)
     setPendingPhaseAfterStory('reveal_result')
-    setStoryText(generateStory(result.suspect, result.weapon, locationCardId))
+    setStoryText(generateStory(suspectId, result.weapon, locationCardId))
     setGamePhase('story')
   }, [
-    boardPlayers, currentTurnIndex, deal.playerHands,
+    movingToken, players, currentTurnIndex, deal.playerHands,
     setProbNotebooks,
     setPendingReveal, setPendingPhaseAfterStory, setStoryText, setGamePhase,
   ])
 
   // ── handleAccusationComplete ─────────────────────────────────────────────────
   const handleAccusationComplete = useCallback((result: SelectionFlowResult) => {
-    const p = boardPlayers[currentTurnIndex]
+    const p = players[currentTurnIndex]
     if (!p) return
 
     setPlayerStatus(ps => ps.map((s, i) =>
@@ -224,7 +261,7 @@ export function useTurnActions({
     setStoryText(generateStory(result.suspect, result.weapon, result.location))
     setGamePhase('story')
   }, [
-    boardPlayers, currentTurnIndex, deal.caseFile, deal.playerHands,
+    players, currentTurnIndex, deal.caseFile, deal.playerHands,
     setPlayerStatus, setGameWinner, setProbNotebooks, setNotebooks,
     setPendingReveal, setPendingPhaseAfterStory, setStoryText, setGamePhase,
   ])
@@ -233,12 +270,12 @@ export function useTurnActions({
   const handleStoryComplete = useCallback(() => {
     if (!pendingReveal) return
     if (pendingReveal.type === 'interrogation' && pendingReveal.revealedCardId !== null) {
-      const p = boardPlayers[currentTurnIndex]
-      if (p && p.currentLocation !== null) exitRoom(p.id)
+      // Send the interrogated suspect token back out to the grid.
+      if (movingToken && movingToken.currentLocation !== null) exitRoom(movingToken.id)
     }
     setRevealResult(pendingReveal)
     setGamePhase(pendingPhaseAfterStory)
-  }, [pendingReveal, pendingPhaseAfterStory, boardPlayers, currentTurnIndex, exitRoom, setRevealResult, setGamePhase])
+  }, [pendingReveal, pendingPhaseAfterStory, movingToken, exitRoom, setRevealResult, setGamePhase])
 
   // ── handleRevealContinue ─────────────────────────────────────────────────────
   const handleRevealContinue = useCallback(() => {
@@ -270,6 +307,7 @@ export function useTurnActions({
 
   return {
     advanceTurn,
+    finishMove,
     handleAction,
     handleInterrogationComplete,
     handleAccusationComplete,

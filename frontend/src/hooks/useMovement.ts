@@ -14,21 +14,23 @@ interface Params {
   gs: GameStateValues
   nb: NotebooksValues
   board: Cell[][]
-  boardPlayers: BoardPlayer[]
-  currentPlayer: BoardPlayer | undefined
+  // The suspect token the current player is moving this turn (chosen at turn start).
+  movingToken: BoardPlayer | undefined
   isAiTurn: boolean
   currentSetup: PlayerSetup | undefined
   cellSize: number
   movePlayer: (id: string, pos: [number, number]) => void
   enterRoom: (id: string, roomId: string) => void
   exitRoom:  (id: string) => void
-  advanceTurn: () => void
+  // Ends the movement portion of the turn: returns to idle so the player may
+  // interrogate (if the token is now in a room) or end the turn.
+  finishMove: () => void
 }
 
 export function useMovement({
   gs, nb,
-  board, currentPlayer, isAiTurn, currentSetup,
-  cellSize, movePlayer, enterRoom, exitRoom, advanceTurn,
+  board, movingToken, isAiTurn, currentSetup,
+  cellSize, movePlayer, enterRoom, exitRoom, finishMove,
 }: Params): {
   handleDiceRelease: () => void
   handleDiceSettled: () => void
@@ -55,16 +57,16 @@ export function useMovement({
   // ── Dice settled ───────────────────────────────────────────────────────────
   const handleDiceSettled = useCallback(() => {
     setDiceRolling(false)
-    if (diceValue === null || !currentPlayer) return
-    const cells = getReachableCells(board, currentPlayer.position, diceValue)
+    if (diceValue === null || !movingToken) return
+    const cells = getReachableCells(board, movingToken.position, diceValue)
 
-    const passageDoors = currentPlayer.currentLocation
-      ? getPassageDoors(currentPlayer.currentLocation)
+    const passageDoors = movingToken.currentLocation
+      ? getPassageDoors(movingToken.currentLocation)
       : []
     setPassageCells(passageDoors)
 
     if (cells.length === 0 && passageDoors.length === 0) {
-      advanceTurn()
+      finishMove()
       return
     }
     setPathCells(cells)
@@ -84,15 +86,15 @@ export function useMovement({
             doors.some(([dc, dr]) => dc === target[0] && dr === target[1])
           )?.[0]
           if (destRoomId) {
-            movePlayer(currentPlayer.id, target)
-            enterRoom(currentPlayer.id, destRoomId)
+            movePlayer(movingToken.id, target)
+            enterRoom(movingToken.id, destRoomId)
             setPassageCells([])
             setPathCells([])
-            advanceTurn()
+            finishMove()
             return
           }
         }
-        const path = findPath(board, currentPlayer.position, target)
+        const path = findPath(board, movingToken.position, target)
         if (path.length > 0) {
           setMovePath(path)
           setMoveStep(0)
@@ -102,10 +104,10 @@ export function useMovement({
           return
         }
       }
-      advanceTurn()
+      finishMove()
     }
   }, [
-    diceValue, currentPlayer, board, advanceTurn, isAiTurn, currentSetup,
+    diceValue, movingToken, board, finishMove, isAiTurn, currentSetup,
     probNotebooks, currentTurnIndex, movePlayer, enterRoom,
     setDiceRolling, setPassageCells, setPathCells, setMovePath, setMoveStep,
     setRemainingMoves, remainingMovesRef, setGamePhase,
@@ -114,7 +116,7 @@ export function useMovement({
   // ── Grid click (passage teleport for human) ────────────────────────────────
   const handleGridClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (gamePhase !== 'dice' || isAiTurn || !currentPlayer) return
+      if (gamePhase !== 'dice' || isAiTurn || !movingToken) return
       const rect = e.currentTarget.getBoundingClientRect()
       const col = Math.floor((e.clientX - rect.left) / cellSize)
       const row = Math.floor((e.clientY - rect.top) / cellSize)
@@ -124,19 +126,19 @@ export function useMovement({
         doors.some(([dc, dr]) => dc === col && dr === row)
       )?.[0]
       if (destRoomId) {
-        movePlayer(currentPlayer.id, [col, row])
-        enterRoom(currentPlayer.id, destRoomId)
+        movePlayer(movingToken.id, [col, row])
+        enterRoom(movingToken.id, destRoomId)
         setPassageCells([])
         setPathCells([])
         remainingMovesRef.current = 0
         setRemainingMoves(0)
-        advanceTurn()
+        finishMove()
       }
     },
     [
-      gamePhase, isAiTurn, currentPlayer, passageCells, cellSize,
+      gamePhase, isAiTurn, movingToken, passageCells, cellSize,
       movePlayer, enterRoom, setPassageCells, setPathCells,
-      remainingMovesRef, setRemainingMoves, advanceTurn,
+      remainingMovesRef, setRemainingMoves, finishMove,
     ]
   )
 
@@ -151,7 +153,7 @@ export function useMovement({
           setPathCells([])
           remainingMovesRef.current = 0
           setRemainingMoves(0)
-          advanceTurn()
+          finishMove()
         }
         return
       }
@@ -167,10 +169,10 @@ export function useMovement({
       e.preventDefault()
 
       if (remainingMovesRef.current <= 0) return
-      const player = currentPlayer
-      if (!player) return
+      const token = movingToken
+      if (!token) return
 
-      if (player.currentLocation !== null) exitRoom(player.id)
+      if (token.currentLocation !== null) exitRoom(token.id)
 
       const [dc, dr] = dir
       const [cc, cr] = positionRef.current
@@ -183,7 +185,7 @@ export function useMovement({
       positionRef.current = [nc, nr]
       remainingMovesRef.current -= 1
 
-      movePlayer(player.id, [nc, nr])
+      movePlayer(token.id, [nc, nr])
       setRemainingMoves(remainingMovesRef.current)
 
       if (remainingMovesRef.current > 0) {
@@ -194,24 +196,24 @@ export function useMovement({
       }
 
       if (cell.type === 'door' && cell.roomId) {
-        enterRoom(player.id, cell.roomId)
+        enterRoom(token.id, cell.roomId)
         setPathCells([])
         remainingMovesRef.current = 0
         setRemainingMoves(0)
-        advanceTurn()
+        finishMove()
         return
       }
 
       if (remainingMovesRef.current <= 0) {
-        advanceTurn()
+        finishMove()
       }
     }
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [
-    gamePhase, isAiTurn, currentPlayer, board,
-    movePlayer, exitRoom, enterRoom, advanceTurn,
+    gamePhase, isAiTurn, movingToken, board,
+    movePlayer, exitRoom, enterRoom, finishMove,
     positionRef, remainingMovesRef, setPathCells, setRemainingMoves,
   ])
 
@@ -222,24 +224,24 @@ export function useMovement({
     const t = setTimeout(() => {
       if (moveStep >= movePath.length) {
         const finalPos = movePath[movePath.length - 1]
-        if (finalPos && currentPlayer) {
+        if (finalPos && movingToken) {
           const [fc, fr] = finalPos
           const cell = board[fr]?.[fc]
           if (cell?.type === 'door' && cell.roomId) {
-            enterRoom(currentPlayer.id, cell.roomId)
+            enterRoom(movingToken.id, cell.roomId)
           }
         }
-        advanceTurn()
+        finishMove()
       } else {
         const [col, row] = movePath[moveStep]
-        if (currentPlayer) movePlayer(currentPlayer.id, [col, row])
+        if (movingToken) movePlayer(movingToken.id, [col, row])
         setMoveStep(s => s + 1)
       }
     }, delay)
     return () => clearTimeout(t)
   }, [
-    gamePhase, movePath, moveStep, currentPlayer,
-    movePlayer, advanceTurn, board, enterRoom, isAiTurn, ms, isPaused,
+    gamePhase, movePath, moveStep, movingToken,
+    movePlayer, finishMove, board, enterRoom, isAiTurn, ms, isPaused,
     setMoveStep,
   ])
 

@@ -91,34 +91,21 @@ export default function PlayerCardViewScreen({ playerIndex, players, deal, onBac
           ─── PRIVATE FILES ───
         </div>
         <div className="flex items-center justify-center gap-3">
-          {player.character.imageSrc ? (
-            <img
-              src={player.character.imageSrc}
-              style={{
-                width: Math.min(26, Math.floor(vw * 0.022)) + 'px',
-                height: Math.min(26, Math.floor(vw * 0.022)) + 'px',
-                imageRendering: 'pixelated',
-                objectFit: 'contain',
-                filter: `drop-shadow(0 0 5px ${player.character.accentColor}77)`,
-              }}
-            />
-          ) : (
-            <span style={{
-              fontFamily: 'monospace',
-              fontSize: Math.min(26, Math.floor(vw * 0.022)) + 'px',
-              color: player.character.accentColor,
-              textShadow: `0 0 10px ${player.character.accentColor}77`,
-            }}>
-              {player.character.icon}
-            </span>
-          )}
+          <span style={{
+            fontFamily: 'monospace',
+            fontSize: Math.min(26, Math.floor(vw * 0.022)) + 'px',
+            color: player.accentColor,
+            textShadow: `0 0 10px ${player.accentColor}77`,
+          }}>
+            {player.icon}
+          </span>
           <h2 className="font-pixel" style={{
             fontSize: 'clamp(18px, 3vw, 26px)',
             color: '#e8c060',
             letterSpacing: '3px',
             textShadow: '3px 3px 0 #3d2200',
           }}>
-            {player.character.name}&apos;S CARDS
+            {player.name}&apos;S CARDS
           </h2>
         </div>
       </motion.div>
@@ -215,12 +202,12 @@ export default function PlayerCardViewScreen({ playerIndex, players, deal, onBac
         className="absolute top-3 right-3 z-20 font-pixel"
         style={{
           background: '#1a0e00',
-          border: `2px solid ${player.character.accentColor}bb`,
+          border: `2px solid ${player.accentColor}bb`,
           padding: '5px 9px',
           fontSize: '8px',
-          color: player.character.accentColor,
+          color: player.accentColor,
           letterSpacing: '1px',
-          textShadow: `0 0 8px ${player.character.accentColor}99`,
+          textShadow: `0 0 8px ${player.accentColor}99`,
         }}
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}

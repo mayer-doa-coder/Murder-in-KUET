@@ -646,9 +646,9 @@ export default function CardShuffleScreen({ players, playerCount, onComplete }: 
             {/* Player labels — above stacks, never overlapping */}
             {Array.from({ length: playerCount }, (_, pi) => {
               const p = pp(pi)
-              const char = players[pi]?.character
-              const name = char?.name ?? `P${pi + 1}`
-              const labelColor = char?.accentColor ?? '#b8860b'
+              const identity = players[pi]
+              const name = identity?.name ?? `PLAYER ${pi + 1}`
+              const labelColor = identity?.accentColor ?? '#b8860b'
               return (
                 <div key={pi}>
                   <div className="font-pixel" style={{

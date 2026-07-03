@@ -1,13 +1,12 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect, useCallback } from 'react'
-import CharacterCard from '../components/CharacterCard'
 import PixelMenu from '../components/PixelMenu'
-import type { Character, GameMode, PlayerType } from '../types'
+import type { PlayerType } from '../types'
+import { PLAYER_IDENTITIES } from '../types'
 
 interface PlayerTypeScreenProps {
   playerIndex: number
-  character: Character
-  gameMode: GameMode
+  playerCount: number
   onSelect: (type: PlayerType) => void
   onBack: () => void
 }
@@ -19,7 +18,7 @@ const ALL_MENU_ITEMS = [
 
 export default function PlayerTypeScreen({
   playerIndex,
-  character,
+  playerCount,
   onSelect,
   onBack,
 }: PlayerTypeScreenProps) {
@@ -42,8 +41,8 @@ export default function PlayerTypeScreen({
     return () => window.removeEventListener('keydown', handler)
   }, [handleConfirm, onBack, menuItems])
 
-  const playerColors = ['#4477ff', '#33aa33', '#cc2200', '#cc8800', '#cc00cc', '#00cccc']
-  const playerAccent = playerColors[playerIndex] ?? '#b8860b'
+  const identity = PLAYER_IDENTITIES[playerIndex] ?? PLAYER_IDENTITIES[0]
+  const playerAccent = identity.accentColor
 
   return (
     <div
@@ -97,7 +96,7 @@ export default function PlayerTypeScreen({
           {/* Title */}
           <div className="text-center mb-6">
             <div className="font-pixel" style={{ fontSize: '7px', color: '#5c3d00', letterSpacing: '3px', marginBottom: '8px' }}>
-              ─── PLAYER {playerIndex + 1} ───
+              ─── PLAYER {playerIndex + 1} / {playerCount} ───
             </div>
             <h2
               className="font-pixel"
@@ -112,15 +111,33 @@ export default function PlayerTypeScreen({
             </h2>
           </div>
 
-          {/* ── CHARACTER PORTRAIT ── */}
+          {/* ── PLAYER IDENTITY BADGE ── */}
           <motion.div
-            className="flex justify-center mb-7"
+            className="flex flex-col items-center justify-center mb-7"
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.45, ease: 'easeOut' }}
           >
-            <div style={{ width: '150px', height: '190px' }}>
-              <CharacterCard character={character} cardState="active" />
+            <div style={{
+              width: '150px', height: '150px',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              gap: '12px',
+              background: '#0a0800',
+              border: `3px solid ${playerAccent}`,
+              boxShadow: `0 0 24px ${playerAccent}44, inset 0 0 30px rgba(0,0,0,0.8)`,
+            }}>
+              <span style={{
+                fontFamily: 'monospace', fontSize: 64, lineHeight: 1,
+                color: playerAccent, textShadow: `0 0 16px ${playerAccent}99`,
+              }}>
+                {identity.icon}
+              </span>
+              <span className="font-pixel" style={{
+                fontSize: '11px', color: playerAccent, letterSpacing: '2px',
+              }}>
+                {identity.name}
+              </span>
             </div>
           </motion.div>
 

@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react'
 import type { BoardPlayer } from './useBoard'
 import { ROOM_TO_LOCATION_CARD } from './useBoard'
 import type { PlayerSetup } from '../types'
-import { aiDecideAccusation, aiMakeSuggestion, AI_IDLE_DELAY } from '../lib/aiEngine'
+import { aiDecideAccusation, aiMakeSuggestion, aiChooseSuspect, AI_IDLE_DELAY } from '../lib/aiEngine'
 import type { GameStateValues } from './useGameState'
 import type { NotebooksValues } from './useNotebooks'
 import type { TurnActionsValues } from './useTurnActions'
@@ -10,17 +10,17 @@ import type { TurnActionsValues } from './useTurnActions'
 interface Params {
   gs: GameStateValues
   nb: NotebooksValues
-  boardPlayers: BoardPlayer[]
+  boardSuspects: BoardPlayer[]
   actions: TurnActionsValues
   currentSetup: PlayerSetup | undefined
   isAiTurn: boolean
 }
 
-export function useAITurn({ gs, nb, boardPlayers, actions, currentSetup, isAiTurn }: Params): void {
+export function useAITurn({ gs, nb, boardSuspects, actions, currentSetup, isAiTurn }: Params): void {
   const {
     gamePhase, setGamePhase, setDiceValue, setDiceRolling,
     currentTurnIndex, isPaused, ms,
-    playerStatusRef,
+    playerStatusRef, hasMovedThisTurn, selectedSuspectId, setSelectedSuspectId,
   } = gs
   const { probNotebooksRef } = nb
   const {
@@ -28,13 +28,17 @@ export function useAITurn({ gs, nb, boardPlayers, actions, currentSetup, isAiTur
     handleStoryCompleteRef, handleRevealContinueRef,
   } = actions
 
-  // Keep boardPlayersRef in sync (read inside AI timeouts via ref to avoid stale closures)
-  const boardPlayersRef = useRef(boardPlayers)
-  useEffect(() => { boardPlayersRef.current = boardPlayers }, [boardPlayers])
+  // Refs so AI timeouts read the latest values without restarting timers.
+  const boardSuspectsRef = useRef(boardSuspects)
+  useEffect(() => { boardSuspectsRef.current = boardSuspects }, [boardSuspects])
+  const selectedSuspectIdRef = useRef(selectedSuspectId)
+  useEffect(() => { selectedSuspectIdRef.current = selectedSuspectId }, [selectedSuspectId])
+  const advanceTurnRef = useRef(actions.advanceTurn)
+  useEffect(() => { advanceTurnRef.current = actions.advanceTurn }, [actions.advanceTurn])
 
-  // ── AI idle: accusation → interrogation → dice roll ───────────────────────
-  // Deps are intentionally minimal: we read probNotebooks/boardPlayers/callbacks
-  // via refs so that those updates never cancel+restart this timer.
+  // ── AI idle: accusation → (pick suspect + roll) → interrogate / end turn ─────
+  // Deps intentionally minimal; latest state is read via refs. `hasMovedThisTurn`
+  // is included so the effect re-fires when the movement portion completes.
   useEffect(() => {
     if (gamePhase !== 'idle' || !isAiTurn || isPaused) return
 
@@ -42,8 +46,8 @@ export function useAITurn({ gs, nb, boardPlayers, actions, currentSetup, isAiTur
     const t = setTimeout(() => {
       const notebook = probNotebooksRef.current[currentTurnIndex]
       const status   = playerStatusRef.current[currentTurnIndex]
-      const p        = boardPlayersRef.current[currentTurnIndex]
 
+      // 1. Accuse if confident.
       const accusation = aiDecideAccusation(notebook, algo, status?.hasAccused ?? false)
       if (accusation) {
         handleAccusationRef.current({
@@ -53,24 +57,35 @@ export function useAITurn({ gs, nb, boardPlayers, actions, currentSetup, isAiTur
         })
         return
       }
-      if (p?.currentLocation) {
+
+      // 2. Before moving: pick a suspect token to move, then roll.
+      if (!hasMovedThisTurn) {
+        const suspectId = aiChooseSuspect(notebook, algo)
+        setSelectedSuspectId(suspectId)
+        const value = Math.ceil(Math.random() * 6)
+        setDiceValue(value)
+        setDiceRolling(true)
+        setGamePhase('dice')
+        return
+      }
+
+      // 3. After moving: interrogate if the token is in a room, else end the turn.
+      const token = boardSuspectsRef.current.find(s => s.id === selectedSuspectIdRef.current)
+      if (token?.currentLocation) {
         const suggestion = aiMakeSuggestion(notebook, algo)
         handleInterrogationRef.current({
-          suspect:  suggestion.suspect,
+          suspect:  token.id,
           weapon:   suggestion.weapon,
-          location: ROOM_TO_LOCATION_CARD[p.currentLocation] ?? p.currentLocation,
+          location: ROOM_TO_LOCATION_CARD[token.currentLocation] ?? token.currentLocation,
         })
         return
       }
-      const value = Math.ceil(Math.random() * 6)
-      setDiceValue(value)
-      setDiceRolling(true)
-      setGamePhase('dice')
+      advanceTurnRef.current()
     }, ms(AI_IDLE_DELAY[algo] ?? 100))
 
     return () => clearTimeout(t)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gamePhase, isAiTurn, currentTurnIndex, currentSetup, gs.simSpeed, isPaused])
+  }, [gamePhase, isAiTurn, currentTurnIndex, currentSetup, gs.simSpeed, isPaused, hasMovedThisTurn])
 
   // ── AI: auto-continue story ───────────────────────────────────────────────
   useEffect(() => {

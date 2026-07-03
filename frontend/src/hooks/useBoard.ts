@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback } from 'react'
 import type { Cell, CellType, BoardPlayer } from '../types'
-import type { PlayerSetup } from '../types'
+import { SUSPECTS_CARDS } from '../types'
 
 export type { Cell, BoardPlayer }
 
@@ -214,47 +214,48 @@ export function getPlayerRoom(col: number, row: number): string | null {
   return null
 }
 
-export function useBoard(players: PlayerSetup[]) {
+// The 6 suspect tokens are always present on the board (independent of player count).
+// Any player may move any of them on their turn.
+export function useBoard() {
   const board = useMemo(() => initializeBoard(), [])
 
-  const initialBoardPlayers: BoardPlayer[] = useMemo(
+  const initialSuspects: BoardPlayer[] = useMemo(
     () =>
-      players.map((p) => ({
-        id: p.character.id,
-        name: p.character.name,
-        icon: p.character.icon,
-        imageSrc: p.character.imageSrc,
-        accentColor: p.character.accentColor,
-        position: (CHAR_STARTS[p.character.id] ?? [12, 12]) as [number, number],
+      SUSPECTS_CARDS.map((c) => ({
+        id: c.id,
+        name: c.name,
+        icon: c.icon,
+        imageSrc: c.imageSrc,
+        accentColor: c.accentColor,
+        position: (CHAR_STARTS[c.id] ?? [12, 12]) as [number, number],
         currentLocation: null,
       })),
-    [players]
+    []
   )
 
-  const [boardPlayers, setBoardPlayers] = useState<BoardPlayer[]>(initialBoardPlayers)
-  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(0)
+  const [boardSuspects, setBoardSuspects] = useState<BoardPlayer[]>(initialSuspects)
 
-  const movePlayer = useCallback((playerId: string, newPos: [number, number]) => {
-    setBoardPlayers((prev) =>
-      prev.map((p) => (p.id === playerId ? { ...p, position: newPos } : p))
+  const movePlayer = useCallback((suspectId: string, newPos: [number, number]) => {
+    setBoardSuspects((prev) =>
+      prev.map((p) => (p.id === suspectId ? { ...p, position: newPos } : p))
     )
   }, [])
 
-  // Place the player inside a room — position stays at door (last grid cell)
-  const enterRoom = useCallback((playerId: string, roomId: string) => {
-    setBoardPlayers((prev) =>
-      prev.map((p) => (p.id === playerId ? { ...p, currentLocation: roomId } : p))
+  // Place the suspect token inside a room — position stays at door (last grid cell)
+  const enterRoom = useCallback((suspectId: string, roomId: string) => {
+    setBoardSuspects((prev) =>
+      prev.map((p) => (p.id === suspectId ? { ...p, currentLocation: roomId } : p))
     )
   }, [])
 
-  // Return player to grid at their stored door position
-  const exitRoom = useCallback((playerId: string) => {
-    setBoardPlayers((prev) =>
-      prev.map((p) => (p.id === playerId ? { ...p, currentLocation: null } : p))
+  // Return suspect token to the grid at its stored door position
+  const exitRoom = useCallback((suspectId: string) => {
+    setBoardSuspects((prev) =>
+      prev.map((p) => (p.id === suspectId ? { ...p, currentLocation: null } : p))
     )
   }, [])
 
-  return { board, boardPlayers, selectedPlayerIndex, setSelectedPlayerIndex, movePlayer, enterRoom, exitRoom }
+  return { board, boardSuspects, movePlayer, enterRoom, exitRoom }
 }
 
 // keep cellWalkable exported for tests / future use

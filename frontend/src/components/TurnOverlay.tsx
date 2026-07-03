@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 
-type ActionId = 'roll' | 'interrogation' | 'accusation' | 'cards' | 'notes'
+type ActionId = 'roll' | 'interrogation' | 'accusation' | 'endturn' | 'cards' | 'notes'
 
 interface MenuEntry {
   id: ActionId
@@ -10,9 +10,10 @@ interface MenuEntry {
 }
 
 const ITEMS: MenuEntry[] = [
-  { id: 'roll',          label: 'ROLL',         enabled: true },
+  { id: 'roll',          label: 'ROLL',          enabled: true },
   { id: 'interrogation', label: 'INTERROGATION', enabled: true },
   { id: 'accusation',    label: 'ACCUSATION',    enabled: true },
+  { id: 'endturn',       label: 'END TURN',      enabled: true },
   { id: 'cards',         label: 'CARDS',         enabled: true },
   { id: 'notes',         label: 'CLUE NOTES',    enabled: true },
 ]
@@ -25,10 +26,11 @@ interface Props {
   playerIndex: number
   onAction: (id: ActionId) => void
   disabledActions?: ActionId[]
+  hint?: string
 }
 
 export default function TurnOverlay({
-  playerName, playerIcon, playerImageSrc, playerColor, playerIndex, onAction, disabledActions = [],
+  playerName, playerIcon, playerImageSrc, playerColor, playerIndex, onAction, disabledActions = [], hint,
 }: Props) {
   const selectableIndices = ITEMS.map((item, i) =>
     item.enabled && !disabledActions.includes(item.id) ? i : -1
@@ -130,6 +132,18 @@ export default function TurnOverlay({
       >
         ─ YOUR TURN ─
       </motion.div>
+
+      {/* Contextual hint (e.g. pick a suspect token before rolling) */}
+      {hint && (
+        <motion.div
+          className="font-pixel"
+          style={{ fontSize: '6px', color: '#88cc55', letterSpacing: '1px', marginBottom: 11, lineHeight: 1.6 }}
+          animate={{ opacity: [1, 0.5, 1] }}
+          transition={{ duration: 1.1, repeat: Infinity, ease: 'linear' }}
+        >
+          {hint}
+        </motion.div>
+      )}
 
       {/* Menu */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>

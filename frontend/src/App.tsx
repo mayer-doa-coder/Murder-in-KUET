@@ -8,16 +8,14 @@ import GameModeScreen from './screens/GameModeScreen'
 import DifficultyScreen from './screens/DifficultyScreen'
 import PlayerCountScreen from './screens/PlayerCountScreen'
 import AlgorithmSelectScreen from './screens/AlgorithmSelectScreen'
-import CharacterSelectScreen from './screens/CharacterSelectScreen'
 import PlayerTypeScreen from './screens/PlayerTypeScreen'
-import ConfirmationScreen from './screens/ConfirmationScreen'
 import CardShuffleScreen from './screens/CardShuffleScreen'
 import PlayerCardsMenuScreen from './screens/PlayerCardsMenuScreen'
 import PlayerCardViewScreen from './screens/PlayerCardViewScreen'
 import GameBoardScreen from './screens/GameBoardScreen'
 import HowToPlayScreen from './screens/HowToPlayScreen'
-import type { Difficulty, PlayerType, Screen, Character, PlayerSetup, GameDeal, GameMode, AIAlgorithm } from './types'
-import { ALL_CARDS } from './types'
+import type { Difficulty, PlayerType, Screen, PlayerSetup, GameDeal, GameMode, AIAlgorithm } from './types'
+import { ALL_CARDS, makePlayer } from './types'
 
 const pageVariants = {
   initial: { opacity: 0, y: 28 },
@@ -52,11 +50,8 @@ export default function App() {
   const [gameMode, setGameMode]                     = useState<GameMode>('human_vs_ai')
   const [difficulty, setDifficulty]                 = useState<Difficulty | null>(null)
   const [playerCount, setPlayerCount]               = useState<3 | 4 | 5 | 6>(3)
-  const [playerAlgorithms, setPlayerAlgorithms]     = useState<AIAlgorithm[]>([])
   const [players, setPlayers]                       = useState<PlayerSetup[]>([])
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0)
-  const [selectedCharacter, setSelectedCharacter]   = useState<Character | null>(null)
-  const [selectedType, setSelectedType]             = useState<PlayerType>('human')
   const [deal, setDeal]                             = useState<GameDeal | null>(null)
   const [currentViewingPlayer, setCurrentViewingPlayer] = useState(0)
 
@@ -64,8 +59,6 @@ export default function App() {
   const resetSetup = useCallback(() => {
     setPlayers([])
     setCurrentPlayerIndex(0)
-    setSelectedCharacter(null)
-    setSelectedType('human')
     setDeal(null)
     setCurrentViewingPlayer(0)
   }, [])
@@ -92,56 +85,31 @@ export default function App() {
     setPlayerCount(count)
     resetSetup()
     if (gameMode === 'ai_vs_ai') {
+      // algorithms assigned on the next screen
       setScreen('algorithmSelect')
+    } else if (gameMode === 'human_vs_human') {
+      // every player is human — no per-player screen needed
+      setPlayers(Array.from({ length: count }, (_, i) => makePlayer(i, 'human')))
+      setScreen('cardShuffle')
     } else {
-      setScreen('characterSelect')
+      // human_vs_ai → choose human/computer per player
+      setScreen('playerType')
     }
   }, [resetSetup, gameMode])
 
   const handleAlgorithmSelectConfirm = useCallback((algorithms: AIAlgorithm[]) => {
-    setPlayerAlgorithms(algorithms)
-    setScreen('characterSelect')
-  }, [])
+    setPlayers(Array.from({ length: playerCount }, (_, i) =>
+      makePlayer(i, 'computer', algorithms[i] ?? 'rule_based')
+    ))
+    setScreen('cardShuffle')
+  }, [playerCount])
 
-  const handleCharacterSelect = useCallback((char: Character) => {
-    setSelectedCharacter(char)
-    if (gameMode === 'human_vs_human') {
-      // all players are human — skip playerType screen
-      setSelectedType('human')
-      setScreen('confirmation')
-    } else if (gameMode === 'ai_vs_ai') {
-      // all players are computer — skip playerType screen
-      setSelectedType('computer')
-      setScreen('confirmation')
-    } else {
-      setScreen('playerType')
-    }
-  }, [gameMode])
-
+  // ── human_vs_ai: per-player type selection ────────────────────────────────
   const handlePlayerTypeSelect = useCallback((type: PlayerType) => {
-    setSelectedType(type)
-    setScreen('confirmation')
-  }, [])
-
-  const handleConfirmNext = useCallback(() => {
-    if (!selectedCharacter) return
-
-    let algo: AIAlgorithm | undefined
-    if (selectedType === 'computer') {
-      if (gameMode === 'ai_vs_ai') {
-        algo = playerAlgorithms[currentPlayerIndex] ?? 'rule_based'
-      } else if (difficulty) {
-        algo = difficultyToAlgorithm(difficulty)
-      } else {
-        algo = 'rule_based'
-      }
-    }
-
-    const newPlayer: PlayerSetup = {
-      character: selectedCharacter,
-      type: selectedType,
-      ...(algo !== undefined ? { aiAlgorithm: algo } : {}),
-    }
+    const algo = type === 'computer'
+      ? (difficulty ? difficultyToAlgorithm(difficulty) : 'rule_based')
+      : undefined
+    const newPlayer = makePlayer(currentPlayerIndex, type, algo)
     const newPlayers = [...players, newPlayer]
     setPlayers(newPlayers)
 
@@ -149,40 +117,17 @@ export default function App() {
       setScreen('cardShuffle')
     } else {
       setCurrentPlayerIndex(currentPlayerIndex + 1)
-      setSelectedCharacter(null)
-      // Pre-set type for HvH / AIvAI modes
-      if (gameMode === 'human_vs_human') setSelectedType('human')
-      else if (gameMode === 'ai_vs_ai')  setSelectedType('computer')
-      else                                setSelectedType('human')
-      setScreen('characterSelect')
     }
-  }, [selectedCharacter, selectedType, players, currentPlayerIndex, playerCount, gameMode, playerAlgorithms, difficulty])
-
-  const handleConfirmBack = useCallback(() => {
-    if (gameMode === 'human_vs_human' || gameMode === 'ai_vs_ai') {
-      setScreen('characterSelect')
-    } else {
-      setScreen('playerType')
-    }
-  }, [gameMode])
+  }, [players, currentPlayerIndex, playerCount, difficulty])
 
   const handlePlayerTypeBack = useCallback(() => {
-    setSelectedCharacter(null)
-    setScreen('characterSelect')
-  }, [])
-
-  const handleCharacterSelectBack = useCallback(() => {
     if (currentPlayerIndex === 0) {
       setScreen('playerCount')
     } else {
       setPlayers(prev => prev.slice(0, -1))
-      const prevIndex = currentPlayerIndex - 1
-      setCurrentPlayerIndex(prevIndex)
-      setSelectedCharacter(players[prevIndex].character)
-      setSelectedType(players[prevIndex].type)
-      setScreen('confirmation')
+      setCurrentPlayerIndex(currentPlayerIndex - 1)
     }
-  }, [currentPlayerIndex, players])
+  }, [currentPlayerIndex])
 
   // ── card-deal handlers ────────────────────────────────────────────────────
   const handleShuffleComplete = useCallback((gameDeal: GameDeal) => {
@@ -215,14 +160,12 @@ export default function App() {
         difficulty ? setScreen('difficulty') : setScreen('gameMode')
         break
       case 'algorithmSelect': setScreen('playerCount'); break
-      case 'characterSelect': handleCharacterSelectBack(); break
       case 'playerType':      handlePlayerTypeBack(); break
-      case 'confirmation':    handleConfirmBack(); break
       case 'cardShuffle':     resetSetup(); setScreen('playerCount'); break
       case 'playerCardsMenu': resetSetup(); setScreen('gameMode'); break
       case 'playerCardView':  handleCardViewBack(); break
     }
-  }, [screen, difficulty, handleCharacterSelectBack, handlePlayerTypeBack, handleConfirmBack, handleCardViewBack, resetSetup])
+  }, [screen, difficulty, handlePlayerTypeBack, handleCardViewBack, resetSetup])
 
   // ── restart ───────────────────────────────────────────────────────────────
   const handleStartGame = useCallback(() => {
@@ -232,11 +175,8 @@ export default function App() {
   const handleRestart = useCallback(() => {
     resetSetup()
     setDifficulty(null)
-    setPlayerAlgorithms([])
     setScreen('intro')
   }, [resetSetup])
-
-  const takenCharacterIds = players.map(p => p.character.id)
 
   // ── render ────────────────────────────────────────────────────────────────
   return (
@@ -295,43 +235,14 @@ export default function App() {
           </motion.div>
         )}
 
-        {screen === 'characterSelect' && (
-          <motion.div key={`characterSelect-${currentPlayerIndex}`} className="absolute inset-0"
-            variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
-            <CharacterSelectScreen
-              playerIndex={currentPlayerIndex}
-              playerCount={playerCount}
-              takenIds={takenCharacterIds}
-              onSelect={handleCharacterSelect}
-              onBack={handleCharacterSelectBack}
-            />
-          </motion.div>
-        )}
-
-        {screen === 'playerType' && selectedCharacter && (
+        {screen === 'playerType' && (
           <motion.div key={`playerType-${currentPlayerIndex}`} className="absolute inset-0"
             variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
             <PlayerTypeScreen
               playerIndex={currentPlayerIndex}
-              character={selectedCharacter}
-              gameMode={gameMode}
+              playerCount={playerCount}
               onSelect={handlePlayerTypeSelect}
               onBack={handlePlayerTypeBack}
-            />
-          </motion.div>
-        )}
-
-        {screen === 'confirmation' && selectedCharacter && (
-          <motion.div key={`confirmation-${currentPlayerIndex}`} className="absolute inset-0"
-            variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
-            <ConfirmationScreen
-              playerIndex={currentPlayerIndex}
-              playerCount={playerCount}
-              character={selectedCharacter}
-              playerType={selectedType}
-              isLastPlayer={currentPlayerIndex === playerCount - 1}
-              onNext={handleConfirmNext}
-              onBack={handleConfirmBack}
             />
           </motion.div>
         )}
@@ -434,7 +345,7 @@ export default function App() {
           animate={{ opacity: 0.6 }}
         >
           {difficulty ? `LVL:${difficulty.toUpperCase()}` : ''}
-          {['characterSelect', 'playerType', 'confirmation'].includes(screen)
+          {screen === 'playerType'
             ? `  P${currentPlayerIndex + 1}/${playerCount}`
             : ''}
         </motion.div>

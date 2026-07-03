@@ -7,11 +7,12 @@ interface PlayerTokenProps {
   isSelected: boolean
   isEliminated?: boolean
   playerIndex: number
+  stackCount?: number
   onClick: () => void
 }
 
 export default function PlayerToken({
-  player, cellSize, isSelected, isEliminated, playerIndex, onClick,
+  player, cellSize, isSelected, isEliminated, playerIndex, stackCount = 1, onClick,
 }: PlayerTokenProps) {
   const [col, row] = player.position
   const size = Math.max(10, Math.floor(cellSize * 0.68))
@@ -100,6 +101,22 @@ export default function PlayerToken({
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1.1, repeat: Infinity, ease: 'linear' }}
         />
+      )}
+
+      {/* Stack badge — multiple suspects share this block */}
+      {stackCount > 1 && !isEliminated && (
+        <div style={{
+          position: 'absolute', top: -5, right: -5,
+          minWidth: 12, height: 12, padding: '0 2px',
+          background: '#ffcc00',
+          border: '1px solid #000',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: '#000',
+          lineHeight: 1, zIndex: 12,
+          pointerEvents: 'none',
+        }}>
+          {stackCount}
+        </div>
       )}
 
       {/* ✕ elimination badge */}

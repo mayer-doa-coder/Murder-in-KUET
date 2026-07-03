@@ -31,8 +31,8 @@ import { useTurnActions } from '../hooks/useTurnActions'
 import { useMovement } from '../hooks/useMovement'
 import { useAITurn } from '../hooks/useAITurn'
 import { useAudio } from '../hooks/useAudio'
-import type { PlayerSetup, GameDeal, GameMode } from '../types'
-import { LOCATIONS_CARDS } from '../types'
+import type { PlayerSetup, GameDeal, GameMode, BoardPlayer } from '../types'
+import { LOCATIONS_CARDS, SUSPECTS_CARDS } from '../types'
 
 interface Props {
   players:         PlayerSetup[]
@@ -251,7 +251,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
   const boardW = cellSize * COLS
   const boardH = cellSize * ROWS
 
-  const { board, boardPlayers, movePlayer, enterRoom, exitRoom } = useBoard(players)
+  const { board, boardSuspects, movePlayer, enterRoom, exitRoom } = useBoard()
   const flatCells = useMemo(() => board.flat(), [board])
 
   const locationCardLayers = useMemo(() => {
@@ -292,16 +292,20 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
   const gs = useGameState(players)
   const nb = useNotebooks(players, deal)
 
-  const currentPlayer = boardPlayers[gs.currentTurnIndex]
-  const currentSetup  = players[gs.currentTurnIndex]
+  // Identity of the player whose turn it is (abstract P1..Pn — no longer a suspect).
+  const currentPlayer = players[gs.currentTurnIndex]
+  const currentSetup  = currentPlayer
   const isAiTurn      = currentSetup?.type === 'computer'
 
-  // Keep positionRef in sync with current player's grid position
-  useEffect(() => {
-    if (currentPlayer) gs.positionRef.current = currentPlayer.position
-  }, [currentPlayer, gs.positionRef])
+  // The suspect token this player is moving this turn (chosen at turn start).
+  const movingToken = boardSuspects.find(s => s.id === gs.selectedSuspectId)
 
-  const actions = useTurnActions({ gs, nb, boardPlayers, deal, exitRoom, onRestart })
+  // Keep positionRef in sync with the moving token's grid position
+  useEffect(() => {
+    if (movingToken) gs.positionRef.current = movingToken.position
+  }, [movingToken, gs.positionRef])
+
+  const actions = useTurnActions({ gs, nb, players, boardSuspects, deal, exitRoom, onRestart })
 
   const [showVictory, setShowVictory] = useState(false)
 
@@ -314,12 +318,12 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
   }, [gs.gamePhase, gs.gameWinner, actions])
 
   const { handleDiceRelease, handleDiceSettled, handleGridClick } = useMovement({
-    gs, nb, board, boardPlayers, currentPlayer, isAiTurn,
+    gs, nb, board, movingToken, isAiTurn,
     currentSetup, cellSize, movePlayer, enterRoom, exitRoom,
-    advanceTurn: actions.advanceTurn,
+    finishMove: actions.finishMove,
   })
 
-  useAITurn({ gs, nb, boardPlayers, actions, currentSetup, isAiTurn })
+  useAITurn({ gs, nb, boardSuspects, actions, currentSetup, isAiTurn })
 
   // ── Audio ─────────────────────────────────────────────────────────────────
   const { playDiceRoll, playStep, playInterrogation, playAccusation, playReveal } = useAudio()
@@ -336,16 +340,16 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
 
   useEffect(() => {
     const prev = prevLocationsRef.current
-    for (let i = 0; i < boardPlayers.length; i++) {
-      const loc = boardPlayers[i].currentLocation
+    for (let i = 0; i < boardSuspects.length; i++) {
+      const loc = boardSuspects[i].currentLocation
       if (prev[i] === null && loc !== null) {
         const label = (ROOM_DISPLAY_NAMES[loc] ?? loc).replace('\n', ' ')
         setRoomToast(label)
         break
       }
     }
-    prevLocationsRef.current = boardPlayers.map(p => p.currentLocation)
-  }, [boardPlayers])
+    prevLocationsRef.current = boardSuspects.map(p => p.currentLocation)
+  }, [boardSuspects])
 
   useEffect(() => {
     if (!roomToast) return
@@ -354,16 +358,32 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
   }, [roomToast])
 
   // ── Derived values ────────────────────────────────────────────────────────
-  const currentRoomId = currentPlayer?.currentLocation ?? null
+  // The room the moving suspect token is standing in (drives interrogation).
+  const currentRoomId = (gs.hasMovedThisTurn ? movingToken?.currentLocation : null) ?? null
 
   const disabledActions = useMemo(() => {
     const d: string[] = []
     const status = gs.playerStatus[gs.currentTurnIndex]
-    if (!currentRoomId) d.push('interrogation')
+    // Before moving: can roll (once a suspect is picked), not interrogate / end turn.
+    // After moving: can interrogate (if token in a room) / end turn, not roll again.
+    if (!gs.hasMovedThisTurn) {
+      d.push('interrogation')
+      d.push('endturn')
+      if (!gs.selectedSuspectId) d.push('roll')
+    } else {
+      d.push('roll')
+      if (!currentRoomId) d.push('interrogation')
+    }
     if (status?.hasAccused || status?.eliminated) d.push('accusation')
     if (status?.eliminated) { d.push('roll'); d.push('interrogation') }
     return d
-  }, [currentRoomId, gs.playerStatus, gs.currentTurnIndex])
+  }, [currentRoomId, gs.hasMovedThisTurn, gs.selectedSuspectId, gs.playerStatus, gs.currentTurnIndex])
+
+  const turnHint = !gs.hasMovedThisTurn
+    ? (gs.selectedSuspectId
+        ? `MOVING: ${movingToken?.name?.toUpperCase() ?? ''}`
+        : '► CLICK A SUSPECT TOKEN')
+    : (currentRoomId ? '► GUESS THE WEAPON' : undefined)
 
   const lockedLocationCard = useMemo(() => {
     if (!currentRoomId) return undefined
@@ -371,28 +391,68 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
     return LOCATIONS_CARDS.find(c => c.id === cardId)
   }, [currentRoomId])
 
-  const isZoomed = gs.gamePhase === 'idle' && !!currentPlayer
+  const lockedSuspectCard = useMemo(
+    () => SUSPECTS_CARDS.find(c => c.id === movingToken?.id),
+    [movingToken?.id]
+  )
+
+  const isZoomed = gs.gamePhase === 'idle' && !!movingToken
 
   const charColors: Record<string, string> = {}
-  boardPlayers.forEach(p => { charColors[p.id] = p.accentColor })
+  boardSuspects.forEach(p => { charColors[p.id] = p.accentColor })
 
   const lfs = Math.max(5, Math.floor(cellSize * 0.23))
+
+  // Count of suspect tokens sharing each cell — used to disambiguate stacks
+  const stackCounts = useMemo(() => {
+    const m: Record<string, number> = {}
+    boardSuspects.forEach(s => { const k = `${s.position[0]},${s.position[1]}`; m[k] = (m[k] ?? 0) + 1 })
+    return m
+  }, [boardSuspects])
+
+  // When multiple suspects share a cell, clicking opens a chooser popup
+  const [suspectPicker, setSuspectPicker] = useState<BoardPlayer[] | null>(null)
+
+  // Human clicks a suspect token to pick it (only before moving, on their turn)
+  const canSelectSuspect = gs.gamePhase === 'idle' && !isAiTurn && !gs.hasMovedThisTurn
+  const handleSuspectClick = useCallback((suspectId: string) => {
+    if (!canSelectSuspect) return
+    const clicked = boardSuspects.find(s => s.id === suspectId)
+    if (!clicked) return
+    const [cc, cr] = clicked.position
+    const stacked = boardSuspects.filter(s => s.position[0] === cc && s.position[1] === cr)
+    if (stacked.length > 1) {
+      setSuspectPicker(stacked)      // ask which suspect on this block
+    } else {
+      gs.setSelectedSuspectId(suspectId)
+    }
+  }, [canSelectSuspect, boardSuspects, gs])
+
+  const pickStackedSuspect = useCallback((suspectId: string) => {
+    gs.setSelectedSuspectId(suspectId)
+    setSuspectPicker(null)
+  }, [gs])
+
+  // Close the chooser if it is no longer the player's selection moment
+  useEffect(() => {
+    if (!canSelectSuspect && suspectPicker) setSuspectPicker(null)
+  }, [canSelectSuspect, suspectPicker])
 
   // Inline passage-dot click handler (duplicates handleGridClick for direct dot clicks)
   const handlePassageDotClick = useCallback((col: number, row: number) => {
     const destRoomId = Object.entries(DOOR_POSITIONS).find(([, doors]) =>
       doors.some(([dc, dr]) => dc === col && dr === row)
     )?.[0]
-    if (destRoomId && currentPlayer) {
-      movePlayer(currentPlayer.id, [col, row])
-      enterRoom(currentPlayer.id, destRoomId)
+    if (destRoomId && movingToken) {
+      movePlayer(movingToken.id, [col, row])
+      enterRoom(movingToken.id, destRoomId)
       gs.setPassageCells([])
       gs.setPathCells([])
       gs.remainingMovesRef.current = 0
       gs.setRemainingMoves(0)
-      actions.advanceTurn()
+      actions.finishMove()
     }
-  }, [currentPlayer, movePlayer, enterRoom, gs, actions])
+  }, [movingToken, movePlayer, enterRoom, gs, actions])
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -490,7 +550,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             {gs.gamePhase === 'reveal_result' && 'RESULT'}
             {gs.gamePhase === 'game_over'     && (
               gs.gameWinner !== null
-                ? `${boardPlayers[gs.gameWinner]?.name ?? 'PLAYER'} WINS!`
+                ? `${players[gs.gameWinner]?.name ?? 'PLAYER'} WINS!`
                 : 'GAME OVER'
             )}
           </div>
@@ -506,8 +566,8 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
           style={{ padding: PAD, background: '#040a04' }}
         >
           <CameraController
-            playerCol={currentPlayer?.position[0] ?? 12}
-            playerRow={currentPlayer?.position[1] ?? 12}
+            playerCol={movingToken?.position[0] ?? 12}
+            playerRow={movingToken?.position[1] ?? 12}
             cellSize={cellSize}
             boardW={boardW}
             boardH={boardH}
@@ -719,16 +779,16 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 )
               })}
 
-              {/* Player tokens — always visible, including when inside a room (position stays at door cell) */}
-              {boardPlayers.map((p, i) => (
+              {/* Suspect tokens — all 6 always visible, movable by any player */}
+              {boardSuspects.map((p, i) => (
                 <PlayerToken
                   key={p.id}
                   player={p}
                   cellSize={cellSize}
-                  isSelected={i === gs.currentTurnIndex}
-                  isEliminated={gs.playerStatus[i]?.eliminated}
+                  isSelected={p.id === gs.selectedSuspectId}
                   playerIndex={i}
-                  onClick={() => {}}
+                  stackCount={stackCounts[`${p.position[0]},${p.position[1]}`] ?? 1}
+                  onClick={() => handleSuspectClick(p.id)}
                 />
               ))}
             </div>
@@ -741,11 +801,11 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 key={gs.currentTurnIndex}
                 playerName={currentPlayer.name}
                 playerIcon={currentPlayer.icon}
-                playerImageSrc={currentPlayer.imageSrc}
                 playerColor={currentPlayer.accentColor}
                 playerIndex={gs.currentTurnIndex}
                 onAction={actions.handleAction}
-                disabledActions={disabledActions as ('roll' | 'interrogation' | 'accusation' | 'cards')[]}
+                disabledActions={disabledActions as ('roll' | 'interrogation' | 'accusation' | 'endturn' | 'cards' | 'notes')[]}
+                hint={turnHint}
               />
             )}
           </AnimatePresence>
@@ -782,6 +842,93 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             )}
           </AnimatePresence>
 
+          {/* Stacked-suspect chooser — pick which suspect on a shared block */}
+          <AnimatePresence>
+            {suspectPicker && (
+              <motion.div
+                key="suspect-picker"
+                style={{
+                  position: 'absolute', inset: 0, zIndex: 40,
+                  background: 'rgba(2,1,4,0.86)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                onClick={() => setSuspectPicker(null)}
+              >
+                <motion.div
+                  onClick={e => e.stopPropagation()}
+                  style={{
+                    background: '#0a0510',
+                    border: '3px solid #5c3d00',
+                    boxShadow: '6px 6px 0 #000, 0 0 30px #b8860b22',
+                    padding: '18px 20px 20px',
+                    maxWidth: '92%',
+                  }}
+                  initial={{ scale: 0.9, y: 10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.9, y: 10 }}
+                  transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="font-pixel" style={{
+                    fontSize: '8px', color: '#e8c060', letterSpacing: '2px',
+                    textAlign: 'center', marginBottom: 4,
+                  }}>
+                    CHOOSE A SUSPECT
+                  </div>
+                  <div className="font-pixel" style={{
+                    fontSize: '6px', color: '#7a5522', letterSpacing: '1px',
+                    textAlign: 'center', marginBottom: 14,
+                  }}>
+                    {suspectPicker.length} ON THIS BLOCK
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {suspectPicker.map(s => (
+                      <motion.button
+                        key={s.id}
+                        className="font-pixel"
+                        onClick={() => pickStackedSuspect(s.id)}
+                        style={{
+                          width: 92,
+                          background: '#0d0800',
+                          border: `2px solid ${s.accentColor}88`,
+                          padding: '8px 6px',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                          cursor: 'pointer',
+                        }}
+                        whileHover={{ borderColor: s.accentColor, backgroundColor: `${s.accentColor}22`, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ duration: 0.08 }}
+                      >
+                        {s.imageSrc ? (
+                          <img src={s.imageSrc} alt="" style={{
+                            width: 54, height: 54, objectFit: 'cover',
+                            imageRendering: 'pixelated', border: `1px solid ${s.accentColor}44`,
+                          }} />
+                        ) : (
+                          <span style={{ fontFamily: 'monospace', fontSize: 34, color: s.accentColor, lineHeight: 1 }}>
+                            {s.icon}
+                          </span>
+                        )}
+                        <span style={{ fontSize: '6px', color: s.accentColor, letterSpacing: '0.5px', textAlign: 'center', lineHeight: 1.4 }}>
+                          {s.name.toUpperCase()}
+                        </span>
+                      </motion.button>
+                    ))}
+                  </div>
+                  <div className="font-pixel" style={{
+                    fontSize: '5px', color: '#4a3010', letterSpacing: '1px',
+                    textAlign: 'center', marginTop: 14,
+                  }}>
+                    CLICK OUTSIDE TO CANCEL
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Selection flow (human) */}
           <AnimatePresence>
             {(gs.gamePhase === 'interrogation' || gs.gamePhase === 'accusation') && !isAiTurn && (
@@ -793,6 +940,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   : actions.handleAccusationComplete}
                 onCancel={actions.handleSelectionCancel}
                 lockedLocationCard={gs.gamePhase === 'interrogation' ? lockedLocationCard : undefined}
+                lockedSuspectCard={gs.gamePhase === 'interrogation' ? lockedSuspectCard : undefined}
               />
             )}
           </AnimatePresence>
@@ -845,10 +993,9 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             {showVictory && gs.gameWinner !== null && (
               <VictoryScreen
                 key="victory"
-                winnerName={boardPlayers[gs.gameWinner]?.name ?? 'PLAYER'}
-                winnerIcon={boardPlayers[gs.gameWinner]?.icon ?? '?'}
-                winnerImageSrc={boardPlayers[gs.gameWinner]?.imageSrc}
-                winnerColor={boardPlayers[gs.gameWinner]?.accentColor ?? '#22cc66'}
+                winnerName={players[gs.gameWinner]?.name ?? 'PLAYER'}
+                winnerIcon={players[gs.gameWinner]?.icon ?? '?'}
+                winnerColor={players[gs.gameWinner]?.accentColor ?? '#22cc66'}
                 caseFile={deal.caseFile}
                 onRestart={onRestart}
                 onExit={onExit}
@@ -891,7 +1038,6 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 hand={deal.playerHands[gs.currentTurnIndex] ?? []}
                 playerName={currentPlayer?.name ?? ''}
                 playerIcon={currentPlayer?.icon ?? ''}
-                playerImageSrc={currentPlayer?.imageSrc}
                 playerColor={currentPlayer?.accentColor ?? '#cc3355'}
                 playerIndex={gs.currentTurnIndex}
                 onClose={() => nb.setShowCards(false)}
@@ -942,7 +1088,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                   background: '#060006', borderBottom: '1px solid #220014',
                   flexShrink: 0, flexWrap: 'wrap',
                 }}>
-                  {boardPlayers.map((p, i) => {
+                  {players.map((p, i) => {
                     const isActive = i === gs.pauseViewIdx
                     const isElim   = gs.playerStatus[i]?.eliminated
                     const pSetup   = players[i]
@@ -973,12 +1119,9 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                 <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
                   {(() => {
                     const pi     = gs.pauseViewIdx
-                    const p      = boardPlayers[pi]
+                    const p      = players[pi]
                     const pSetup = players[pi]
                     const isElim = gs.playerStatus[pi]?.eliminated
-                    const roomName = p?.currentLocation
-                      ? (ROOM_DISPLAY_NAMES[p.currentLocation] ?? p.currentLocation).replace('\n', ' ')
-                      : 'HALLWAY'
                     return (
                       <div style={{ maxWidth: 700, margin: '0 auto' }}>
                         <div style={{
@@ -1004,8 +1147,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                               {isElim ? ' · ELIMINATED' : ''}
                             </div>
                             <div className="font-pixel" style={{ fontSize: '5px', color: '#664444', letterSpacing: '0.8px' }}>
-                              [{String(p?.position[0] ?? 0).padStart(2,'0')},{String(p?.position[1] ?? 0).padStart(2,'0')}] {roomName}
-                              {' · '}{deal.playerHands[pi]?.length ?? 0} CARDS
+                              {deal.playerHands[pi]?.length ?? 0} CARDS
                               {gs.playerStatus[pi]?.hasAccused ? ' · ACCUSED' : ''}
                             </div>
                           </div>
@@ -1175,7 +1317,7 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             marginBottom: 16,
           }}>
             <div style={{ fontSize: '11px', color: '#cc3355', letterSpacing: '2px' }}>
-              ── SUSPECTS ──
+              ── PLAYERS ──
             </div>
             <div style={{
               fontSize: '8px', color: '#7a3344',
@@ -1186,15 +1328,11 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {boardPlayers.map((p, i) => {
-              const isTurn   = i === gs.currentTurnIndex
-              const roomName = p.currentLocation
-                ? (ROOM_DISPLAY_NAMES[p.currentLocation] ?? p.currentLocation).replace('\n', ' ')
-                : 'HALLWAY'
-              const pSetup = players[i]
+            {players.map((p, i) => {
+              const isTurn = i === gs.currentTurnIndex
               const isElim = gs.playerStatus[i]?.eliminated
-              const isAi   = pSetup?.type === 'computer'
-              const algo   = pSetup?.aiAlgorithm
+              const isAi   = p?.type === 'computer'
+              const algo   = p?.aiAlgorithm
               return (
                 <div
                   key={p.id}
@@ -1205,14 +1343,15 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                     opacity: isElim ? 0.5 : 1,
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{ fontSize: '10px', color: p.accentColor, flexShrink: 0 }}>{p.icon}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
                         fontSize: '10px',
                         color: isElim ? '#553333' : isTurn ? '#ffdd00' : '#cc9944',
                         letterSpacing: '1.2px', marginBottom: 3,
                         textDecoration: isElim ? 'line-through' : 'none',
-                      }}>P{i + 1} · {p.name}</div>
+                      }}>{p.name}</div>
                       <div style={{ fontSize: '8px', color: '#aa7733', letterSpacing: '0.5px' }}>
                         {isAi ? `AI${algo ? ` · ${algo.toUpperCase().replace('_','-')}` : ''}` : 'HUMAN'} · {deal.playerHands[i]?.length ?? 0} cards
                       </div>
@@ -1225,14 +1364,43 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                       >●</motion.span>
                     )}
                   </div>
-                  <div style={{ fontSize: '8px', color: isTurn ? '#998844' : '#776633', letterSpacing: '0.5px' }}>
-                    {roomName}
-                  </div>
                   {isElim && (
                     <div style={{ fontSize: '8px', color: '#ee3333', letterSpacing: '0.5px', marginTop: 4 }}>
                       ✗ ELIMINATED
                     </div>
                   )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Suspect token locations — the 6 shared tokens on the board */}
+          <div style={{
+            fontSize: '9px', color: '#8a5566', letterSpacing: '1.5px',
+            margin: '14px 0 8px',
+          }}>
+            ── SUSPECT TOKENS ──
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {boardSuspects.map((s) => {
+              const roomName = s.currentLocation
+                ? (ROOM_DISPLAY_NAMES[s.currentLocation] ?? s.currentLocation).replace('\n', ' ')
+                : 'HALLWAY'
+              const isMoving = s.id === gs.selectedSuspectId
+              return (
+                <div key={s.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '3px 6px',
+                  background: isMoving ? `${s.accentColor}18` : 'transparent',
+                  border: isMoving ? `1px solid ${s.accentColor}55` : '1px solid transparent',
+                }}>
+                  <span style={{ fontSize: '9px', color: s.accentColor, flexShrink: 0 }}>{s.icon}</span>
+                  <span style={{ fontSize: '7px', color: '#cc9944', letterSpacing: '0.4px', flex: 1, minWidth: 0 }}>
+                    {s.name}
+                  </span>
+                  <span style={{ fontSize: '7px', color: s.currentLocation ? '#66aa77' : '#665544', letterSpacing: '0.3px', flexShrink: 0 }}>
+                    {roomName}
+                  </span>
                 </div>
               )
             })}

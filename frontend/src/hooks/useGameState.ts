@@ -6,6 +6,10 @@ export interface GameStateValues {
   setGamePhase: (p: GamePhase) => void
   currentTurnIndex: number
   setCurrentTurnIndex: React.Dispatch<React.SetStateAction<number>>
+  selectedSuspectId: string | null
+  setSelectedSuspectId: (v: string | null) => void
+  hasMovedThisTurn: boolean
+  setHasMovedThisTurn: (v: boolean) => void
   diceValue: number | null
   setDiceValue: (v: number | null) => void
   diceRolling: boolean
@@ -49,6 +53,8 @@ export interface GameStateValues {
 export function useGameState(players: PlayerSetup[]): GameStateValues {
   const [gamePhase, setGamePhase]       = useState<GamePhase>('idle')
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0)
+  const [selectedSuspectId, setSelectedSuspectId] = useState<string | null>(null)
+  const [hasMovedThisTurn, setHasMovedThisTurn]   = useState(false)
   const [diceValue, setDiceValue]       = useState<number | null>(null)
   const [diceRolling, setDiceRolling]   = useState(false)
   const [pathCells, setPathCells]       = useState<[number, number][]>([])
@@ -81,6 +87,8 @@ export function useGameState(players: PlayerSetup[]): GameStateValues {
   return {
     gamePhase, setGamePhase,
     currentTurnIndex, setCurrentTurnIndex,
+    selectedSuspectId, setSelectedSuspectId,
+    hasMovedThisTurn, setHasMovedThisTurn,
     diceValue, setDiceValue,
     diceRolling, setDiceRolling,
     pathCells, setPathCells,

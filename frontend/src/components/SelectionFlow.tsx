@@ -15,6 +15,7 @@ interface Props {
   onComplete: (result: SelectionFlowResult) => void
   onCancel: () => void
   lockedLocationCard?: Card
+  lockedSuspectCard?: Card
 }
 
 type Step = 'suspect' | 'weapon' | 'location'
@@ -148,14 +149,18 @@ const gridVariants = {
   exit:   { x: -50, opacity: 0 },
 }
 
-export default function SelectionFlow({ mode, onComplete, onCancel, lockedLocationCard }: Props) {
-  const twoStep = mode === 'interrogation' && !!lockedLocationCard
-  const [step, setStep]             = useState<Step>('suspect')
-  const [suspectCard, setSuspectCard] = useState<Card | null>(null)
+export default function SelectionFlow({ mode, onComplete, onCancel, lockedLocationCard, lockedSuspectCard }: Props) {
+  // weapon-only: both suspect & location fixed by the parked token → just pick a weapon
+  const weaponOnly = mode === 'interrogation' && !!lockedLocationCard && !!lockedSuspectCard
+  const twoStep = mode === 'interrogation' && !!lockedLocationCard && !weaponOnly
+  const [step, setStep]             = useState<Step>(weaponOnly ? 'weapon' : 'suspect')
+  const [suspectCard, setSuspectCard] = useState<Card | null>(weaponOnly ? lockedSuspectCard! : null)
   const [weaponCard, setWeaponCard]   = useState<Card | null>(null)
 
   const modeColor = MODE_COLOR[mode]
-  const stepList: Step[] = twoStep ? ['suspect', 'weapon'] : ['suspect', 'weapon', 'location']
+  const stepList: Step[] = weaponOnly ? ['weapon']
+    : twoStep ? ['suspect', 'weapon']
+    : ['suspect', 'weapon', 'location']
   const stepNum  = (s: Step) => stepList.indexOf(s) + 1
   const totalSteps = stepList.length
 
@@ -166,7 +171,11 @@ export default function SelectionFlow({ mode, onComplete, onCancel, lockedLocati
 
   const handleWeaponSelect = (card: Card) => {
     setWeaponCard(card)
-    if (twoStep && lockedLocationCard && suspectCard) {
+    if (weaponOnly && lockedLocationCard && lockedSuspectCard) {
+      setTimeout(() => onComplete({
+        suspect: lockedSuspectCard.id, weapon: card.id, location: lockedLocationCard.id,
+      }), 380)
+    } else if (twoStep && lockedLocationCard && suspectCard) {
       setTimeout(() => onComplete({
         suspect: suspectCard.id, weapon: card.id, location: lockedLocationCard.id,
       }), 380)
@@ -404,9 +413,9 @@ export default function SelectionFlow({ mode, onComplete, onCancel, lockedLocati
             ── SELECTION ──
           </div>
 
-          <PortraitSlot label="SUSPECT"  card={suspectCard} />
+          <PortraitSlot label="SUSPECT"  card={suspectCard} locked={weaponOnly} />
           <PortraitSlot label="WEAPON"   card={weaponCard} />
-          <PortraitSlot label="LOCATION" card={twoStep && lockedLocationCard ? lockedLocationCard : null} locked={twoStep && !!lockedLocationCard} />
+          <PortraitSlot label="LOCATION" card={(twoStep || weaponOnly) && lockedLocationCard ? lockedLocationCard : null} locked={(twoStep || weaponOnly) && !!lockedLocationCard} />
 
           {/* Ready indicator */}
           {step === 'location' && suspectCard && weaponCard && (

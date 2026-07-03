@@ -68,9 +68,7 @@ export type Screen =
   | 'difficulty'
   | 'playerCount'
   | 'algorithmSelect'
-  | 'characterSelect'
   | 'playerType'
-  | 'confirmation'
   | 'cardShuffle'
   | 'playerCardsMenu'
   | 'playerCardView'
@@ -107,10 +105,37 @@ export interface Character {
   imageSrc?: string
 }
 
+// A player is now an abstract competitor (P1..Pn) — no longer tied to a suspect.
+// The 6 suspect tokens on the board are shared and movable by any player.
 export interface PlayerSetup {
-  character:    Character
+  id:           string       // 'p1'..'p6'
+  name:         string       // 'PLAYER 1'
+  icon:         string       // glyph / number shown in HUD
+  accentColor:  string
   type:         PlayerType
   aiAlgorithm?: AIAlgorithm  // only set for computer players
+}
+
+// Generated identities assigned by player index during setup.
+export const PLAYER_IDENTITIES: { id: string; name: string; icon: string; accentColor: string }[] = [
+  { id: 'p1', name: 'PLAYER 1', icon: '①', accentColor: '#4477ff' },
+  { id: 'p2', name: 'PLAYER 2', icon: '②', accentColor: '#33aa33' },
+  { id: 'p3', name: 'PLAYER 3', icon: '③', accentColor: '#cc2200' },
+  { id: 'p4', name: 'PLAYER 4', icon: '④', accentColor: '#cc8800' },
+  { id: 'p5', name: 'PLAYER 5', icon: '⑤', accentColor: '#cc00cc' },
+  { id: 'p6', name: 'PLAYER 6', icon: '⑥', accentColor: '#00cccc' },
+]
+
+export function makePlayer(index: number, type: PlayerType, aiAlgorithm?: AIAlgorithm): PlayerSetup {
+  const id = PLAYER_IDENTITIES[index] ?? PLAYER_IDENTITIES[0]
+  return {
+    id: id.id,
+    name: id.name,
+    icon: id.icon,
+    accentColor: id.accentColor,
+    type,
+    ...(aiAlgorithm !== undefined ? { aiAlgorithm } : {}),
+  }
 }
 
 // ── Probability Notebook ──────────────────────────────────────────────────────

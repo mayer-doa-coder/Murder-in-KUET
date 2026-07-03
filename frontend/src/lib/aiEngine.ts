@@ -55,6 +55,23 @@ export function aiChooseCell(
   return rand()
 }
 
+// Pick which of the 6 suspect tokens the AI should move on its turn.
+// Strategic algorithms steer the suspect they currently deem most likely toward
+// a room to interrogate; random / exploration picks any suspect.
+export function aiChooseSuspect(
+  notebook: ProbabilityData,
+  algorithm: AIAlgorithm,
+): string {
+  const suspectIds = SUSPECTS_CARDS.map(c => c.id)
+  const randSuspect = () => suspectIds[Math.floor(Math.random() * suspectIds.length)]
+
+  if (algorithm === 'random') return randSuspect()
+  if (algorithm === 'monte_carlo' && Math.random() < 0.3) return randSuspect()
+
+  const { suspect } = mostLikely(notebook)
+  return suspect || randSuspect()
+}
+
 // Pick suspect + weapon to suggest in an interrogation
 export function aiMakeSuggestion(
   notebook: ProbabilityData,
