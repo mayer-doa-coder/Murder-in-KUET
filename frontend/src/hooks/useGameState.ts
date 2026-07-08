@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import type { GamePhase, PlayerStatus, RevealResult, PlayerSetup } from '../types'
+import type { GamePhase, PlayerStatus, RevealResult, PlayerSetup, PendingSuggestion, PlayerResponse } from '../types'
+import { STARTING_LIVES } from '../lib/bluffChallenge'
 
 export interface GameStateValues {
   gamePhase: GamePhase
@@ -24,6 +25,10 @@ export interface GameStateValues {
   setMoveStep: React.Dispatch<React.SetStateAction<number>>
   playerStatus: PlayerStatus[]
   setPlayerStatus: React.Dispatch<React.SetStateAction<PlayerStatus[]>>
+  pendingSuggestion: PendingSuggestion | null
+  setPendingSuggestion: (v: PendingSuggestion | null) => void
+  responses: PlayerResponse[]
+  setResponses: React.Dispatch<React.SetStateAction<PlayerResponse[]>>
   revealResult: RevealResult | null
   setRevealResult: (v: RevealResult | null) => void
   gameWinner: number | null
@@ -62,10 +67,14 @@ export function useGameState(players: PlayerSetup[]): GameStateValues {
   const [movePath, setMovePath]         = useState<[number, number][]>([])
   const [moveStep, setMoveStep]         = useState(0)
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus[]>(
-    () => players.map(() => ({ eliminated: false, hasAccused: false }))
+    () => players.map(() => ({ eliminated: false, hasAccused: false, lives: STARTING_LIVES }))
   )
   const playerStatusRef = useRef(playerStatus)
   useEffect(() => { playerStatusRef.current = playerStatus }, [playerStatus])
+
+  // ── Bluff & Challenge pipeline state ──────────────────────────────────────
+  const [pendingSuggestion, setPendingSuggestion] = useState<PendingSuggestion | null>(null)
+  const [responses, setResponses] = useState<PlayerResponse[]>([])
 
   const [revealResult, setRevealResult] = useState<RevealResult | null>(null)
   const [gameWinner, setGameWinner]     = useState<number | null>(null)
@@ -96,6 +105,8 @@ export function useGameState(players: PlayerSetup[]): GameStateValues {
     movePath, setMovePath,
     moveStep, setMoveStep,
     playerStatus, setPlayerStatus,
+    pendingSuggestion, setPendingSuggestion,
+    responses, setResponses,
     revealResult, setRevealResult,
     gameWinner, setGameWinner,
     remainingMoves, setRemainingMoves,

@@ -1,9 +1,13 @@
 import { useRef, useEffect, useCallback } from 'react'
 import type { BoardPlayer } from './useBoard'
-import type { GameDeal, NotebookBoxState, PlayerSetup } from '../types'
+import type {
+  GameDeal, NotebookBoxState, PlayerSetup,
+  PendingSuggestion, PlayerResponse, ResponseSummary, ChallengeSummary, RevealResult,
+} from '../types'
 import { ALL_CARDS } from '../types'
 import { ROOM_DISPLAY_NAMES, ROOM_TO_LOCATION_CARD } from './useBoard'
 import { eliminateCard, updateNoReveal } from '../lib/probabilityNotebook'
+import { claimIsTruthful, cardForClaim } from '../lib/bluffChallenge'
 import { generateStory } from '../lib/storyGenerator'
 import type { SelectionFlowResult } from '../components/SelectionFlow'
 import type { GameStateValues } from './useGameState'
@@ -11,6 +15,12 @@ import type { NotebooksValues } from './useNotebooks'
 
 // Re-export so callers don't need to import SelectionFlowResult directly.
 export type { SelectionFlowResult }
+
+// Choice the investigator makes at the end of the challenge phase.
+export interface ChallengeChoice {
+  challengedIndex:   number | null  // player to challenge, or null to skip
+  revealTargetIndex: number | null  // claimant to demand a card from, or null to auto-pick
+}
 
 function cardCategory(cardId: string): 'suspects' | 'weapons' | 'locations' | null {
   const card = ALL_CARDS.find(c => c.id === cardId)
@@ -20,28 +30,13 @@ function cardCategory(cardId: string): 'suspects' | 'weapons' | 'locations' | nu
        : 'locations'
 }
 
-function runRevealLoop(
-  hands: readonly (readonly string[])[],
-  currentIdx: number,
-  suspectId: string,
-  weaponId: string,
-  locationCardId: string,
-): { revealedCardId: string | null; revealedByIdx: number | null } {
-  const n = hands.length
-  for (let offset = 1; offset < n; offset++) {
-    const idx = (currentIdx + offset) % n
-    const hand = hands[idx]
-    const match = hand.find(c => c === suspectId || c === weaponId || c === locationCardId)
-    if (match) return { revealedCardId: match, revealedByIdx: idx }
-  }
-  return { revealedCardId: null, revealedByIdx: null }
-}
-
 export interface TurnActionsValues {
   advanceTurn: () => void
   finishMove: () => void
   handleAction: (id: string) => void
   handleInterrogationComplete: (result: SelectionFlowResult) => void
+  handleResponsesComplete: (responses: PlayerResponse[]) => void
+  handleChallengeResolve: (choice: ChallengeChoice) => void
   handleAccusationComplete: (result: SelectionFlowResult) => void
   handleStoryComplete: () => void
   handleRevealContinue: () => void
@@ -75,6 +70,7 @@ export function useTurnActions({
     setTurnCount,
     selectedSuspectId, setSelectedSuspectId, setHasMovedThisTurn,
     hasMovedThisTurn,
+    pendingSuggestion, setPendingSuggestion, responses, setResponses,
   } = gs
 
   const movingToken = boardSuspects.find(s => s.id === selectedSuspectId)
@@ -116,6 +112,8 @@ export function useTurnActions({
     remainingMovesRef.current = 0
     setSelectedSuspectId(null)
     setHasMovedThisTurn(false)
+    setPendingSuggestion(null)
+    setResponses([])
     setCurrentTurnIndex(prev => {
       const n = players.length
       const status = playerStatusRef.current
@@ -134,6 +132,7 @@ export function useTurnActions({
     setMovePath, setMoveStep, setRevealResult, setRemainingMoves,
     remainingMovesRef, setCurrentTurnIndex, playerStatusRef, setGamePhase,
     setTurnCount, setSelectedSuspectId, setHasMovedThisTurn,
+    setPendingSuggestion, setResponses,
   ])
 
   // ── handleAction (TurnOverlay) ───────────────────────────────────────────────
@@ -162,7 +161,128 @@ export function useTurnActions({
     playerStatusRef, setGamePhase, advanceTurn, setShowCards, setShowNotebook,
   ])
 
-  // ── handleInterrogationComplete ──────────────────────────────────────────────
+  // ── resolveSuggestion ────────────────────────────────────────────────────────
+  // Shared resolution used by both the normal challenge flow and the no-responder
+  // edge case. Applies life changes, resolves the card reveal against real hands,
+  // updates notebooks soundly, and hands off to the story → reveal_result beats.
+  const resolveSuggestion = useCallback((
+    suggestion: PendingSuggestion,
+    resp: PlayerResponse[],
+    choice: ChallengeChoice,
+  ) => {
+    const { investigatorIndex, suspectId, weaponId, locationCardId, roomName } = suggestion
+    const hands = deal.playerHands.map(h => h.map(c => c.id))
+    const has = (idx: number, id: string) => (hands[idx] ?? []).includes(id)
+
+    // ── Challenge resolution (adjusts lives only) ──
+    const lifeDelta: Record<number, number> = {}
+    let challengeSummary: ChallengeSummary
+    if (choice.challengedIndex !== null) {
+      const ci = choice.challengedIndex
+      const claim = resp.find(r => r.playerIndex === ci)?.claim ?? 'cannot'
+      const truthful = claimIsTruthful(claim, hands[ci] ?? [], suspectId, weaponId, locationCardId)
+      const wasBluff = !truthful
+      // Correct challenge → the bluffer loses a life. Wrong → the investigator does.
+      const penalized = wasBluff ? ci : investigatorIndex
+      lifeDelta[penalized] = (lifeDelta[penalized] ?? 0) - 1
+      challengeSummary = {
+        challengerName: players[investigatorIndex]?.name ?? 'INVESTIGATOR',
+        challengedIndex: ci,
+        challengedName: players[ci]?.name ?? null,
+        wasBluff,
+        penalizedName: players[penalized]?.name ?? null,
+      }
+    } else {
+      challengeSummary = {
+        challengerName: players[investigatorIndex]?.name ?? 'INVESTIGATOR',
+        challengedIndex: null, challengedName: null, wasBluff: null, penalizedName: null,
+      }
+    }
+
+    if (Object.keys(lifeDelta).length > 0) {
+      setPlayerStatus(ps => ps.map((s, i) =>
+        lifeDelta[i] ? { ...s, lives: Math.max(0, s.lives + lifeDelta[i]) } : s
+      ))
+    }
+
+    // ── Card reveal (normal Cluedo deduction) ──
+    const claimants = resp.filter(r => r.claim !== 'cannot')
+    let revealedCardId: string | null = null
+    let revealedByName: string | null = null
+    let bluffedReveal = false
+    let noOneCouldDisprove = false
+
+    if (claimants.length > 0) {
+      // Investigator demands a card from one claimant (auto-pick first if unset).
+      let targetIdx = choice.revealTargetIndex
+      if (targetIdx === null || !claimants.some(c => c.playerIndex === targetIdx)) {
+        targetIdx = claimants[0].playerIndex
+      }
+      const targetClaim = resp.find(r => r.playerIndex === targetIdx)?.claim ?? 'cannot'
+      const wantCard = cardForClaim(targetClaim, suspectId, weaponId, locationCardId)
+      if (wantCard && has(targetIdx, wantCard)) {
+        revealedCardId = wantCard
+        revealedByName = players[targetIdx]?.name ?? null
+      } else {
+        // Claimed to disprove but held nothing — the investigator was bluffed.
+        bluffedReveal = true
+      }
+    } else {
+      // Everyone claimed "cannot". Only feed a genuine no-reveal (nobody actually
+      // holds any suggested card) into notebooks; a hidden bluffer must not poison
+      // deduction.
+      const anyTrueHolder = resp.some(r =>
+        has(r.playerIndex, suspectId) || has(r.playerIndex, weaponId) || has(r.playerIndex, locationCardId)
+      )
+      noOneCouldDisprove = !anyTrueHolder
+    }
+
+    // ── Notebook updates (sound: private eliminate / public genuine no-reveal) ──
+    if (revealedCardId !== null) {
+      const revealed = revealedCardId
+      setProbNotebooks(prev => prev.map((nb, i) =>
+        i === investigatorIndex ? eliminateCard(nb, revealed) : nb
+      ))
+    } else if (noOneCouldDisprove) {
+      setProbNotebooks(prev => prev.map(nb =>
+        updateNoReveal(nb, suspectId, weaponId, locationCardId)
+      ))
+    }
+
+    // ── Build reveal result ──
+    const responseSummaries: ResponseSummary[] = resp.map(r => ({
+      playerIndex: r.playerIndex,
+      playerName: players[r.playerIndex]?.name ?? `P${r.playerIndex + 1}`,
+      playerIcon: players[r.playerIndex]?.icon ?? '?',
+      playerColor: players[r.playerIndex]?.accentColor ?? '#cc8800',
+      claim: r.claim,
+    }))
+
+    const rv: RevealResult = {
+      type: 'interrogation',
+      suspectId,
+      weaponId,
+      locationId: locationCardId,
+      roomName,
+      revealedCardId,
+      revealedByName,
+      investigatorName: players[investigatorIndex]?.name,
+      responses: responseSummaries,
+      challenge: challengeSummary,
+      bluffedReveal,
+      noOneCouldDisprove,
+    }
+
+    setPendingReveal(rv)
+    setPendingPhaseAfterStory('reveal_result')
+    setStoryText(generateStory(suspectId, weaponId, locationCardId))
+    setGamePhase('story')
+  }, [
+    deal.playerHands, players, setPlayerStatus, setProbNotebooks,
+    setPendingReveal, setPendingPhaseAfterStory, setStoryText, setGamePhase,
+  ])
+
+  // ── handleInterrogationComplete → opens the Response Phase ───────────────────
   const handleInterrogationComplete = useCallback((result: SelectionFlowResult) => {
     // The suspect + location are fixed by the token the player parked; only the
     // weapon is guessed. Fall back to the result values defensively.
@@ -172,39 +292,46 @@ export function useTurnActions({
     const roomName = roomId
       ? (ROOM_DISPLAY_NAMES[roomId] ?? roomId).replace('\n', ' ')
       : undefined
-    const hands = deal.playerHands.map(h => h.map(c => c.id))
-    const { revealedCardId, revealedByIdx } = runRevealLoop(
-      hands, currentTurnIndex, suspectId, result.weapon, locationCardId
-    )
-    const rv = {
-      type: 'interrogation' as const,
+
+    const suggestion: PendingSuggestion = {
+      investigatorIndex: currentTurnIndex,
       suspectId,
       weaponId: result.weapon,
-      locationId: locationCardId,
+      locationCardId,
       roomName,
-      revealedCardId,
-      revealedByName: revealedByIdx !== null ? players[revealedByIdx]?.name ?? null : null,
+    }
+    setPendingSuggestion(suggestion)
+    setResponses([])
+
+    // Responders = every non-eliminated player except the investigator.
+    const status = playerStatusRef.current
+    const hasResponders = players.some((_p, i) =>
+      i !== currentTurnIndex && !status[i]?.eliminated
+    )
+
+    if (!hasResponders) {
+      // No opponents left to respond — the suggestion stands unchallenged.
+      resolveSuggestion(suggestion, [], { challengedIndex: null, revealTargetIndex: null })
+      return
     }
 
-    if (revealedCardId !== null) {
-      setProbNotebooks(prev => prev.map((nb, i) =>
-        i === currentTurnIndex ? eliminateCard(nb, revealedCardId) : nb
-      ))
-    } else {
-      setProbNotebooks(prev => prev.map(nb =>
-        updateNoReveal(nb, suspectId, result.weapon, locationCardId)
-      ))
-    }
-
-    setPendingReveal(rv)
-    setPendingPhaseAfterStory('reveal_result')
-    setStoryText(generateStory(suspectId, result.weapon, locationCardId))
-    setGamePhase('story')
+    setGamePhase('response')
   }, [
-    movingToken, players, currentTurnIndex, deal.playerHands,
-    setProbNotebooks,
-    setPendingReveal, setPendingPhaseAfterStory, setStoryText, setGamePhase,
+    movingToken, players, currentTurnIndex, playerStatusRef,
+    setPendingSuggestion, setResponses, setGamePhase, resolveSuggestion,
   ])
+
+  // ── handleResponsesComplete → opens the Challenge Phase ──────────────────────
+  const handleResponsesComplete = useCallback((resp: PlayerResponse[]) => {
+    setResponses(resp)
+    setGamePhase('challenge')
+  }, [setResponses, setGamePhase])
+
+  // ── handleChallengeResolve → resolves challenge + card reveal ────────────────
+  const handleChallengeResolve = useCallback((choice: ChallengeChoice) => {
+    if (!pendingSuggestion) return
+    resolveSuggestion(pendingSuggestion, responses, choice)
+  }, [pendingSuggestion, responses, resolveSuggestion])
 
   // ── handleAccusationComplete ─────────────────────────────────────────────────
   const handleAccusationComplete = useCallback((result: SelectionFlowResult) => {
@@ -310,6 +437,8 @@ export function useTurnActions({
     finishMove,
     handleAction,
     handleInterrogationComplete,
+    handleResponsesComplete,
+    handleChallengeResolve,
     handleAccusationComplete,
     handleStoryComplete,
     handleRevealContinue,

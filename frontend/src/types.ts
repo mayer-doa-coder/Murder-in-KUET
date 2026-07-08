@@ -24,7 +24,7 @@ import locationWelfareImg    from './assets/cards/location_student_welfare_cente
 export type Difficulty   = 'easy' | 'medium' | 'hard'
 export type PlayerType   = 'human' | 'computer'
 export type CardCategory = 'suspect' | 'weapon' | 'location'
-export type GamePhase    = 'idle' | 'rolling' | 'dice' | 'moving' | 'interrogation' | 'accusation' | 'story' | 'reveal_result' | 'game_over'
+export type GamePhase    = 'idle' | 'rolling' | 'dice' | 'moving' | 'interrogation' | 'response' | 'challenge' | 'accusation' | 'story' | 'reveal_result' | 'game_over'
 export type GameMode     = 'human_vs_human' | 'human_vs_ai' | 'ai_vs_ai'
 export type AIAlgorithm  = 'random' | 'rule_based' | 'minimax' | 'expectiminimax' | 'negamax' | 'monte_carlo' | 'mcts'
 
@@ -45,6 +45,44 @@ export const ALL_ALGORITHMS: AIAlgorithm[] = [
 export interface PlayerStatus {
   eliminated: boolean
   hasAccused:  boolean
+  lives:       number   // Bluff & Challenge lives (2 = ♥♥). 0 = can no longer bluff.
+}
+
+// ── Bluff & Challenge system ──────────────────────────────────────────────────
+// A player's public claim about whether they can disprove a suggestion.
+export type ResponseClaim = 'suspect' | 'weapon' | 'location' | 'cannot'
+
+// The in-flight suggestion whose response/challenge phases are being resolved.
+export interface PendingSuggestion {
+  investigatorIndex: number
+  suspectId:         string
+  weaponId:          string
+  locationCardId:    string
+  roomName?:         string
+}
+
+// A single responder's collected claim during the Response Phase.
+export interface PlayerResponse {
+  playerIndex: number
+  claim:       ResponseClaim
+}
+
+// Public summary of one responder's claim, for the result overlay.
+export interface ResponseSummary {
+  playerIndex: number
+  playerName:  string
+  playerIcon:  string
+  playerColor: string
+  claim:       ResponseClaim
+}
+
+// Public outcome of the challenge phase, for the result overlay.
+export interface ChallengeSummary {
+  challengerName:  string
+  challengedIndex: number | null   // null = investigator chose not to challenge
+  challengedName:  string | null
+  wasBluff:        boolean | null  // null when no challenge was made
+  penalizedName:   string | null   // who lost a life (null when skipped)
 }
 
 export interface RevealResult {
@@ -58,6 +96,12 @@ export interface RevealResult {
   correct?:           boolean       // accusation only
   accusingPlayerName?: string
   accusingPlayerIcon?: string
+  // Bluff & Challenge extras (interrogation only)
+  investigatorName?:  string
+  responses?:         ResponseSummary[]
+  challenge?:         ChallengeSummary
+  bluffedReveal?:     boolean       // demanded a card from a claimant who had none
+  noOneCouldDisprove?: boolean      // genuine no-reveal (all truthfully "cannot")
 }
 
 export type Screen =

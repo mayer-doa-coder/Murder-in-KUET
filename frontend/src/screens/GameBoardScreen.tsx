@@ -19,6 +19,8 @@ import PathDots from '../components/PathDots'
 import CameraController from '../components/CameraController'
 import GameCard from '../components/GameCard'
 import SelectionFlow from '../components/SelectionFlow'
+import ResponsePhase from '../components/ResponsePhase'
+import ChallengePanel from '../components/ChallengePanel'
 import RevealResultOverlay from '../components/RevealResultOverlay'
 import StoryScreen from '../components/StoryScreen'
 import GameOverPopup from '../components/GameOverPopup'
@@ -33,6 +35,7 @@ import { useAITurn } from '../hooks/useAITurn'
 import { useAudio } from '../hooks/useAudio'
 import type { PlayerSetup, GameDeal, GameMode, BoardPlayer } from '../types'
 import { LOCATIONS_CARDS, SUSPECTS_CARDS } from '../types'
+import { heartsFor } from '../lib/bluffChallenge'
 
 interface Props {
   players:         PlayerSetup[]
@@ -545,6 +548,8 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             {gs.gamePhase === 'dice'          && gs.diceValue !== null && `ROLLED: ${gs.diceValue} — ${isAiTurn ? 'AI MOVING' : 'USE ARROWS'}`}
             {gs.gamePhase === 'moving'        && 'MOVING...'}
             {gs.gamePhase === 'interrogation' && 'INTERROGATION'}
+            {gs.gamePhase === 'response'      && 'RESPONSE PHASE'}
+            {gs.gamePhase === 'challenge'     && 'CHALLENGE PHASE'}
             {gs.gamePhase === 'accusation'    && 'ACCUSATION'}
             {gs.gamePhase === 'story'         && 'CRIME THEORY'}
             {gs.gamePhase === 'reveal_result' && 'RESULT'}
@@ -945,6 +950,39 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
             )}
           </AnimatePresence>
 
+          {/* Response phase (Bluff & Challenge) */}
+          <AnimatePresence>
+            {gs.gamePhase === 'response' && gs.pendingSuggestion && (
+              <ResponsePhase
+                key="response"
+                suggestion={gs.pendingSuggestion}
+                players={players}
+                playerStatus={gs.playerStatus}
+                playerHands={deal.playerHands}
+                onComplete={actions.handleResponsesComplete}
+                ms={gs.ms}
+                isPaused={gs.isPaused}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Challenge phase (Bluff & Challenge) */}
+          <AnimatePresence>
+            {gs.gamePhase === 'challenge' && gs.pendingSuggestion && (
+              <ChallengePanel
+                key="challenge"
+                suggestion={gs.pendingSuggestion}
+                players={players}
+                playerStatus={gs.playerStatus}
+                responses={gs.responses}
+                interactive={players[gs.pendingSuggestion.investigatorIndex]?.type !== 'computer'}
+                onResolve={actions.handleChallengeResolve}
+                ms={gs.ms}
+                isPaused={gs.isPaused}
+              />
+            )}
+          </AnimatePresence>
+
           {/* Story screen */}
           <AnimatePresence>
             {gs.gamePhase === 'story' && gs.pendingReveal && (
@@ -1148,6 +1186,8 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                             </div>
                             <div className="font-pixel" style={{ fontSize: '5px', color: '#664444', letterSpacing: '0.8px' }}>
                               {deal.playerHands[pi]?.length ?? 0} CARDS
+                              {' · '}<span style={{ color: '#ff4466' }}>{heartsFor(gs.playerStatus[pi]?.lives ?? 2)}</span>
+                              {(gs.playerStatus[pi]?.lives ?? 2) === 0 ? ' NO-BLUFF' : ''}
                               {gs.playerStatus[pi]?.hasAccused ? ' · ACCUSED' : ''}
                             </div>
                           </div>
@@ -1355,6 +1395,14 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
                       <div style={{ fontSize: '8px', color: '#aa7733', letterSpacing: '0.5px' }}>
                         {isAi ? `AI${algo ? ` · ${algo.toUpperCase().replace('_','-')}` : ''}` : 'HUMAN'} · {deal.playerHands[i]?.length ?? 0} cards
                       </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
+                        <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#ff4466', letterSpacing: '1px', lineHeight: 1 }}>
+                          {heartsFor(gs.playerStatus[i]?.lives ?? 2)}
+                        </span>
+                        {(gs.playerStatus[i]?.lives ?? 2) === 0 && (
+                          <span style={{ fontSize: '7px', color: '#886655', letterSpacing: '0.5px' }}>NO BLUFF</span>
+                        )}
+                      </div>
                     </div>
                     {isTurn && !isElim && (
                       <motion.span
@@ -1459,6 +1507,8 @@ export default function GameBoardScreen({ players, deal, gameMode, onExit, onRes
               {gs.gamePhase === 'dice'          && `MOVING (${gs.remainingMoves} LEFT)`}
               {gs.gamePhase === 'moving'        && 'MOVING'}
               {gs.gamePhase === 'interrogation' && 'INTERROGATION'}
+              {gs.gamePhase === 'response'      && 'RESPONSE PHASE'}
+              {gs.gamePhase === 'challenge'     && 'CHALLENGE PHASE'}
               {gs.gamePhase === 'accusation'    && 'ACCUSATION'}
               {gs.gamePhase === 'story'         && 'CRIME THEORY'}
               {gs.gamePhase === 'reveal_result' && 'RESULT'}

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import type { RevealResult } from '../types'
 import CardPill from './CardPill'
+import { CLAIM_ICON, CLAIM_COLOR, CLAIM_LABEL } from '../lib/bluffChallenge'
 
 interface Props {
   result: RevealResult
@@ -64,12 +65,59 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
               AT: {result.roomName ?? result.locationId.toUpperCase()}
             </div>
 
-            <div style={{
-              height: 1,
-              background: `repeating-linear-gradient(90deg,#cc880044 0,#cc880044 4px,transparent 4px,transparent 8px)`,
-              marginBottom: 20,
-            }} />
+            {/* ── Responses ─────────────────────────────────────────── */}
+            {result.responses && result.responses.length > 0 && (
+              <>
+                <div style={{
+                  height: 1,
+                  background: `repeating-linear-gradient(90deg,#cc880044 0,#cc880044 4px,transparent 4px,transparent 8px)`,
+                  marginBottom: 12,
+                }} />
+                <div className="font-pixel" style={{ fontSize: '7px', color: '#886644', letterSpacing: '2px', marginBottom: 8 }}>
+                  RESPONSES
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 16 }}>
+                  {result.responses.map(r => (
+                    <div key={r.playerIndex} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontFamily: 'monospace', fontSize: 11, color: r.playerColor }}>{r.playerIcon}</span>
+                      <span className="font-pixel" style={{ fontSize: '7px', color: r.playerColor, letterSpacing: '0.5px', width: 96 }}>
+                        {r.playerName.toUpperCase()}
+                      </span>
+                      <span style={{ fontFamily: 'monospace', fontSize: 12, color: CLAIM_COLOR[r.claim] }}>{CLAIM_ICON[r.claim]}</span>
+                      <span className="font-pixel" style={{ fontSize: '7px', color: CLAIM_COLOR[r.claim], letterSpacing: '0.5px' }}>
+                        {CLAIM_LABEL[r.claim]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
 
+            {/* ── Challenge outcome ─────────────────────────────────── */}
+            {result.challenge && result.challenge.challengedIndex !== null && (
+              <div style={{
+                border: `1px solid ${result.challenge.wasBluff ? '#cc4466' : '#cc8822'}66`,
+                background: result.challenge.wasBluff ? '#1a0010' : '#160d00',
+                padding: '8px 12px', marginBottom: 16,
+              }}>
+                <div className="font-pixel" style={{ fontSize: '8px', color: result.challenge.wasBluff ? '#ff6688' : '#ddaa33', letterSpacing: '1px', marginBottom: 4 }}>
+                  {result.challenge.wasBluff ? '⚔ BLUFF CAUGHT!' : '⚔ CHALLENGE FAILED'}
+                </div>
+                <div className="font-pixel" style={{ fontSize: '7px', color: '#bb9977', letterSpacing: '0.5px', lineHeight: 1.8 }}>
+                  {result.challenge.challengerName?.toUpperCase()} CHALLENGED {result.challenge.challengedName?.toUpperCase()} —{' '}
+                  {result.challenge.wasBluff ? 'IT WAS A LIE.' : 'THEY TOLD THE TRUTH.'}
+                  <br />
+                  <span style={{ color: '#ff5577' }}>♥ {result.challenge.penalizedName?.toUpperCase()} LOSES A LIFE</span>
+                </div>
+              </div>
+            )}
+            {result.challenge && result.challenge.challengedIndex === null && (
+              <div className="font-pixel" style={{ fontSize: '7px', color: '#665544', letterSpacing: '1px', marginBottom: 16 }}>
+                NO CHALLENGE MADE
+              </div>
+            )}
+
+            {/* ── Card reveal ───────────────────────────────────────── */}
             {result.revealedCardId ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div className="font-pixel" style={{
@@ -82,6 +130,20 @@ export default function RevealResultOverlay({ result, caseFile, onContinue }: Pr
                     CARD SHOWN:
                   </span>
                   <CardPill cardId={result.revealedCardId} />
+                </div>
+              </div>
+            ) : result.bluffedReveal ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <motion.div
+                  className="font-pixel"
+                  style={{ fontSize: '11px', color: '#ff6688', letterSpacing: '2px' }}
+                  animate={{ opacity: [1, 0.6, 1] }}
+                  transition={{ duration: 1.2, repeat: 3, ease: 'linear' }}
+                >
+                  NO CARD SHOWN
+                </motion.div>
+                <div className="font-pixel" style={{ fontSize: '9px', color: '#cc7788', letterSpacing: '1px' }}>
+                  THEY CLAIMED TO DISPROVE BUT REVEALED NOTHING — YOU WERE BLUFFED
                 </div>
               </div>
             ) : (
