@@ -65,6 +65,7 @@ export function useOnlineGame(active: boolean): OnlineGame {
     socketRef.current = socket
 
     socket.on('connect', () => {
+      setError(null)
       setStatus('connected')
       // Attempt to resume an in-progress seat after a reload/disconnect.
       const saved = loadSession()
@@ -72,6 +73,10 @@ export function useOnlineGame(active: boolean): OnlineGame {
         setSession(saved)
         socket.emit(EV.reconnect, { code: saved.code, token: saved.token })
       }
+    })
+    socket.on('connect_error', (err: Error) => {
+      setStatus('disconnected')
+      setError(err.message)
     })
     socket.on('disconnect', () => setStatus('disconnected'))
     socket.io.on('reconnect', () => setStatus('connected'))
