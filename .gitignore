@@ -15,6 +15,11 @@ htmlcov/
 .env
 .env.*
 *.env
+!.env.example
+
+# Node
+node_modules/
+server/dist/
 
 # OS noise
 .DS_Store

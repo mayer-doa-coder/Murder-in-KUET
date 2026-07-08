@@ -1,0 +1,19 @@
+# Render blueprint for the authoritative realtime server.
+# Deploy: New → Blueprint → point at this repo. Free tier supports WebSockets but
+# sleeps after ~15 min idle (~30s cold start) and loses in-memory rooms on restart
+# — acceptable for casual v1. The build bundles the shared TS rules from
+# ../frontend/src/shared, so the whole repo must be checked out (Render does this).
+services:
+  - type: web
+    name: murder-in-kuet-server
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      # Comma-separated list of allowed browser origins (your Vercel domain).
+      # *.vercel.app and localhost:5173 are always allowed by the server.
+      - key: ALLOWED_ORIGINS
+        sync: false

@@ -4,6 +4,7 @@ import type { GameMode } from '../types'
 
 interface Props {
   onSelect: (mode: GameMode) => void
+  onOnline?: () => void
 }
 
 const MODES: { id: GameMode; label: string; sub: string; icon: string; color: string }[] = [
@@ -12,7 +13,7 @@ const MODES: { id: GameMode; label: string; sub: string; icon: string; color: st
   { id: 'ai_vs_ai',       label: 'AI VS AI',        sub: 'OBSERVE & ANALYZE — WATCH AI AGENTS SOLVE THE MYSTERY',      icon: '⊛⊛', color: '#cc4422' },
 ]
 
-export default function GameModeScreen({ onSelect }: Props) {
+export default function GameModeScreen({ onSelect, onOnline }: Props) {
   const [cursor, setCursor] = useState(1)
 
   const handleConfirm = useCallback(() => {
@@ -170,10 +171,36 @@ export default function GameModeScreen({ onSelect }: Props) {
         })}
       </div>
 
+      {/* Online multiplayer — separate flow from the local setup modes */}
+      {onOnline && (
+        <motion.button
+          className="relative z-10 font-pixel"
+          onClick={onOnline}
+          style={{
+            marginTop: 22,
+            background: 'rgba(0,20,30,0.75)',
+            border: '2px solid #1f5566',
+            color: '#33cccc',
+            padding: '14px 26px',
+            fontSize: '10px',
+            letterSpacing: '2px',
+            cursor: 'pointer',
+            boxShadow: '3px 3px 0 #000',
+          }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          whileHover={{ scale: 1.03, borderColor: '#33cccc', color: '#66ffff' }}
+          whileTap={{ scale: 0.97 }}
+        >
+          🌐 ONLINE MULTIPLAYER — PLAY WITH FRIENDS BY ROOM CODE
+        </motion.button>
+      )}
+
       {/* Navigate hint */}
       <motion.div
         className="relative z-10 font-pixel text-center"
-        style={{ marginTop: 28, fontSize: '9px', letterSpacing: '2px', color: '#cc8833', textShadow: '0 0 8px #cc883355' }}
+        style={{ marginTop: 20, fontSize: '9px', letterSpacing: '2px', color: '#cc8833', textShadow: '0 0 8px #cc883355' }}
         animate={{ opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 2.2, repeat: Infinity }}
       >

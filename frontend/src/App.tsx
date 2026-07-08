@@ -14,6 +14,10 @@ import PlayerCardsMenuScreen from './screens/PlayerCardsMenuScreen'
 import PlayerCardViewScreen from './screens/PlayerCardViewScreen'
 import GameBoardScreen from './screens/GameBoardScreen'
 import HowToPlayScreen from './screens/HowToPlayScreen'
+import OnlineLobbyScreen from './screens/OnlineLobbyScreen'
+import WaitingRoomScreen from './screens/WaitingRoomScreen'
+import OnlineGameBoardScreen from './screens/OnlineGameBoardScreen'
+import { useOnlineGame } from './hooks/useOnlineGame'
 import type { Difficulty, PlayerType, Screen, PlayerSetup, GameDeal, GameMode, AIAlgorithm } from './types'
 import { ALL_CARDS, makePlayer } from './types'
 
@@ -54,6 +58,11 @@ export default function App() {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0)
   const [deal, setDeal]                             = useState<GameDeal | null>(null)
   const [currentViewingPlayer, setCurrentViewingPlayer] = useState(0)
+
+  // ── Online multiplayer (separate flow; local/AI modes are untouched) ────────
+  const [onlineActive, setOnlineActive] = useState(false)
+  const online = useOnlineGame(onlineActive)
+  const leaveOnline = useCallback(() => { online.leaveRoom(); setOnlineActive(false) }, [online])
 
   // ── reset all setup state ─────────────────────────────────────────────────
   const resetSetup = useCallback(() => {
@@ -178,6 +187,16 @@ export default function App() {
     setScreen('intro')
   }, [resetSetup])
 
+  // ── Online mode takes over the whole screen while active ────────────────────
+  if (onlineActive) {
+    const node = online.view
+      ? <OnlineGameBoardScreen online={online} onLeave={leaveOnline} />
+      : online.roomUpdate
+        ? <WaitingRoomScreen online={online} onLeave={leaveOnline} />
+        : <OnlineLobbyScreen online={online} onBack={leaveOnline} />
+    return <LayoutWrapper>{node}</LayoutWrapper>
+  }
+
   // ── render ────────────────────────────────────────────────────────────────
   return (
     <LayoutWrapper>
@@ -210,7 +229,7 @@ export default function App() {
         {screen === 'gameMode' && (
           <motion.div key="gameMode" className="absolute inset-0"
             variants={pageVariants} initial="initial" animate="enter" exit="exit" transition={pageTransition}>
-            <GameModeScreen onSelect={handleGameModeSelect} />
+            <GameModeScreen onSelect={handleGameModeSelect} onOnline={() => setOnlineActive(true)} />
           </motion.div>
         )}
 
