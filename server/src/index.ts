@@ -16,6 +16,7 @@ import { buildRoomUpdate } from './redact.js'
 import { EV, actionSchema, createRoomSchema, joinRoomSchema, reconnectSchema } from './protocol.js'
 import { EngineError } from '../../frontend/src/shared/engine'
 import type { Action } from './protocol.js'
+import { TurnTimeoutManager } from './turnTimeout.js'
 
 const PORT = Number(process.env.PORT) || 8787
 
@@ -41,6 +42,13 @@ app.get('/', (_req, res) => res.send('Murder in KUET — realtime server'))
 const server = http.createServer(app)
 const io = new Server(server, { cors: { origin: originCheck } })
 const rooms = new RoomManager()
+const turnTimeouts = new TurnTimeoutManager((room, seat) => {
+  try {
+    room.engine.endTurn(seat)
+    room.touch()
+    syncRoom(room)
+  } catch { /* room/seat state moved on before the timer fired — nothing to do */ }
+})
 
 // ── Emit helpers ──────────────────────────────────────────────────────────────
 
@@ -126,6 +134,7 @@ io.on('connection', (socket) => {
     const seat = room.reconnect(parsed.data.token, socket.id)
     if (seat === null) return emitError(socket, 'Seat not found — token expired')
     socket.data.code = room.code
+    turnTimeouts.clear(room.code)
     sendPersonalState(socket, room, seat)
     syncRoom(room)
   })
@@ -178,13 +187,16 @@ function leave(socket: Socket): void {
   room.handleDisconnect(seat)
   socket.data.code = undefined
 
-  if (room.seatCount === 0) { rooms.delete(room.code); return }
+  if (room.seatCount === 0) { rooms.delete(room.code); turnTimeouts.clear(room.code); return }
 
   // Transfer host to the first still-connected seat if the host left.
   if (wasHost && !room.engine.started) {
     const nextHost = room.everySeat().find(s => room.socketIdAt(s) !== null)
     room.hostSeat = nextHost ?? 0
   }
+  // If the disconnected seat currently owns the turn, auto-skip it after a
+  // grace period so the room doesn't stall waiting for them to come back.
+  turnTimeouts.scheduleIfNeeded(room, seat)
   syncRoom(room)
 }
 
